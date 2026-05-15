@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 const STAGE_BGM: Record<number, string> = {
-  1: '/audio/bgm_stage1.mp3',
-  2: '/audio/bgm_stage2.mp3',
-  3: '/audio/bgm_stage3.mp3',
-  4: '/audio/bgm_stage4.mp3',
-  5: '/audio/bgm_stage5.mp3',
+  1: '/audio/bgm_stage3.mp3',  // 92 BPM
+  2: '/audio/bgm_stage5.mp3',  // 113 BPM
+  3: '/audio/bgm_stage1.mp3',  // 123 BPM
+  4: '/audio/bgm_stage4.mp3',  // 152 BPM
+  5: '/audio/bgm_stage2.mp3',  // 161 BPM
 }
 
 // MP3 인코더가 항상 추가하는 프리갭 — AudioBufferSourceNode.start() offset으로 건너뜀

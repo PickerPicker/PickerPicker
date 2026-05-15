@@ -14,7 +14,7 @@
   "rules": {
     "totalStages": 15,
     "difficultyGroupSize": 3,
-    "baseBpm": 90,
+    "baseBpm": 92,
     "bpmIncreasePerDifficulty": 15,
     "baseInputLength": 16,
     "inputLengthIncreasePerDifficulty": 8,
@@ -24,7 +24,7 @@
     {
       "stage": 1,
       "difficultyLevel": 1,
-      "bpm": 90,
+      "bpm": 92,
       "word": "커피",
       "validSyllables": [
         "커",
@@ -103,7 +103,7 @@
     {
       "stage": 2,
       "difficultyLevel": 1,
-      "bpm": 90,
+      "bpm": 92,
       "word": "바다",
       "validSyllables": [
         "바",
@@ -182,7 +182,7 @@
     {
       "stage": 3,
       "difficultyLevel": 1,
-      "bpm": 90,
+      "bpm": 92,
       "word": "나무",
       "validSyllables": [
         "나",
@@ -261,7 +261,7 @@
     {
       "stage": 4,
       "difficultyLevel": 2,
-      "bpm": 105,
+      "bpm": 113,
       "word": "사과",
       "validSyllables": [
         "사",
@@ -348,7 +348,7 @@
     {
       "stage": 5,
       "difficultyLevel": 2,
-      "bpm": 105,
+      "bpm": 113,
       "word": "토끼",
       "validSyllables": [
         "토",
@@ -435,7 +435,7 @@
     {
       "stage": 6,
       "difficultyLevel": 2,
-      "bpm": 105,
+      "bpm": 113,
       "word": "구름",
       "validSyllables": [
         "구",
@@ -522,7 +522,7 @@
     {
       "stage": 7,
       "difficultyLevel": 3,
-      "bpm": 120,
+      "bpm": 123,
       "word": "하늘빛",
       "validSyllables": [
         "하",
@@ -617,7 +617,7 @@
     {
       "stage": 8,
       "difficultyLevel": 3,
-      "bpm": 120,
+      "bpm": 123,
       "word": "노래방",
       "validSyllables": [
         "노",
@@ -712,7 +712,7 @@
     {
       "stage": 9,
       "difficultyLevel": 3,
-      "bpm": 120,
+      "bpm": 123,
       "word": "바람결",
       "validSyllables": [
         "바",
@@ -807,7 +807,7 @@
     {
       "stage": 10,
       "difficultyLevel": 4,
-      "bpm": 135,
+      "bpm": 152,
       "word": "초콜릿",
       "validSyllables": [
         "초",
@@ -910,7 +910,7 @@
     {
       "stage": 11,
       "difficultyLevel": 4,
-      "bpm": 135,
+      "bpm": 152,
       "word": "달고나",
       "validSyllables": [
         "달",
@@ -1013,7 +1013,7 @@
     {
       "stage": 12,
       "difficultyLevel": 4,
-      "bpm": 135,
+      "bpm": 152,
       "word": "버섯국",
       "validSyllables": [
         "버",
@@ -1116,7 +1116,7 @@
     {
       "stage": 13,
       "difficultyLevel": 5,
-      "bpm": 150,
+      "bpm": 161,
       "word": "컴퓨터실",
       "validSyllables": [
         "컴",
@@ -1227,7 +1227,7 @@
     {
       "stage": 14,
       "difficultyLevel": 5,
-      "bpm": 150,
+      "bpm": 161,
       "word": "리듬게임",
       "validSyllables": [
         "리",
@@ -1338,7 +1338,7 @@
     {
       "stage": 15,
       "difficultyLevel": 5,
-      "bpm": 150,
+      "bpm": 161,
       "word": "해커톤장",
       "validSyllables": [
         "해",
