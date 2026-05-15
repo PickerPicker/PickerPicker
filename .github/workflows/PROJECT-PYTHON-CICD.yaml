@@ -272,6 +272,7 @@ jobs:
 
             echo $PW | sudo -S docker run -d \
               -p ${{ env.DEPLOY_PORT }}:${{ env.CONTAINER_INTERNAL_PORT }} \
+              --network postgres_default \
               --name $CONTAINER_NAME \
               -e TZ=Asia/Seoul \
               -e DATABASE_URL='${{ secrets.BACKEND_DATABASE_URL }}' \
