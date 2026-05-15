@@ -12,9 +12,22 @@ import { useAudio } from './hooks/useAudio'
 /** PIN 입력 단계 */
 type PinStep = 'login' | 'create' | 'confirm'
 
+const LS_OFFSET_KEY = 'pickerpicker_offset'
+
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('start')
   const audio = useAudio()
+
+  const [offset, setOffset] = useState<number>(() => {
+    const saved = localStorage.getItem(LS_OFFSET_KEY)
+    return saved ? Number(saved) : 0
+  })
+
+  const handleOffset = (v: number) => {
+    const clamped = Math.max(-100, Math.min(100, v))
+    setOffset(clamped)
+    localStorage.setItem(LS_OFFSET_KEY, String(clamped))
+  }
 
   // 화면 전환 시 BGM 제어
   useEffect(() => {
@@ -93,6 +106,8 @@ function App() {
           sfxOn={audio.sfxOn}
           onBgmVolume={audio.setBgmVol}
           onToggleSfx={audio.toggleSfx}
+          offset={offset}
+          onOffset={handleOffset}
         />
       )}
       {currentScreen === 'game' && (
@@ -113,6 +128,7 @@ function App() {
           onHitSfx={audio.playHitSfx}
           onMissSfx={audio.playMissSfx}
           onGameBgm={audio.playGameBgm}
+          offset={offset}
         />
       )}
       {currentScreen === 'ranking' && (

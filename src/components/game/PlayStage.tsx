@@ -16,6 +16,7 @@ interface PlayStageProps {
   onGameOver: () => void
   onHitSfx: () => void
   onMissSfx: () => void
+  offset: number
 }
 
 export function PlayStage({
@@ -26,6 +27,7 @@ export function PlayStage({
   onGameOver,
   onHitSfx,
   onMissSfx,
+  offset,
 }: PlayStageProps) {
   const { bpm, inputSyllables, keyMapping, validSyllables } = stageData
   const beatMs = Math.round(60_000 / bpm)
@@ -125,7 +127,7 @@ export function PlayStage({
       if (gameOverRef.current) return
       const idx = pendingIndexRef.current
       if (idx >= inputSyllables.length) return
-      const arrivalTime = startTimeRef.current + idx * beatMs
+      const arrivalTime = startTimeRef.current + idx * beatMs + offset
       const delta = Date.now() - arrivalTime
       if (delta > GOOD_WINDOW) {
         if (validSyllables.includes(inputSyllables[idx])) {
@@ -140,7 +142,7 @@ export function PlayStage({
       }
     }, 16)
     return () => clearInterval(interval)
-  }, [stageData, beatMs, applyJudgment, inputSyllables, validSyllables])
+  }, [stageData, beatMs, applyJudgment, inputSyllables, validSyllables, offset])
 
   // 키 입력 핸들러
   useEffect(() => {
@@ -166,7 +168,7 @@ export function PlayStage({
         return
       }
 
-      const arrivalTime = startTimeRef.current + idx * beatMs
+      const arrivalTime = startTimeRef.current + idx * beatMs + offset
       const delta = Math.abs(Date.now() - arrivalTime)
 
       if (km.syllable !== expectedSyllable) {
@@ -182,7 +184,7 @@ export function PlayStage({
 
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [stageData, keyMapping, inputSyllables, beatMs, applyJudgment])
+  }, [stageData, keyMapping, inputSyllables, beatMs, applyJudgment, offset])
 
   return (
     <div className="flex flex-col flex-1 min-h-0">

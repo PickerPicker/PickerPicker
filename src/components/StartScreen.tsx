@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import { AudioSettingsModal } from './AudioSettingsModal'
+import { SettingsModal } from './SettingsModal'
 
 interface StartScreenProps {
   onRanking: () => void
   onStart: () => void
   bgmVolume: number
   sfxOn: boolean
+  offset: number
   onBgmVolume: (v: number) => void
   onToggleSfx: () => void
+  onOffset: (v: number) => void
 }
 
-export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, onBgmVolume, onToggleSfx }: StartScreenProps) {
+export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset }: StartScreenProps) {
   const [showSettings, setShowSettings] = useState(false)
 
   return (
@@ -18,12 +20,11 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, onBgmVolume,
       className="relative flex flex-col items-center justify-center min-h-screen gap-8"
       style={{
         backgroundImage: 'url(/bg-home.png)',
-        backgroundSize: 'cover',       /* 화면 비율 무관하게 꽉 채움 */
-        backgroundPosition: 'center',  /* 중앙 기준 크롭 */
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
       }}
     >
-
       <div
         className="flex flex-col items-center gap-8 px-16 py-12 rounded-3xl w-[480px] max-w-[90vw]"
         style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.08)' }}
@@ -52,13 +53,14 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, onBgmVolume,
         </div>
       </div>
 
-      {/* 음향 설정 모달 */}
       {showSettings && (
-        <AudioSettingsModal
+        <SettingsModal
           bgmVolume={bgmVolume}
           sfxOn={sfxOn}
+          offset={offset}
           onBgmVolume={onBgmVolume}
           onToggleSfx={onToggleSfx}
+          onOffset={onOffset}
           onClose={() => setShowSettings(false)}
         />
       )}
