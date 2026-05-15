@@ -422,7 +422,7 @@ jobs:
       - name: 저장소 체크아웃
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets._GITHUB_PAT_TOKEN }}
+          token: ${{ secrets._GITHUB_PAT_TOKEN || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Git 설정
