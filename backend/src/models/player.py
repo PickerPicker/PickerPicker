@@ -12,6 +12,8 @@ class Player(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     nickname: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+    # SHA-256 해시 저장. NULL = PIN 미설정 (레거시 플레이어)
+    pin_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, default=None)
 
     # 최고 기록 (결과 화면 역대 최고 기록 섹션)
     best_score: Mapped[int] = mapped_column(Integer, default=0)

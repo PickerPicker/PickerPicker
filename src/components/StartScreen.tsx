@@ -14,7 +14,15 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, onBgmVolume,
   const [showSettings, setShowSettings] = useState(false)
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen gap-8">
+    <div
+      className="relative flex flex-col items-center justify-center min-h-screen gap-8"
+      style={{
+        backgroundImage: 'url(/bg-home.webp)',
+        backgroundSize: 'cover',       /* 화면 비율 무관하게 꽉 채움 */
+        backgroundPosition: 'center',  /* 중앙 기준 크롭 */
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
 
       {/* 설정 아이콘 — 오른쪽 위 */}
       <button
@@ -29,7 +37,7 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, onBgmVolume,
         </svg>
       </button>
 
-      <h1 className="text-6xl font-black text-primary tracking-widest">
+      <h1 className="text-4xl sm:text-6xl font-black text-primary tracking-widest drop-shadow-lg" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>
         PickerPicker
       </h1>
       <div className="flex gap-4">
