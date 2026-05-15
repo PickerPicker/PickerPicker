@@ -32,7 +32,7 @@ export function PreviewStage({ stageData, onPreviewEnd }: PreviewStageProps) {
           {inputSyllables.map((syl, i) => (
             <div
               key={i}
-              className="w-12 h-12 flex items-center justify-center rounded border-2 font-bold text-lg border-base-content/30 text-base-content bg-base-300"
+              className="w-20 h-20 flex items-center justify-center rounded border-2 font-bold text-3xl border-base-content/30 text-base-content bg-base-300"
             >
               {syl}
             </div>

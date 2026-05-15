@@ -1,11 +1,61 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T20:33:31Z",
-    "currentVersion": "0.0.43",
+    "lastUpdated": "2026-05-15T20:49:21Z",
+    "currentVersion": "0.0.45",
     "projectType": "react",
-    "totalReleases": 21
+    "totalReleases": 23
   },
   "releases": [
+    {
+      "version": "0.0.45",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 44,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 결과 화면에서 내 최고 기록과 글로벌 1위 기록을 별도 카드로 표시\n  * 이번 판에 최고 기록 경신 시 해당 항목에 NEW 뱃지 표시\n\n* **개선**\n  * 결과 화면 텍스트 크기 확대로 가독성 향상\n  * 홈으로 가기 버튼에 흰색 테두리 추가\n  * 게임 화면 리듬 큐 박스 크기 확대\n  * BGM 로드 타이밍 개선으로 음악과 게임 진행 싱크 향상",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "결과 화면에서 내 최고 기록과 글로벌 1위 기록을 별도 카드로 표시",
+            "이번 판에 최고 기록 경신 시 해당 항목에 NEW 뱃지 표시"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "결과 화면 텍스트 크기 확대로 가독성 향상",
+            "홈으로 가기 버튼에 흰색 테두리 추가",
+            "게임 화면 리듬 큐 박스 크기 확대",
+            "BGM 로드 타이밍 개선으로 음악과 게임 진행 싱크 향상"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
+    {
+      "version": "0.0.44",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 43,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 게임 결과 화면에 글로벌 1위 플레이어 정보 표시\n  * 신기록 달성 시 점수/스테이지/콤보에 NEW 뱃지 표시\n\n* **개선**\n  * 게임 결과 화면 디자인 개선 (판정 항목 강조, 내 최고 기록 카드 스타일)\n  * 단어 미리보기 화면의 글자 크기 확대",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "게임 결과 화면에 글로벌 1위 플레이어 정보 표시",
+            "신기록 달성 시 점수/스테이지/콤보에 NEW 뱃지 표시"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "게임 결과 화면 디자인 개선 (판정 항목 강조, 내 최고 기록 카드 스타일)",
+            "단어 미리보기 화면의 글자 크기 확대"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.43",
       "project_type": "react",
