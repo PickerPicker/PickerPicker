@@ -10,6 +10,7 @@ from src.core.logging import setup_logging
 from src.core.database import engine, Base
 from src.apis.player_router import router as player_router
 from src.apis.ranking_router import router as ranking_router
+from src.apis.stage_router import router as stage_router
 
 setup_logging(log_level="INFO")
 logger = logging.getLogger(__name__)
@@ -55,6 +56,7 @@ app.add_middleware(
 # 라우터 등록
 app.include_router(player_router)
 app.include_router(ranking_router)
+app.include_router(stage_router)
 
 
 @app.middleware("http")
