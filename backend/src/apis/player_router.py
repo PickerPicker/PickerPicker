@@ -1,5 +1,5 @@
 """src.apis.player_router
-플레이어 관련 REST API 엔드포인트
+플레이어 REST API
 """
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
@@ -10,7 +10,7 @@ from src.services import player_service
 router = APIRouter(prefix="/players", tags=["players"])
 
 
-# ── Request/Response 스키마 ──────────────────────────────────────────
+# ── 스키마 ────────────────────────────────────────────────────────
 
 class NicknameCheckResponse(BaseModel):
     exists: bool
@@ -18,9 +18,11 @@ class NicknameCheckResponse(BaseModel):
 
 
 class PlayerResponse(BaseModel):
-    id: int
     nickname: str
-    score: int
+    best_score: int
+    best_stage: int
+    best_combo: int
+    play_count: int
 
     class Config:
         from_attributes = True
@@ -30,16 +32,18 @@ class CreatePlayerRequest(BaseModel):
     nickname: str = Field(..., min_length=1, max_length=50)
 
 
-class UpdateScoreRequest(BaseModel):
+class SaveResultRequest(BaseModel):
     nickname: str
     score: int = Field(..., ge=0)
+    stage: int = Field(..., ge=1, le=15)
+    combo: int = Field(..., ge=0)
 
 
-# ── 엔드포인트 ──────────────────────────────────────────────────────
+# ── 엔드포인트 ───────────────────────────────────────────────────
 
 @router.get("/check/{nickname}", response_model=NicknameCheckResponse)
 async def check_nickname(nickname: str, db: AsyncSession = Depends(get_db)):
-    """닉네임 존재 여부 확인 (기존/신규 플레이어 구분용)"""
+    """닉네임 존재 여부 확인 (기존/신규 플레이어 구분)"""
     exists = await player_service.check_nickname(db, nickname)
     return NicknameCheckResponse(exists=exists, nickname=nickname)
 
@@ -53,13 +57,15 @@ async def create_player(body: CreatePlayerRequest, db: AsyncSession = Depends(ge
 
 @router.get("/{nickname}", response_model=PlayerResponse)
 async def get_player(nickname: str, db: AsyncSession = Depends(get_db)):
-    """닉네임으로 플레이어 조회"""
+    """닉네임으로 플레이어 조회 (역대 최고 기록 포함)"""
     player = await player_service.get_player(db, nickname)
     return PlayerResponse.model_validate(player)
 
 
-@router.put("/score", response_model=PlayerResponse)
-async def update_score(body: UpdateScoreRequest, db: AsyncSession = Depends(get_db)):
-    """플레이어 점수 갱신 (최고 점수만 저장)"""
-    player = await player_service.update_score(db, body.nickname, body.score)
+@router.post("/result", response_model=PlayerResponse)
+async def save_result(body: SaveResultRequest, db: AsyncSession = Depends(get_db)):
+    """게임 결과 저장 — 최고 기록 갱신"""
+    player = await player_service.save_game_result(
+        db, body.nickname, body.score, body.stage, body.combo
+    )
     return PlayerResponse.model_validate(player)

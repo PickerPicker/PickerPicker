@@ -1,11 +1,46 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T17:14:42Z",
-    "currentVersion": "0.0.12",
+    "lastUpdated": "2026-05-15T17:25:57Z",
+    "currentVersion": "0.0.14",
     "projectType": "react",
-    "totalReleases": 3
+    "totalReleases": 5
   },
   "releases": [
+    {
+      "version": "0.0.14",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 15,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 게임 결과(점수, 스테이지, 콤보) 서버 저장 기능 추가\n  * 플레이어 역대 최고 기록 조회 가능\n  * 랭킹 조회 최고 점수 기준으로 변경\n  * 프론트엔드 실제 서버 API 연결 (mock 제거)",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "게임 결과(점수, 스테이지, 콤보) 서버 저장 기능 추가",
+            "플레이어 역대 최고 기록 조회 가능",
+            "랭킹 조회 최고 점수 기준으로 변경",
+            "프론트엔드 실제 서버 API 연결 (mock 제거)"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
+    {
+      "version": "0.0.11",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 12,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n\n  * 백엔드 게임 결과 저장 API 구현, 프론트 mock 제거 및 실제 API 연결\n\n> 💡 더 정확한 릴리스 노트를 원한다면 Claude Code에서 `/github` 스킬로 PR 릴리스 노트를 업데이트할 수 있습니다.",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "백엔드 게임 결과 저장 API 구현, 프론트 mock 제거 및 실제 API 연결"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.12",
       "project_type": "react",
