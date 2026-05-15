@@ -50,9 +50,14 @@ interface GameScreenProps {
   isNewPlayer: boolean
   onHome: () => void
   onRanking: () => void
+  onButtonSfx: () => void
+  onClearSfx: () => void
+  onGameOverSfx: () => void
+  onNoteSfx: () => void
+  onGameBgm: (stageIndex: number) => void
 }
 
-export function GameScreen({ nickname, onHome, onRanking }: GameScreenProps) {
+export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSfx, onGameOverSfx, onNoteSfx, onGameBgm }: GameScreenProps) {
   const [gameData, setGameData] = useState<GameData | null>(null)
   const [loading, setLoading] = useState(true)
   const [stageIndex, setStageIndex] = useState(0)
@@ -78,6 +83,8 @@ export function GameScreen({ nickname, onHome, onRanking }: GameScreenProps) {
   useEffect(() => {
     if (gameData) {
       setShuffledKeyMapping(shuffleKeyMapping(gameData.stages[stageIndex].keyMapping))
+      // 난이도 그룹 변경 시 BGM 자동 교체 (같은 그룹이면 useAudio 내부에서 유지)
+      onGameBgm(stageIndex)
     }
   }, [stageIndex, gameData])
 
@@ -124,6 +131,8 @@ export function GameScreen({ nickname, onHome, onRanking }: GameScreenProps) {
     resultSavedRef.current = true
 
     setIsClear(cleared)
+    if (cleared) onClearSfx()
+    else onGameOverSfx()
 
     // localStorage 갱신
     const prev = loadBest()
@@ -170,6 +179,7 @@ export function GameScreen({ nickname, onHome, onRanking }: GameScreenProps) {
     setStat(INITIAL_STAT)
     setIsClear(false)
     setPhase('preview')
+    // stageIndex 0으로 리셋 → useEffect에서 BGM도 자동 교체
   }
 
   if (phase === 'result') {
@@ -245,13 +255,13 @@ export function GameScreen({ nickname, onHome, onRanking }: GameScreenProps) {
 
         {/* 하단 버튼 3개 */}
         <div className="flex flex-col w-full max-w-sm gap-2">
-          <button className="btn btn-primary w-full" onClick={handleRestart}>
+          <button className="btn btn-primary w-full" onClick={() => { onButtonSfx(); handleRestart() }}>
             다시 하기
           </button>
-          <button className="btn btn-outline w-full" onClick={onRanking}>
+          <button className="btn btn-outline w-full" onClick={() => { onButtonSfx(); onRanking() }}>
             랭킹 보기
           </button>
-          <button className="btn btn-ghost w-full" onClick={onHome}>
+          <button className="btn btn-ghost w-full" onClick={() => { onButtonSfx(); onHome() }}>
             홈으로 가기
           </button>
         </div>
@@ -277,6 +287,7 @@ export function GameScreen({ nickname, onHome, onRanking }: GameScreenProps) {
           onStatUpdate={handleStatUpdate}
           onStageComplete={handleStageComplete}
           onGameOver={handleGameOver}
+          onNoteSfx={onNoteSfx}
         />
       )}
     </div>
