@@ -274,6 +274,8 @@ jobs:
               -p ${PORT}:${{ env.CONTAINER_INTERNAL_PORT }} \
               --name $CONTAINER_NAME \
               -e TZ=Asia/Seoul \
+              -e DATABASE_URL='${{ secrets.BACKEND_DATABASE_URL }}' \
+              -e ENVIRONMENT=prod \
               $VOLUME_OPTS \
               ${{ secrets.DOCKERHUB_USERNAME }}/${PROJECT_NAME}:${BRANCH}
 
