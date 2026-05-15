@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "lastUpdated": "2026-05-15T16:23:39Z",
+    "currentVersion": "0.0.3",
+    "projectType": "react",
+    "totalReleases": 1
+  },
+  "releases": [
+    {
+      "version": "0.0.3",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 7,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 플레이어 닉네임 확인, 생성, 조회, 점수 갱신 API 추가\n  * 랭킹 조회 API 추가\n  * Docker 기반 백엔드 서버 환경 구성\n  * GitHub Actions CI/CD 자동 배포 파이프라인 추가",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "플레이어 닉네임 확인, 생성, 조회, 점수 갱신 API 추가",
+            "랭킹 조회 API 추가",
+            "Docker 기반 백엔드 서버 환경 구성",
+            "GitHub Actions CI/CD 자동 배포 파이프라인 추가"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    }
+  ]
+}
