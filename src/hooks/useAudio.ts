@@ -36,9 +36,13 @@ export function useAudio() {
     }
   }, [])
 
-  const playBgm = useCallback((src: string, loop = true) => {
-    if (bgmVolumeRef.current === 0) return
-    if (currentBgmSrc.current === src) return
+  // BGM 로드 후 실제 재생 시작 시점을 Promise로 반환 — 노트 타이머와 싱크 맞춤
+  const playBgm = useCallback((src: string, loop = true): Promise<number> => {
+    if (bgmVolumeRef.current === 0) return Promise.resolve(Date.now())
+    if (currentBgmSrc.current === src) {
+      // 이미 재생 중이면 현재 시각 즉시 반환
+      return Promise.resolve(Date.now())
+    }
     if (bgmRef.current) {
       bgmRef.current.pause()
       bgmRef.current.src = ''
@@ -46,9 +50,29 @@ export function useAudio() {
     const audio = new Audio(src)
     audio.loop = loop
     audio.volume = bgmVolumeRef.current / 100
-    audio.play().catch(() => {})
     bgmRef.current = audio
     currentBgmSrc.current = src
+
+    return new Promise<number>((resolve) => {
+      const onReady = () => {
+        audio.removeEventListener('canplaythrough', onReady)
+        audio.play().catch(() => {})
+        resolve(Date.now())
+      }
+      // 이미 버퍼링 완료 상태면 즉시 resolve
+      if (audio.readyState >= 3) {
+        audio.play().catch(() => {})
+        resolve(Date.now())
+      } else {
+        audio.addEventListener('canplaythrough', onReady, { once: true })
+        // 최대 500ms 대기 후 타임아웃 — 네트워크 지연 상한
+        setTimeout(() => {
+          audio.removeEventListener('canplaythrough', onReady)
+          audio.play().catch(() => {})
+          resolve(Date.now())
+        }, 500)
+      }
+    })
   }, [])
 
   const playSfx = useCallback((src: string) => {
@@ -100,9 +124,9 @@ export function useAudio() {
     setBgmVol,
     toggleSfx,
     playStartBgm: () => playBgm('/audio/bgm_start.mp3'),
-    playGameBgm: (stageIndex: number) => {
+    playGameBgm: (stageIndex: number): Promise<number> => {
       const level = getDifficultyLevel(stageIndex)
-      playBgm(STAGE_BGM[level] ?? STAGE_BGM[5])
+      return playBgm(STAGE_BGM[level] ?? STAGE_BGM[5])
     },
     playClearSfx: () => { stopBgm(); playSfx('/audio/sfx_clear.mp3') },
     playGameOverSfx: () => { stopBgm(); playSfx('/audio/sfx_gameover.mp3') },
