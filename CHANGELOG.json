@@ -1,11 +1,39 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T21:34:14Z",
-    "currentVersion": "0.0.56",
+    "lastUpdated": "2026-05-15T21:38:57Z",
+    "currentVersion": "0.0.58",
     "projectType": "react",
-    "totalReleases": 33
+    "totalReleases": 34
   },
   "releases": [
+    {
+      "version": "0.0.58",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 59,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 랭킹 화면에 픽셀아트 도시 야경 배경 이미지 추가\n\n* **개선**\n  * 랭킹 테이블 가독성 향상 (반투명 어두운 오버레이 처리)\n\n* **버그 수정**\n  * 빌드 환경에서 패키지 누락으로 발생하던 오류 해결",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "랭킹 화면에 픽셀아트 도시 야경 배경 이미지 추가"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "랭킹 테이블 가독성 향상 (반투명 어두운 오버레이 처리)"
+          ]
+        },
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "빌드 환경에서 패키지 누락으로 발생하던 오류 해결"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.56",
       "project_type": "react",
