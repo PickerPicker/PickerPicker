@@ -1,11 +1,28 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T20:14:49Z",
-    "currentVersion": "0.0.39",
+    "lastUpdated": "2026-05-15T20:20:49Z",
+    "currentVersion": "0.0.40",
     "projectType": "react",
-    "totalReleases": 17
+    "totalReleases": 18
   },
   "releases": [
+    {
+      "version": "0.0.40",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 38,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 닉네임 입력 후 PIN 4자리로 로그인/신규 등록할 수 있습니다\n  * 기존 플레이어 로그인, 신규 플레이어 PIN 설정 및 확인 단계가 추가되었습니다",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "닉네임 입력 후 PIN 4자리로 로그인/신규 등록할 수 있습니다",
+            "기존 플레이어 로그인, 신규 플레이어 PIN 설정 및 확인 단계가 추가되었습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.39",
       "project_type": "react",
