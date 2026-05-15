@@ -1,11 +1,28 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T20:20:49Z",
-    "currentVersion": "0.0.40",
+    "lastUpdated": "2026-05-15T20:26:59Z",
+    "currentVersion": "0.0.41",
     "projectType": "react",
-    "totalReleases": 18
+    "totalReleases": 19
   },
   "releases": [
+    {
+      "version": "0.0.41",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 39,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 시작화면 버튼 레이아웃을 세로 정렬로 변경하고 설정 버튼을 하단으로 이동\n  * 시작화면에 글래스모피즘 카드 디자인 적용",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "시작화면 버튼 레이아웃을 세로 정렬로 변경하고 설정 버튼을 하단으로 이동",
+            "시작화면에 글래스모피즘 카드 디자인 적용"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.40",
       "project_type": "react",
