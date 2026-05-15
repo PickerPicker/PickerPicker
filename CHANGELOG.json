@@ -1,11 +1,27 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T20:06:07Z",
-    "currentVersion": "0.0.38",
+    "lastUpdated": "2026-05-15T20:14:49Z",
+    "currentVersion": "0.0.39",
     "projectType": "react",
-    "totalReleases": 16
+    "totalReleases": 17
   },
   "releases": [
+    {
+      "version": "0.0.39",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 37,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 게임 판정 결과에 따라 정타(PERFECT/GOOD)와 미스(MISS) 효과음이 구분되어 재생됩니다",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "게임 판정 결과에 따라 정타(PERFECT/GOOD)와 미스(MISS) 효과음이 구분되어 재생됩니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.38",
       "project_type": "react",
