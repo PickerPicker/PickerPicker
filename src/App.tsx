@@ -31,8 +31,10 @@ function App() {
 
   // 화면 전환 시 BGM 제어
   useEffect(() => {
-    if (currentScreen === 'start' || currentScreen === 'ranking') {
+    if (currentScreen === 'start') {
       audio.playStartBgm()
+    } else if (currentScreen === 'ranking') {
+      audio.playRankingBgm()
     }
     // game 화면 BGM은 GameScreen이 직접 제어
   }, [currentScreen])
