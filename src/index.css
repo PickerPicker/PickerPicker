@@ -26,14 +26,8 @@
 }
 
 @keyframes note-slide {
-  from {
-    transform: translateX(2000px);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { transform: translateX(2000px); }
+  to   { transform: translateX(-500px); }
 }
 
 @keyframes judgment-fade {
