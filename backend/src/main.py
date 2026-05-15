@@ -20,9 +20,13 @@ async def lifespan(app: FastAPI):
     """앱 시작 시 DB 테이블 자동 생성, 종료 시 엔진 정리"""
     logger.info("=== PickerPicker 백엔드 시작 ===")
 
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("DB 테이블 준비 완료")
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("DB 테이블 준비 완료")
+    except Exception as e:
+        # DB 연결 실패해도 서버는 시작 — 요청 시점에 재시도
+        logger.warning(f"DB 초기 연결 실패 (서버는 계속 실행): {e}")
 
     yield
 
