@@ -53,6 +53,16 @@ export function GameScreen({ nickname }: GameScreenProps) {
     }
   }, [stageIndex, gameData])
 
+  // 얼리 리턴 전에 useMemo 호출 (React 훅 규칙)
+  const currentStageRaw = gameData?.stages[stageIndex] ?? null
+  const stageWithShuffle = useMemo(() => {
+    if (!currentStageRaw) return null
+    return {
+      ...currentStageRaw,
+      keyMapping: shuffledKeyMapping.length > 0 ? shuffledKeyMapping : currentStageRaw.keyMapping,
+    } as StageData
+  }, [currentStageRaw, shuffledKeyMapping])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -70,12 +80,7 @@ export function GameScreen({ nickname }: GameScreenProps) {
   }
 
   const currentStage: StageData = gameData.stages[stageIndex]
-  // useMemo로 메모이제이션 — stat 업데이트 시 리렌더가 발생해도
-  // stageData 참조가 유지되어 PlayStage의 startTime이 리셋되지 않음
-  const stageWithShuffle: StageData = useMemo(() => ({
-    ...currentStage,
-    keyMapping: shuffledKeyMapping.length > 0 ? shuffledKeyMapping : currentStage.keyMapping,
-  }), [currentStage, shuffledKeyMapping])
+  // stageWithShuffle은 위에서 useMemo로 선언됨 (null 불가)
 
   const handlePreviewEnd = () => setPhase('playing')
   const handleStatUpdate = (update: Partial<GameStat>) => setStat(prev => ({ ...prev, ...update }))
@@ -123,11 +128,11 @@ export function GameScreen({ nickname }: GameScreenProps) {
         score={stat.score}
       />
       {phase === 'preview' && (
-        <PreviewStage stageData={stageWithShuffle} onPreviewEnd={handlePreviewEnd} />
+        <PreviewStage stageData={stageWithShuffle!} onPreviewEnd={handlePreviewEnd} />
       )}
       {phase === 'playing' && (
         <PlayStage
-          stageData={stageWithShuffle}
+          stageData={stageWithShuffle!}
           stat={stat}
           onStatUpdate={handleStatUpdate}
           onStageComplete={handleStageComplete}
