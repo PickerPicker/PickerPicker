@@ -70,6 +70,7 @@ export function PlayStage({
 
     if (type === 'PERFECT') {
       combo += 1
+      if (combo > maxCombo) maxCombo = combo
       score += combo >= 5 ? 200 : 100
       gauge = Math.min(100, gauge + (combo >= 5 ? 2 : 1))
       perfectCount += 1

@@ -28,7 +28,7 @@ export function KeyboardDisplay({
       <div
         key={km.key}
         className={`
-          flex flex-col items-center justify-center w-16 h-16 rounded border-2 font-bold select-none
+          flex flex-col items-center justify-center w-20 h-20 rounded border-2 font-bold select-none
           transition-all duration-75
           ${km.type === 'valid' ? 'border-primary/70' : 'border-base-content/20'}
           ${isHighlighted || isPressed
@@ -37,14 +37,14 @@ export function KeyboardDisplay({
           }
         `}
       >
-        <span className="text-lg">{km.syllable}</span>
-        <span className="text-xs text-base-content/50 uppercase">[{km.key}]</span>
+        <span className="text-2xl">{km.syllable}</span>
+        <span className="text-sm text-base-content/50 uppercase">[{km.key}]</span>
       </div>
     )
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 px-4 py-3 bg-base-200 border-t border-base-300 shrink-0">
+    <div className="flex items-center justify-center gap-2 px-4 py-4 bg-base-200 border-t border-base-300 shrink-0">
       <div className="flex gap-2">{left.map(renderKey)}</div>
       <div className="w-8" />
       <div className="flex gap-2">{right.map(renderKey)}</div>
