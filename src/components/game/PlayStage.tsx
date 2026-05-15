@@ -22,7 +22,7 @@ export function PlayStage({
   onStageComplete,
   onGameOver,
 }: PlayStageProps) {
-  const { bpm, inputSyllables, keyMapping } = stageData
+  const { bpm, inputSyllables, keyMapping, validSyllables } = stageData
   const beatMs = Math.round(60_000 / bpm)
 
   const [pendingIndex, setPendingIndex] = useState(0)
@@ -46,6 +46,16 @@ export function PlayStage({
   useEffect(() => { onStatUpdateRef.current = onStatUpdate }, [onStatUpdate])
   useEffect(() => { onGameOverRef.current = onGameOver }, [onGameOver])
   useEffect(() => { onStageCompleteRef.current = onStageComplete }, [onStageComplete])
+
+  // 무효 음절 노트를 패널티 없이 넘긴다
+  const advanceInvalidNote = useCallback(() => {
+    const next = pendingIndexRef.current + 1
+    pendingIndexRef.current = next
+    setPendingIndex(next)
+    if (next >= inputSyllables.length) {
+      onStageCompleteRef.current()
+    }
+  }, [inputSyllables.length])
 
   const applyJudgment = useCallback((type: JudgmentType) => {
     if (gameOverRef.current) return // guard against double game-over
@@ -109,12 +119,16 @@ export function PlayStage({
       const arrivalTime = startTimeRef.current + idx * beatMs
       const delta = Date.now() - arrivalTime
       if (delta > GOOD_WINDOW) {
-        applyJudgment('MISS')
+        if (validSyllables.includes(inputSyllables[idx])) {
+          applyJudgment('MISS')
+        } else {
+          advanceInvalidNote()
+        }
       }
     }, 16)
 
     return () => clearInterval(interval)
-  }, [stageData, beatMs, applyJudgment, inputSyllables.length])
+  }, [stageData, beatMs, applyJudgment, advanceInvalidNote, inputSyllables, validSyllables])
 
   useEffect(() => {
     const codeMap: Record<string, string> = {
@@ -133,9 +147,13 @@ export function PlayStage({
       const idx = pendingIndexRef.current
       if (idx >= inputSyllables.length) return
 
+      const expectedSyllable = inputSyllables[idx]
+
+      // 무효 음절 노트는 키 입력을 무시 (자동으로 window 초과 시 넘어감)
+      if (!validSyllables.includes(expectedSyllable)) return
+
       const arrivalTime = startTimeRef.current + idx * beatMs
       const delta = Math.abs(Date.now() - arrivalTime)
-      const expectedSyllable = inputSyllables[idx]
 
       if (km.syllable !== expectedSyllable) {
         applyJudgment('MISS')
