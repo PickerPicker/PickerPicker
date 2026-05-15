@@ -14,7 +14,8 @@ interface PlayStageProps {
   onStatUpdate: (update: Partial<GameStat>) => void
   onStageComplete: () => void
   onGameOver: () => void
-  onNoteSfx: () => void
+  onHitSfx: () => void
+  onMissSfx: () => void
 }
 
 export function PlayStage({
@@ -23,7 +24,8 @@ export function PlayStage({
   onStatUpdate,
   onStageComplete,
   onGameOver,
-  onNoteSfx,
+  onHitSfx,
+  onMissSfx,
 }: PlayStageProps) {
   const { bpm, inputSyllables, keyMapping, validSyllables } = stageData
   const beatMs = Math.round(60_000 / bpm)
@@ -45,11 +47,13 @@ export function PlayStage({
   const onStatUpdateRef = useRef(onStatUpdate)
   const onGameOverRef = useRef(onGameOver)
   const onStageCompleteRef = useRef(onStageComplete)
-  const onNoteSfxRef = useRef(onNoteSfx)
+  const onHitSfxRef = useRef(onHitSfx)
+  const onMissSfxRef = useRef(onMissSfx)
   useEffect(() => { onStatUpdateRef.current = onStatUpdate }, [onStatUpdate])
   useEffect(() => { onGameOverRef.current = onGameOver }, [onGameOver])
   useEffect(() => { onStageCompleteRef.current = onStageComplete }, [onStageComplete])
-  useEffect(() => { onNoteSfxRef.current = onNoteSfx }, [onNoteSfx])
+  useEffect(() => { onHitSfxRef.current = onHitSfx }, [onHitSfx])
+  useEffect(() => { onMissSfxRef.current = onMissSfx }, [onMissSfx])
 
   const advancePending = useCallback((applyCount = 1) => {
     const next = pendingIndexRef.current + applyCount
@@ -63,7 +67,12 @@ export function PlayStage({
   const applyJudgment = useCallback((type: JudgmentType) => {
     if (gameOverRef.current) return
 
-    onNoteSfxRef.current()
+    // PERFECT/GOOD → 정타음, MISS → 미스음
+    if (type === 'MISS') {
+      onMissSfxRef.current()
+    } else {
+      onHitSfxRef.current()
+    }
     judgeCountRef.current += 1
     setLastJudgment({ type, id: judgeCountRef.current })
 

@@ -106,7 +106,8 @@ export function useAudio() {
     },
     playClearSfx: () => { stopBgm(); playSfx('/audio/sfx_clear.mp3') },
     playGameOverSfx: () => { stopBgm(); playSfx('/audio/sfx_gameover.mp3') },
-    playNoteSfx: () => playSfx('/audio/sfx_note.mp3'),
+    playHitSfx: () => playSfx('/audio/sfx_note_hit.mp3'),
+    playMissSfx: () => playSfx('/audio/sfx_note_miss.mp3'),
     playButtonSfx: () => playSfx('/audio/sfx_button.mp3'),
     stopBgm,
   }
