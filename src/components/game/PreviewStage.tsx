@@ -13,6 +13,12 @@ export function PreviewStage({ stageData, onPreviewEnd }: PreviewStageProps) {
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const onPreviewEndRef = useRef(onPreviewEnd)
+
+  useEffect(() => {
+    onPreviewEndRef.current = onPreviewEnd
+  }, [onPreviewEnd])
 
   useEffect(() => {
     setCurrentIndex(0)
@@ -22,7 +28,7 @@ export function PreviewStage({ stageData, onPreviewEnd }: PreviewStageProps) {
       idx += 1
       if (idx >= inputSyllables.length) {
         clearInterval(timerRef.current!)
-        setTimeout(onPreviewEnd, beatMs)
+        timeoutRef.current = setTimeout(() => onPreviewEndRef.current(), beatMs)
       } else {
         setCurrentIndex(idx)
       }
@@ -30,8 +36,9 @@ export function PreviewStage({ stageData, onPreviewEnd }: PreviewStageProps) {
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-  }, [stageData])
+  }, [stageData, beatMs, inputSyllables.length])
 
   const currentSyllable = inputSyllables[currentIndex]
 

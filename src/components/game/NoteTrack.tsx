@@ -4,14 +4,12 @@ const NOTE_TRAVEL_BEATS = 4
 interface NoteTrackProps {
   inputSyllables: string[]
   beatMs: number
-  startTime: number
   pendingIndex: number
 }
 
 export function NoteTrack({
   inputSyllables,
   beatMs,
-  startTime: _startTime,
   pendingIndex,
 }: NoteTrackProps) {
   const travelDuration = NOTE_TRAVEL_BEATS * beatMs

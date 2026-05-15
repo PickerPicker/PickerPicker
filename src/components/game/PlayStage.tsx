@@ -34,11 +34,12 @@ export function PlayStage({
   const pendingIndexRef = useRef(0)
   const statRef = useRef(stat)
   const judgeCountRef = useRef(0)
+  const gameOverRef = useRef(false) // prevents double game-over
 
+  // Keep statRef in sync with prop (async, for non-critical reads)
   useEffect(() => { statRef.current = stat }, [stat])
-  useEffect(() => { pendingIndexRef.current = pendingIndex }, [pendingIndex])
-  useEffect(() => { statRef.current = { ...statRef.current, perfectCombo } }, [perfectCombo])
 
+  // Sync callbacks via refs to avoid stale closures
   const onStatUpdateRef = useRef(onStatUpdate)
   const onGameOverRef = useRef(onGameOver)
   const onStageCompleteRef = useRef(onStageComplete)
@@ -47,9 +48,12 @@ export function PlayStage({
   useEffect(() => { onStageCompleteRef.current = onStageComplete }, [onStageComplete])
 
   const applyJudgment = useCallback((type: JudgmentType) => {
+    if (gameOverRef.current) return // guard against double game-over
+
     judgeCountRef.current += 1
     setLastJudgment({ type, id: judgeCountRef.current })
 
+    // Read from statRef synchronously
     const current = statRef.current
     let { score, gauge, perfectCombo: combo, perfectCount, goodCount, missCount } = current
 
@@ -68,10 +72,15 @@ export function PlayStage({
       missCount += 1
     }
 
+    // Update statRef synchronously so next call reads fresh values
+    const newStat = { score, gauge, perfectCombo: combo, perfectCount, goodCount, missCount }
+    statRef.current = newStat
+
     setPerfectCombo(combo)
-    onStatUpdateRef.current({ score, gauge, perfectCombo: combo, perfectCount, goodCount, missCount })
+    onStatUpdateRef.current(newStat)
 
     if (gauge <= 0) {
+      gameOverRef.current = true
       onGameOverRef.current()
       return
     }
@@ -85,14 +94,16 @@ export function PlayStage({
     }
   }, [inputSyllables.length])
 
-  // Auto-MISS: when note passes GOOD_WINDOW without input
+  // Reset state when stage changes
   useEffect(() => {
     startTimeRef.current = Date.now()
     setPendingIndex(0)
     pendingIndexRef.current = 0
     setPerfectCombo(0)
+    gameOverRef.current = false
 
     const interval = setInterval(() => {
+      if (gameOverRef.current) return
       const idx = pendingIndexRef.current
       if (idx >= inputSyllables.length) return
       const arrivalTime = startTimeRef.current + idx * beatMs
@@ -105,7 +116,6 @@ export function PlayStage({
     return () => clearInterval(interval)
   }, [stageData, beatMs, applyJudgment, inputSyllables.length])
 
-  // Key input handler
   useEffect(() => {
     const codeMap: Record<string, string> = {
       a: 'KeyA', s: 'KeyS', d: 'KeyD', f: 'KeyF',
@@ -113,7 +123,7 @@ export function PlayStage({
     }
 
     const handler = (e: KeyboardEvent) => {
-      if (e.repeat) return
+      if (e.repeat || gameOverRef.current) return
       const km = keyMapping.find(k => codeMap[k.key] === e.code)
       if (!km) return
 
@@ -151,7 +161,6 @@ export function PlayStage({
         <NoteTrack
           inputSyllables={inputSyllables}
           beatMs={beatMs}
-          startTime={startTimeRef.current}
           pendingIndex={pendingIndex}
         />
       </div>
