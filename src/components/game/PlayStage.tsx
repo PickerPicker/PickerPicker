@@ -4,8 +4,8 @@ import { JudgmentDisplay } from './JudgmentDisplay'
 import { KeyboardDisplay } from './KeyboardDisplay'
 import { NoteTrack } from './NoteTrack'
 
-const PERFECT_WINDOW = 100   // ±100ms
-const GOOD_WINDOW = 250      // ±250ms
+const PERFECT_WINDOW = 40   // ±100ms
+const GOOD_WINDOW = 100      // ±250ms
 const NOTE_TRAVEL_BEATS = 4
 
 interface PlayStageProps {
