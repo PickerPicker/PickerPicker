@@ -179,6 +179,7 @@ export function useAudio() {
     toggleSfx,
     ensureAudioCtx,
     playStartBgm: () => playBgm('/audio/bgm_start.mp3'),
+    playRankingBgm: () => playBgm('/audio/랭킹.mp3'),
     playGameBgm: (stageIndex: number): Promise<number> => {
       const level = getDifficultyLevel(stageIndex)
       return playBgm(STAGE_BGM[level] ?? STAGE_BGM[5])
