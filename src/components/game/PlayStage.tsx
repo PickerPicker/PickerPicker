@@ -177,6 +177,7 @@ export function PlayStage({
           inputSyllables={inputSyllables}
           beatMs={beatMs}
           pendingIndex={pendingIndex}
+          lastJudgment={lastJudgment}
         />
       </div>
       <KeyboardDisplay keyMapping={keyMapping} pressedKey={pressedKey} />
