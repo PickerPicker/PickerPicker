@@ -60,7 +60,12 @@ function App() {
         />
       )}
       {currentScreen === 'game' && (
-        <GameScreen nickname={nickname} isNewPlayer={isNewPlayer} />
+        <GameScreen
+          nickname={nickname}
+          isNewPlayer={isNewPlayer}
+          onHome={() => setCurrentScreen('start')}
+          onRanking={() => setCurrentScreen('ranking')}
+        />
       )}
       {currentScreen === 'ranking' && <RankingScreen onBack={() => setCurrentScreen('start')} />}
 
