@@ -25,3 +25,25 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 .gstack/
+
+# Python (backend/)
+__pycache__/
+*.py[oc]
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+wheels/
+uv.lock
+
+# Backend 환경변수 (절대 커밋 금지)
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Backend 로그
+backend/logs/
+backend/*.log
