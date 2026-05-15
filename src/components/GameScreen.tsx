@@ -192,7 +192,8 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
     setStat(INITIAL_STAT)
     setIsClear(false)
     setPhase('preview')
-    // stageIndex 0으로 리셋 → useEffect에서 BGM도 자동 교체
+    // stageIndex가 이미 0이면 useEffect 미트리거 → 명시적으로 BGM 재시작
+    onGameBgm(0)
   }
 
   if (phase === 'result') {
