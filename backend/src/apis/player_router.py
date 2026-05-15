@@ -30,6 +30,16 @@ class PlayerResponse(BaseModel):
 
 class CreatePlayerRequest(BaseModel):
     nickname: str = Field(..., min_length=1, max_length=50)
+    pin: str = Field(..., min_length=4, max_length=4, pattern=r"^\d{4}$")
+
+
+class VerifyPinRequest(BaseModel):
+    nickname: str
+    pin: str = Field(..., min_length=4, max_length=4, pattern=r"^\d{4}$")
+
+
+class VerifyPinResponse(BaseModel):
+    success: bool
 
 
 class SaveResultRequest(BaseModel):
@@ -50,9 +60,16 @@ async def check_nickname(nickname: str, db: AsyncSession = Depends(get_db)):
 
 @router.post("", response_model=PlayerResponse, status_code=201)
 async def create_player(body: CreatePlayerRequest, db: AsyncSession = Depends(get_db)):
-    """신규 플레이어 등록"""
-    player = await player_service.create_player(db, body.nickname)
+    """신규 플레이어 등록 (PIN 포함)"""
+    player = await player_service.create_player(db, body.nickname, body.pin)
     return PlayerResponse.model_validate(player)
+
+
+@router.post("/verify-pin", response_model=VerifyPinResponse)
+async def verify_pin(body: VerifyPinRequest, db: AsyncSession = Depends(get_db)):
+    """PIN 검증 — 기존 플레이어 로그인"""
+    success = await player_service.verify_pin(db, body.nickname, body.pin)
+    return VerifyPinResponse(success=success)
 
 
 @router.get("/{nickname}", response_model=PlayerResponse)
