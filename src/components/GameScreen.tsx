@@ -249,25 +249,25 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
           <div className="card-body gap-1 py-3 px-4">
             <h3 className="text-xs font-bold uppercase tracking-widest text-primary">내 최고 기록</h3>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-base-content/70">최고 점수</span>
-              <span className="flex items-center gap-2 font-mono font-bold text-white">
-                {best.bestScore.toLocaleString()}
+              <span className="flex items-center gap-2 text-base-content/70">
+                최고 점수
                 {newRecords.score && <span className="badge badge-sm bg-primary text-white border-0 animate-pulse">NEW</span>}
               </span>
+              <span className="font-mono font-bold text-white">{best.bestScore.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-base-content/70">최고 스테이지</span>
-              <span className="flex items-center gap-2 font-bold text-white">
-                STAGE {best.bestStage}
+              <span className="flex items-center gap-2 text-base-content/70">
+                최고 스테이지
                 {newRecords.stage && <span className="badge badge-sm bg-primary text-white border-0 animate-pulse">NEW</span>}
               </span>
+              <span className="font-bold text-white">STAGE {best.bestStage}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-base-content/70">최고 콤보</span>
-              <span className="flex items-center gap-2 font-bold text-white">
-                {best.bestCombo}
+              <span className="flex items-center gap-2 text-base-content/70">
+                최고 콤보
                 {newRecords.combo && <span className="badge badge-sm bg-primary text-white border-0 animate-pulse">NEW</span>}
               </span>
+              <span className="font-bold text-white">{best.bestCombo}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-base-content/70">플레이 횟수</span>

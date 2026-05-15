@@ -1,11 +1,42 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T21:32:39Z",
-    "currentVersion": "0.0.55",
+    "lastUpdated": "2026-05-15T21:34:14Z",
+    "currentVersion": "0.0.56",
     "projectType": "react",
-    "totalReleases": 32
+    "totalReleases": 33
   },
   "releases": [
+    {
+      "version": "0.0.56",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 58,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 홈화면 버전 정보 표시 — 타이틀 하단에 InCerthon 버전 번호가 한 줄로 표시됩니다\n  * 로그인 세션 유지 — 앱 재접속 시 닉네임이 자동으로 복원됩니다\n  * 로그아웃 버튼 추가 — 홈화면에서 로그아웃할 수 있습니다\n\n* **버그 수정**\n  * 게임 결과 화면에서 NEW 뱃지가 점수 오른쪽에 겹치던 문제 해결\n\n* **개선**\n  * 홈화면 카드 패딩 및 여백 최적화로 레이아웃 개선\n  * 로그아웃 버튼 크기와 폰트를 다른 버튼과 동일하게 통일",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "홈화면 버전 정보 표시 — 타이틀 하단에 InCerthon 버전 번호가 한 줄로 표시됩니다",
+            "로그인 세션 유지 — 앱 재접속 시 닉네임이 자동으로 복원됩니다",
+            "로그아웃 버튼 추가 — 홈화면에서 로그아웃할 수 있습니다"
+          ]
+        },
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "게임 결과 화면에서 NEW 뱃지가 점수 오른쪽에 겹치던 문제 해결"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "홈화면 카드 패딩 및 여백 최적화로 레이아웃 개선",
+            "로그아웃 버튼 크기와 폰트를 다른 버튼과 동일하게 통일"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.55",
       "project_type": "react",
