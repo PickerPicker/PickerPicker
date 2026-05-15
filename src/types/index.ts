@@ -40,9 +40,19 @@ export interface GameStat {
   score: number
   gauge: number
   perfectCombo: number
+  maxCombo: number        // 게임 중 달성한 최대 PERFECT 콤보
   perfectCount: number
   goodCount: number
   missCount: number
+}
+
+/** localStorage 저장 구조 */
+export interface BestRecord {
+  bestScore: number
+  bestStage: number
+  bestCombo: number
+  bestPerfectCount: number
+  playCount: number
 }
 
 export type JudgmentType = 'PERFECT' | 'GOOD' | 'MISS'

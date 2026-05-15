@@ -6,6 +6,7 @@ import { NoteTrack } from './NoteTrack'
 
 const PERFECT_WINDOW = 70
 const GOOD_WINDOW = 140
+const NOTE_TRAVEL_BEATS = 4
 
 interface PlayStageProps {
   stageData: StageData
@@ -65,13 +66,14 @@ export function PlayStage({
 
     // Read from statRef synchronously
     const current = statRef.current
-    let { score, gauge, perfectCombo: combo, perfectCount, goodCount, missCount } = current
+    let { score, gauge, perfectCombo: combo, maxCombo, perfectCount, goodCount, missCount } = current
 
     if (type === 'PERFECT') {
       combo += 1
       score += combo >= 5 ? 200 : 100
       gauge = Math.min(100, gauge + (combo >= 5 ? 2 : 1))
       perfectCount += 1
+      if (combo > maxCombo) maxCombo = combo  // 최대 콤보 갱신
     } else if (type === 'GOOD') {
       combo = 0
       score += 50
@@ -83,7 +85,7 @@ export function PlayStage({
     }
 
     // Update statRef synchronously so next call reads fresh values
-    const newStat = { score, gauge, perfectCombo: combo, perfectCount, goodCount, missCount }
+    const newStat = { score, gauge, perfectCombo: combo, maxCombo, perfectCount, goodCount, missCount }
     statRef.current = newStat
 
     setPerfectCombo(combo)
@@ -106,7 +108,7 @@ export function PlayStage({
 
   // Reset state when stage changes
   useEffect(() => {
-    startTimeRef.current = Date.now()
+    startTimeRef.current = Date.now() + NOTE_TRAVEL_BEATS * beatMs
     setPendingIndex(0)
     pendingIndexRef.current = 0
     setPerfectCombo(0)

@@ -3,9 +3,10 @@ interface GameHeaderProps {
   word: string
   gauge: number
   score: number
+  combo?: number
 }
 
-export function GameHeader({ stage, word, gauge, score }: GameHeaderProps) {
+export function GameHeader({ stage, word, gauge, score, combo = 0 }: GameHeaderProps) {
   const gaugePercent = Math.max(0, Math.min(100, gauge))
   const gaugeColor =
     gaugePercent > 50 ? 'bg-primary' : gaugePercent > 25 ? 'bg-warning' : 'bg-error'
@@ -40,6 +41,11 @@ export function GameHeader({ stage, word, gauge, score }: GameHeaderProps) {
         <span className="text-sm font-mono text-base-content/80">
           Score: {score.toString().padStart(6, '0')}
         </span>
+        {combo > 0 && (
+          <span className="text-xs font-bold text-warning">
+            {combo} COMBO
+          </span>
+        )}
       </div>
     </div>
   )
