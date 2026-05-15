@@ -12,15 +12,8 @@ export function GameHeader({ stage, word, gauge, score, combo = 0 }: GameHeaderP
     gaugePercent > 50 ? 'bg-primary' : gaugePercent > 25 ? 'bg-warning' : 'bg-error'
 
   return (
-    <div className="flex flex-col bg-base-200 shrink-0">
-      <div className="w-full h-3 bg-base-300 overflow-hidden">
-        <div
-          className={`h-full ${gaugeColor} transition-all duration-300`}
-          style={{ width: `${gaugePercent}%` }}
-        />
-      </div>
-
-      <div className="flex items-center justify-between px-6 py-4 border-b border-base-300">
+    <div className="flex flex-col bg-base-200 border-b border-base-300 shrink-0">
+      <div className="flex items-center justify-between px-6 pt-4 pb-2">
         <span className="text-2xl font-bold text-base-content w-32">
           Stage {stage}
         </span>
@@ -48,6 +41,15 @@ export function GameHeader({ stage, word, gauge, score, combo = 0 }: GameHeaderP
               {combo} COMBO
             </span>
           )}
+        </div>
+      </div>
+
+      <div className="px-6 pb-4">
+        <div className="w-full h-4 bg-base-300 rounded-full overflow-hidden">
+          <div
+            className={`h-full ${gaugeColor} rounded-full transition-all duration-300`}
+            style={{ width: `${gaugePercent}%` }}
+          />
         </div>
       </div>
     </div>
