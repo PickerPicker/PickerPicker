@@ -11,6 +11,8 @@ interface StartScreenProps {
   onBgmVolume: (v: number) => void
   onToggleSfx: () => void
   onOffset: (v: number) => void
+  nickname: string
+  onLogout: () => void
 }
 
 const CREDITS = [
@@ -185,7 +187,7 @@ function SettingsView({
   )
 }
 
-export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset }: StartScreenProps) {
+export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout }: StartScreenProps) {
   const [screen, setScreen] = useState<Screen>('home')
 
   return (
@@ -199,7 +201,7 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBg
       }}
     >
       <div
-        className="flex flex-col items-center gap-8 px-16 py-12 rounded-3xl w-[480px] max-w-[90vw]"
+        className="flex flex-col items-center gap-6 px-10 py-8 rounded-3xl w-[480px] max-w-[90vw]"
         style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.08)' }}
       >
         {screen === 'home' && (
@@ -208,12 +210,26 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBg
               <h1 className="text-5xl font-black text-primary tracking-widest text-center" style={{ textShadow: '0 2px 24px rgba(0,180,255,0.5)' }}>
                 PickerPicker
               </h1>
-              <p className="text-xs tracking-widest text-center" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-                2026 INTERCON
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+                  2026 InCerthon
+                </p>
+                <span className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>
+                  v{__APP_VERSION__}
+                </span>
+              </div>
+              {/* 로그인 상태일 때 닉네임 표시 */}
+              {nickname && (
+                <p className="text-sm font-bold tracking-wider" style={{ color: 'rgba(0,180,255,0.9)', fontFamily: 'monospace', marginTop: '2px' }}>
+                  안녕하세요, {nickname}님!
+                </p>
+              )}
             </div>
             <div className="flex flex-col gap-3 w-full">
-              <button className="btn btn-primary btn-lg w-full text-lg" onClick={onStart}>시작</button>
+              {/* 로그인 상태면 "플레이하기", 비로그인이면 "시작" (닉네임+PIN 입력) */}
+              <button className="btn btn-primary btn-lg w-full text-lg" onClick={onStart}>
+                {nickname ? '플레이하기' : '시작'}
+              </button>
               <button
                 className="btn btn-lg w-full text-lg"
                 style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
@@ -235,6 +251,16 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBg
               >
                 크레딧
               </button>
+              {/* 로그인 상태일 때만 로그아웃 버튼 표시 */}
+              {nickname && (
+                <button
+                  className="btn btn-lg w-full text-lg"
+                  style={{ background: 'rgba(180,40,40,0.25)', color: 'rgba(255,100,100,0.85)', border: '1px solid rgba(255,80,80,0.25)' }}
+                  onClick={onLogout}
+                >
+                  로그아웃
+                </button>
+              )}
             </div>
           </>
         )}
