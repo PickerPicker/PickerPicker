@@ -22,6 +22,7 @@ RUN uv pip install --system --no-cache \
     python-dotenv
 
 COPY src/ ./src/
+COPY .env ./.env
 
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
