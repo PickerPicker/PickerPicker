@@ -8,6 +8,18 @@ const STAGE_BGM: Record<number, string> = {
   5: '/audio/bgm_stage5.mp3',
 }
 
+// MP3 인코더가 항상 추가하는 프리갭 — AudioBufferSourceNode.start() offset으로 건너뜀
+const MP3_PREGAP_SEC = 0.026
+
+// 게임 중 즉각 재생이 필요한 SFX만 AudioContext로 프리로드
+const SFX_PRELOAD_PATHS = [
+  '/audio/sfx_note_hit.mp3',
+  '/audio/sfx_note_miss.mp3',
+  '/audio/sfx_button.mp3',
+  '/audio/sfx_clear.mp3',
+  '/audio/sfx_gameover.mp3',
+]
+
 const getDifficultyLevel = (stageIndex: number) => Math.floor(stageIndex / 3) + 1
 
 const loadNum = (key: string, fallback: number) => {
@@ -19,6 +31,9 @@ export function useAudio() {
   const bgmRef = useRef<HTMLAudioElement | null>(null)
   const currentBgmSrc = useRef<string>('')
 
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const sfxBuffers = useRef<Map<string, AudioBuffer>>(new Map())
+
   const [bgmVolume, setBgmVolume] = useState(() => loadNum('audio_bgm_vol', 60))  // 0~100
   const [sfxOn, setSfxOn] = useState(() => localStorage.getItem('audio_sfx') !== 'off')
 
@@ -26,6 +41,26 @@ export function useAudio() {
   const sfxOnRef = useRef(sfxOn)
   useEffect(() => { bgmVolumeRef.current = bgmVolume }, [bgmVolume])
   useEffect(() => { sfxOnRef.current = sfxOn }, [sfxOn])
+
+  // 첫 사용자 인터랙션 후 AudioContext 초기화 + SFX 프리디코딩
+  const ensureAudioCtx = useCallback(async () => {
+    if (audioCtxRef.current) return audioCtxRef.current
+    const ctx = new AudioContext()
+    audioCtxRef.current = ctx
+    await Promise.all(
+      SFX_PRELOAD_PATHS.map(async (path) => {
+        try {
+          const res = await fetch(path)
+          const arrayBuf = await res.arrayBuffer()
+          const decoded = await ctx.decodeAudioData(arrayBuf)
+          sfxBuffers.current.set(path, decoded)
+        } catch {
+          // 로드 실패 무시 — new Audio() fallback이 처리
+        }
+      })
+    )
+    return ctx
+  }, [])
 
   const stopBgm = useCallback(() => {
     if (bgmRef.current) {
@@ -40,7 +75,6 @@ export function useAudio() {
   const playBgm = useCallback((src: string, loop = true): Promise<number> => {
     if (bgmVolumeRef.current === 0) return Promise.resolve(Date.now())
     if (currentBgmSrc.current === src) {
-      // 이미 재생 중이면 현재 시각 즉시 반환
       return Promise.resolve(Date.now())
     }
     if (bgmRef.current) {
@@ -75,12 +109,29 @@ export function useAudio() {
     })
   }, [])
 
-  const playSfx = useCallback((src: string) => {
+  // 디코딩된 AudioBuffer로 즉각 재생, 버퍼 미준비 시 new Audio() fallback
+  const playSfx = useCallback(async (src: string) => {
     if (!sfxOnRef.current) return
-    const audio = new Audio(src)
-    audio.volume = 0.8
-    audio.play().catch(() => {})
-  }, [])
+
+    const ctx = await ensureAudioCtx()
+    const buf = sfxBuffers.current.get(src)
+
+    if (buf && ctx.state !== 'closed') {
+      if (ctx.state === 'suspended') await ctx.resume()
+      const source = ctx.createBufferSource()
+      source.buffer = buf
+      const gain = ctx.createGain()
+      gain.gain.value = 0.8
+      source.connect(gain)
+      gain.connect(ctx.destination)
+      // MP3 프리갭(~26ms) 오프셋으로 건너뛰어 즉각 재생
+      source.start(0, MP3_PREGAP_SEC)
+    } else {
+      const audio = new Audio(src)
+      audio.volume = 0.8
+      audio.play().catch(() => {})
+    }
+  }, [ensureAudioCtx])
 
   // BGM 볼륨 변경 — 재생 중인 오디오에 즉시 반영
   const setBgmVol = useCallback((vol: number) => {
@@ -115,7 +166,10 @@ export function useAudio() {
   }, [])
 
   useEffect(() => {
-    return () => { bgmRef.current?.pause() }
+    return () => {
+      bgmRef.current?.pause()
+      audioCtxRef.current?.close()
+    }
   }, [])
 
   return {
@@ -123,6 +177,7 @@ export function useAudio() {
     sfxOn,
     setBgmVol,
     toggleSfx,
+    ensureAudioCtx,
     playStartBgm: () => playBgm('/audio/bgm_start.mp3'),
     playGameBgm: (stageIndex: number): Promise<number> => {
       const level = getDifficultyLevel(stageIndex)

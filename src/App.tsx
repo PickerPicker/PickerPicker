@@ -31,6 +31,8 @@ function App() {
   const [isNewPlayer, setIsNewPlayer] = useState(true)
 
   const handleStart = () => {
+    // 첫 클릭 시 AudioContext 초기화 + SFX 프리로드 시작
+    audio.ensureAudioCtx()
     audio.playButtonSfx()
     setShowNicknameModal(true)
   }
