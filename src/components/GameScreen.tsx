@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { BestRecord, GameData, GamePhase, GameStat, KeyMapping, StageData } from '../types'
-import { saveGameResult } from '../services/playerService'
+import { saveGameResult, getRanking } from '../services/playerService'
 import { GameHeader } from './game/GameHeader'
 import { PlayStage } from './game/PlayStage'
 import { PreviewStage } from './game/PreviewStage'
@@ -68,6 +68,8 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
   const [shuffledKeyMapping, setShuffledKeyMapping] = useState<KeyMapping[]>([])
   const [best, setBest] = useState<BestRecord>(loadBest)
   const [isClear, setIsClear] = useState(false)
+  const [globalTop, setGlobalTop] = useState<{ nickname: string; best_score: number; best_stage: number; best_combo: number } | null>(null)
+  const [newRecords, setNewRecords] = useState<{ score: boolean; stage: boolean; combo: boolean }>({ score: false, stage: false, combo: false })
   const resultSavedRef = useRef(false)  // 결과 화면에서 중복 저장 방지
   const statRef = useRef<GameStat>(INITIAL_STAT)  // PlayStage의 onStatUpdate 후 최신값 보관
 
@@ -148,13 +150,22 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
     }
     saveBest(updated)
     setBest(updated)
+    setNewRecords({
+      score: finalStat.score > prev.bestScore,
+      stage: reachedStage > prev.bestStage,
+      combo: finalStat.maxCombo > prev.bestCombo,
+    })
 
-    // 서버 저장 (실패해도 게임 진행에 영향 없음)
+    // 서버 저장 후 글로벌 1위 fetch
     saveGameResult({
       nickname,
       score: finalStat.score,
       stage: reachedStage,
       combo: finalStat.maxCombo,
+    }).catch(() => {})
+
+    getRanking(1).then(ranking => {
+      if (ranking.length > 0) setGlobalTop(ranking[0])
     }).catch(() => {})
   }
 
@@ -199,61 +210,95 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
         <div className="card bg-base-200 w-full max-w-sm">
           <div className="card-body gap-3">
             {!isClear && (
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-base">
                 <span className="text-base-content/60">도달 스테이지</span>
                 <span className="font-bold">STAGE {reachedStage}</span>
               </div>
             )}
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-base">
               <span className="text-base-content/60">최종 점수</span>
               <span className="font-mono font-bold text-primary">{stat.score.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-base">
               <span className="text-base-content/60">최대 콤보</span>
               <span className="font-bold">{stat.maxCombo}</span>
             </div>
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-base">
               <span className="text-base-content/60">정확도</span>
               <span className="font-bold">{accuracy}%</span>
             </div>
             <div className="divider my-0" />
-            <div className="flex justify-between text-sm">
-              <span className="text-success">PERFECT</span>
+            <div className="flex justify-between text-base">
+              <span className="text-success font-bold">PERFECT</span>
               <span>{stat.perfectCount}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-warning">GOOD</span>
+            <div className="flex justify-between text-base">
+              <span className="text-warning font-bold">GOOD</span>
               <span>{stat.goodCount}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-error">MISS</span>
+            <div className="flex justify-between text-base">
+              <span className="text-error font-bold">MISS</span>
               <span>{stat.missCount}</span>
             </div>
           </div>
         </div>
 
-        {/* 역대 최고 기록 */}
-        <div className="card bg-base-300 w-full max-w-sm">
-          <div className="card-body gap-2">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-base-content/50">역대 최고 기록</h3>
-            <div className="flex justify-between text-sm">
-              <span className="text-base-content/60">최고 점수</span>
-              <span className="font-mono font-bold">{best.bestScore.toLocaleString()}</span>
+        {/* 내 최고 기록 */}
+        <div className="card w-full max-w-sm border border-primary/60" style={{ background: 'rgba(30,40,70,0.85)' }}>
+          <div className="card-body gap-3">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-primary">내 최고 기록</h3>
+            <div className="flex justify-between items-center text-base">
+              <span className="text-base-content/70">최고 점수</span>
+              <span className="flex items-center gap-2 font-mono font-bold text-white">
+                {best.bestScore.toLocaleString()}
+                {newRecords.score && <span className="badge badge-sm bg-primary text-white border-0 animate-pulse">NEW</span>}
+              </span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-base-content/60">최고 스테이지</span>
-              <span className="font-bold">STAGE {best.bestStage}</span>
+            <div className="flex justify-between items-center text-base">
+              <span className="text-base-content/70">최고 스테이지</span>
+              <span className="flex items-center gap-2 font-bold text-white">
+                STAGE {best.bestStage}
+                {newRecords.stage && <span className="badge badge-sm bg-primary text-white border-0 animate-pulse">NEW</span>}
+              </span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-base-content/60">최고 콤보</span>
-              <span className="font-bold">{best.bestCombo}</span>
+            <div className="flex justify-between items-center text-base">
+              <span className="text-base-content/70">최고 콤보</span>
+              <span className="flex items-center gap-2 font-bold text-white">
+                {best.bestCombo}
+                {newRecords.combo && <span className="badge badge-sm bg-primary text-white border-0 animate-pulse">NEW</span>}
+              </span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-base-content/60">플레이 횟수</span>
-              <span className="font-bold">{best.playCount}회</span>
+            <div className="flex justify-between text-base">
+              <span className="text-base-content/70">플레이 횟수</span>
+              <span className="font-bold text-white">{best.playCount}회</span>
             </div>
           </div>
         </div>
+
+        {/* 글로벌 1위 */}
+        {globalTop && (
+          <div className="card bg-base-300 w-full max-w-sm border border-yellow-500/40">
+            <div className="card-body gap-2">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-yellow-400">🏆 글로벌 1위</h3>
+              <div className="flex justify-between text-base">
+                <span className="text-base-content/60">닉네임</span>
+                <span className="font-bold text-yellow-300">{globalTop.nickname}</span>
+              </div>
+              <div className="flex justify-between text-base">
+                <span className="text-base-content/60">최고 점수</span>
+                <span className="font-mono font-bold">{globalTop.best_score.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-base">
+                <span className="text-base-content/60">최고 스테이지</span>
+                <span className="font-bold">STAGE {globalTop.best_stage}</span>
+              </div>
+              <div className="flex justify-between text-base">
+                <span className="text-base-content/60">최고 콤보</span>
+                <span className="font-bold">{globalTop.best_combo}</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 하단 버튼 3개 */}
         <div className="flex flex-col w-full max-w-sm gap-2">
@@ -263,7 +308,7 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
           <button className="btn btn-outline w-full" onClick={() => { onButtonSfx(); onRanking() }}>
             랭킹 보기
           </button>
-          <button className="btn btn-ghost w-full" onClick={() => { onButtonSfx(); onHome() }}>
+          <button className="btn w-full border border-white/60 text-white hover:bg-white/10" onClick={() => { onButtonSfx(); onHome() }}>
             홈으로 가기
           </button>
         </div>
