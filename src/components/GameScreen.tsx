@@ -56,9 +56,10 @@ interface GameScreenProps {
   onHitSfx: () => void
   onMissSfx: () => void
   onGameBgm: (stageIndex: number) => void
+  offset: number
 }
 
-export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm }: GameScreenProps) {
+export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset }: GameScreenProps) {
   const [gameData, setGameData] = useState<GameData | null>(null)
   const [loading, setLoading] = useState(true)
   const [stageIndex, setStageIndex] = useState(0)
@@ -335,6 +336,7 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
           onGameOver={handleGameOver}
           onHitSfx={onHitSfx}
           onMissSfx={onMissSfx}
+          offset={offset}
         />
       )}
     </div>
