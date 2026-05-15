@@ -1,6 +1,7 @@
 """src.services.player_service
 플레이어 비즈니스 로직
 """
+import hashlib
 import logging
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,16 +17,32 @@ async def check_nickname(db: AsyncSession, nickname: str) -> bool:
     return result.scalar_one_or_none() is not None
 
 
-async def create_player(db: AsyncSession, nickname: str) -> Player:
-    """신규 플레이어 생성. 중복이면 ConflictError"""
+def _hash_pin(pin: str) -> str:
+    """4자리 PIN을 SHA-256 해시로 변환"""
+    return hashlib.sha256(pin.encode()).hexdigest()
+
+
+async def create_player(db: AsyncSession, nickname: str, pin: str) -> Player:
+    """신규 플레이어 생성 (PIN 포함). 중복이면 ConflictError"""
     if await check_nickname(db, nickname):
         raise ConflictError(f"'{nickname}'은 이미 존재하는 닉네임입니다")
-    player = Player(nickname=nickname)
+    player = Player(nickname=nickname, pin_hash=_hash_pin(pin))
     db.add(player)
     await db.commit()
     await db.refresh(player)
     logger.info(f"신규 플레이어 생성: {nickname}")
     return player
+
+
+async def verify_pin(db: AsyncSession, nickname: str, pin: str) -> bool:
+    """PIN 검증. 닉네임 없으면 NotFoundError. PIN 불일치 시 False"""
+    player = await get_player(db, nickname)
+    if player.pin_hash is None:
+        # 레거시 플레이어 — PIN 미설정 상태, 입력한 PIN으로 자동 설정
+        player.pin_hash = _hash_pin(pin)
+        await db.commit()
+        return True
+    return player.pin_hash == _hash_pin(pin)
 
 
 async def get_player(db: AsyncSession, nickname: str) -> Player:

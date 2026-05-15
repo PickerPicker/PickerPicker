@@ -24,18 +24,34 @@ export async function checkNickname(nickname: string): Promise<boolean> {
   }
 }
 
-/** 신규 플레이어 등록. 서버 연결 실패 시 에러를 throw하지 않음 */
-export async function createPlayer(nickname: string): Promise<PlayerRecord | null> {
+/** 신규 플레이어 등록 (PIN 포함). 409 Conflict 시 null 반환 */
+export async function createPlayer(nickname: string, pin: string): Promise<PlayerRecord | null> {
   try {
     const res = await fetch(`${BASE_URL}/players`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nickname }),
+      body: JSON.stringify({ nickname, pin }),
     })
     if (!res.ok) return null
     return res.json()
   } catch {
     return null
+  }
+}
+
+/** PIN 검증. true = 성공, false = 불일치 또는 서버 오류 */
+export async function verifyPin(nickname: string, pin: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${BASE_URL}/players/verify-pin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nickname, pin }),
+    })
+    if (!res.ok) return false
+    const data = await res.json()
+    return data.success
+  } catch {
+    return false
   }
 }
 
