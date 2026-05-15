@@ -11,7 +11,7 @@ interface NoteTrackProps {
 export function NoteTrack({
   inputSyllables,
   beatMs,
-  startTime,
+  startTime: _startTime,
   pendingIndex,
 }: NoteTrackProps) {
   const travelDuration = NOTE_TRAVEL_BEATS * beatMs
