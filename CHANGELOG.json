@@ -1,11 +1,27 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T19:22:42Z",
-    "currentVersion": "0.0.34",
+    "lastUpdated": "2026-05-15T19:45:09Z",
+    "currentVersion": "0.0.35",
     "projectType": "react",
-    "totalReleases": 12
+    "totalReleases": 13
   },
   "releases": [
+    {
+      "version": "0.0.35",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 28,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **버그 수정**\n  * 무효음절 구간에서 키를 눌렀을 때 MISS 판정이 표시되지 않는 문제 해결",
+      "parsed_changes": {
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "무효음절 구간에서 키를 눌렀을 때 MISS 판정이 표시되지 않는 문제 해결"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.34",
       "project_type": "react",

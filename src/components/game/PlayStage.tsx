@@ -147,7 +147,10 @@ export function PlayStage({
       if (idx >= inputSyllables.length) return
 
       const expectedSyllable = inputSyllables[idx]
-      if (!validSyllables.includes(expectedSyllable)) return
+      if (!validSyllables.includes(expectedSyllable)) {
+        applyJudgment('MISS')
+        return
+      }
 
       const arrivalTime = startTimeRef.current + idx * beatMs
       const delta = Math.abs(Date.now() - arrivalTime)
