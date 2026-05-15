@@ -1,11 +1,28 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T20:49:21Z",
-    "currentVersion": "0.0.45",
+    "lastUpdated": "2026-05-15T20:59:32Z",
+    "currentVersion": "0.0.47",
     "projectType": "react",
-    "totalReleases": 23
+    "totalReleases": 24
   },
   "releases": [
+    {
+      "version": "0.0.47",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 46,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 노트 버튼 클릭 시 효과음이 즉각 재생되도록 개선 (딜레이 제거)\n  * 효과음 파일 불필요한 무음 구간 제거로 반응 속도 향상",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "노트 버튼 클릭 시 효과음이 즉각 재생되도록 개선 (딜레이 제거)",
+            "효과음 파일 불필요한 무음 구간 제거로 반응 속도 향상"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.45",
       "project_type": "react",
