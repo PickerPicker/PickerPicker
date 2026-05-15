@@ -1,11 +1,36 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T21:10:48Z",
-    "currentVersion": "0.0.48",
+    "lastUpdated": "2026-05-15T21:11:54Z",
+    "currentVersion": "0.0.49",
     "projectType": "react",
-    "totalReleases": 25
+    "totalReleases": 26
   },
   "releases": [
+    {
+      "version": "0.0.49",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 48,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 홈화면에 크레딧 버튼 추가 및 팀원 정보 표시\n  * 설정·크레딧 화면을 팝업 없이 카드 내 화면 전환 방식으로 변경\n  * 홈화면 타이틀 아래 \"2026 INTERCON\" 부제목 추가\n  * 설정 화면에 판정 오프셋 조절 기능 추가\n\n* **개선**\n  * 노트 히트 효과음 파일 교체",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "홈화면에 크레딧 버튼 추가 및 팀원 정보 표시",
+            "설정·크레딧 화면을 팝업 없이 카드 내 화면 전환 방식으로 변경",
+            "홈화면 타이틀 아래 \"2026 INTERCON\" 부제목 추가",
+            "설정 화면에 판정 오프셋 조절 기능 추가"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "노트 히트 효과음 파일 교체"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.48",
       "project_type": "react",
