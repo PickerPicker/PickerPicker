@@ -1,0 +1,1450 @@
+{
+  "gameTitle": "Hackathon Rhythm Game",
+  "version": "1.0.0",
+  "keyLayout": [
+    "a",
+    "s",
+    "d",
+    "f",
+    "j",
+    "k",
+    "l",
+    ";"
+  ],
+  "rules": {
+    "totalStages": 15,
+    "difficultyGroupSize": 3,
+    "baseBpm": 90,
+    "bpmIncreasePerDifficulty": 15,
+    "baseInputLength": 16,
+    "inputLengthIncreasePerDifficulty": 8,
+    "validSyllableRatioMin": 0.7
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "difficultyLevel": 1,
+      "bpm": 90,
+      "word": "커피",
+      "validSyllables": [
+        "커",
+        "피"
+      ],
+      "invalidSyllables": [
+        "코",
+        "포",
+        "키",
+        "퍼",
+        "카",
+        "파"
+      ],
+      "inputLength": 16,
+      "inputSyllables": [
+        "커",
+        "피",
+        "커",
+        "코",
+        "피",
+        "커",
+        "피",
+        "포",
+        "커",
+        "피",
+        "커",
+        "키",
+        "피",
+        "커",
+        "피",
+        "퍼"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "커",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "피",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "코",
+          "type": "invalid"
+        },
+        {
+          "key": "f",
+          "syllable": "포",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "키",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "퍼",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "카",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "파",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "difficultyLevel": 1,
+      "bpm": 90,
+      "word": "바다",
+      "validSyllables": [
+        "바",
+        "다"
+      ],
+      "invalidSyllables": [
+        "보",
+        "도",
+        "비",
+        "두",
+        "배",
+        "더"
+      ],
+      "inputLength": 16,
+      "inputSyllables": [
+        "바",
+        "다",
+        "바",
+        "보",
+        "다",
+        "바",
+        "다",
+        "도",
+        "바",
+        "다",
+        "바",
+        "비",
+        "다",
+        "바",
+        "다",
+        "두"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "바",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "다",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "보",
+          "type": "invalid"
+        },
+        {
+          "key": "f",
+          "syllable": "도",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "비",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "두",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "배",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "더",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "difficultyLevel": 1,
+      "bpm": 90,
+      "word": "나무",
+      "validSyllables": [
+        "나",
+        "무"
+      ],
+      "invalidSyllables": [
+        "너",
+        "모",
+        "니",
+        "매",
+        "노",
+        "미"
+      ],
+      "inputLength": 16,
+      "inputSyllables": [
+        "나",
+        "무",
+        "나",
+        "너",
+        "무",
+        "나",
+        "무",
+        "모",
+        "나",
+        "무",
+        "나",
+        "니",
+        "무",
+        "나",
+        "무",
+        "매"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "나",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "무",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "너",
+          "type": "invalid"
+        },
+        {
+          "key": "f",
+          "syllable": "모",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "니",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "매",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "노",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "미",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "difficultyLevel": 2,
+      "bpm": 105,
+      "word": "사과",
+      "validSyllables": [
+        "사",
+        "과"
+      ],
+      "invalidSyllables": [
+        "소",
+        "코",
+        "수",
+        "카",
+        "서",
+        "키"
+      ],
+      "inputLength": 24,
+      "inputSyllables": [
+        "사",
+        "과",
+        "사",
+        "소",
+        "과",
+        "사",
+        "코",
+        "과",
+        "사",
+        "과",
+        "수",
+        "사",
+        "과",
+        "카",
+        "사",
+        "과",
+        "사",
+        "서",
+        "과",
+        "사",
+        "키",
+        "과",
+        "사",
+        "소"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "사",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "과",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "소",
+          "type": "invalid"
+        },
+        {
+          "key": "f",
+          "syllable": "코",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "수",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "카",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "서",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "키",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 5,
+      "difficultyLevel": 2,
+      "bpm": 105,
+      "word": "토끼",
+      "validSyllables": [
+        "토",
+        "끼"
+      ],
+      "invalidSyllables": [
+        "타",
+        "꼬",
+        "투",
+        "까",
+        "테",
+        "꾸"
+      ],
+      "inputLength": 24,
+      "inputSyllables": [
+        "토",
+        "끼",
+        "토",
+        "타",
+        "끼",
+        "토",
+        "꼬",
+        "끼",
+        "토",
+        "끼",
+        "투",
+        "토",
+        "끼",
+        "까",
+        "토",
+        "끼",
+        "토",
+        "테",
+        "끼",
+        "토",
+        "꾸",
+        "끼",
+        "토",
+        "타"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "토",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "끼",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "타",
+          "type": "invalid"
+        },
+        {
+          "key": "f",
+          "syllable": "꼬",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "투",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "까",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "테",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "꾸",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 6,
+      "difficultyLevel": 2,
+      "bpm": 105,
+      "word": "구름",
+      "validSyllables": [
+        "구",
+        "름"
+      ],
+      "invalidSyllables": [
+        "가",
+        "라",
+        "기",
+        "러",
+        "고",
+        "르"
+      ],
+      "inputLength": 24,
+      "inputSyllables": [
+        "구",
+        "름",
+        "구",
+        "가",
+        "름",
+        "구",
+        "라",
+        "름",
+        "구",
+        "름",
+        "기",
+        "구",
+        "름",
+        "러",
+        "구",
+        "름",
+        "구",
+        "고",
+        "름",
+        "구",
+        "르",
+        "름",
+        "구",
+        "가"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "구",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "름",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "가",
+          "type": "invalid"
+        },
+        {
+          "key": "f",
+          "syllable": "라",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "기",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "러",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "고",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "르",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 7,
+      "difficultyLevel": 3,
+      "bpm": 120,
+      "word": "하늘빛",
+      "validSyllables": [
+        "하",
+        "늘",
+        "빛"
+      ],
+      "invalidSyllables": [
+        "호",
+        "너",
+        "보",
+        "해",
+        "노"
+      ],
+      "inputLength": 32,
+      "inputSyllables": [
+        "하",
+        "늘",
+        "빛",
+        "호",
+        "하",
+        "늘",
+        "빛",
+        "너",
+        "하",
+        "늘",
+        "보",
+        "빛",
+        "하",
+        "늘",
+        "해",
+        "빛",
+        "하",
+        "노",
+        "늘",
+        "빛",
+        "하",
+        "호",
+        "늘",
+        "빛",
+        "너",
+        "하",
+        "늘",
+        "빛",
+        "보",
+        "하",
+        "늘",
+        "해"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "하",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "늘",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "빛",
+          "type": "valid"
+        },
+        {
+          "key": "f",
+          "syllable": "호",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "너",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "보",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "해",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "노",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 8,
+      "difficultyLevel": 3,
+      "bpm": 120,
+      "word": "노래방",
+      "validSyllables": [
+        "노",
+        "래",
+        "방"
+      ],
+      "invalidSyllables": [
+        "나",
+        "로",
+        "배",
+        "보",
+        "루"
+      ],
+      "inputLength": 32,
+      "inputSyllables": [
+        "노",
+        "래",
+        "방",
+        "나",
+        "노",
+        "래",
+        "방",
+        "로",
+        "노",
+        "래",
+        "배",
+        "방",
+        "노",
+        "래",
+        "보",
+        "방",
+        "노",
+        "루",
+        "래",
+        "방",
+        "노",
+        "나",
+        "래",
+        "방",
+        "로",
+        "노",
+        "래",
+        "방",
+        "배",
+        "노",
+        "래",
+        "보"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "노",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "래",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "방",
+          "type": "valid"
+        },
+        {
+          "key": "f",
+          "syllable": "나",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "로",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "배",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "보",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "루",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 9,
+      "difficultyLevel": 3,
+      "bpm": 120,
+      "word": "바람결",
+      "validSyllables": [
+        "바",
+        "람",
+        "결"
+      ],
+      "invalidSyllables": [
+        "보",
+        "러",
+        "고",
+        "비",
+        "르"
+      ],
+      "inputLength": 32,
+      "inputSyllables": [
+        "바",
+        "람",
+        "결",
+        "보",
+        "바",
+        "람",
+        "결",
+        "러",
+        "바",
+        "람",
+        "고",
+        "결",
+        "바",
+        "람",
+        "비",
+        "결",
+        "바",
+        "르",
+        "람",
+        "결",
+        "바",
+        "보",
+        "람",
+        "결",
+        "러",
+        "바",
+        "람",
+        "결",
+        "고",
+        "바",
+        "람",
+        "비"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "바",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "람",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "결",
+          "type": "valid"
+        },
+        {
+          "key": "f",
+          "syllable": "보",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "러",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "고",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "비",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "르",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 10,
+      "difficultyLevel": 4,
+      "bpm": 135,
+      "word": "초콜릿",
+      "validSyllables": [
+        "초",
+        "콜",
+        "릿"
+      ],
+      "invalidSyllables": [
+        "차",
+        "카",
+        "라",
+        "추",
+        "쿨"
+      ],
+      "inputLength": 40,
+      "inputSyllables": [
+        "초",
+        "콜",
+        "릿",
+        "차",
+        "초",
+        "콜",
+        "카",
+        "릿",
+        "초",
+        "라",
+        "콜",
+        "릿",
+        "초",
+        "추",
+        "콜",
+        "릿",
+        "쿨",
+        "초",
+        "콜",
+        "차",
+        "릿",
+        "초",
+        "콜",
+        "카",
+        "릿",
+        "초",
+        "라",
+        "콜",
+        "릿",
+        "추",
+        "초",
+        "콜",
+        "릿",
+        "쿨",
+        "초",
+        "콜",
+        "차",
+        "릿",
+        "초",
+        "카"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "초",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "콜",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "릿",
+          "type": "valid"
+        },
+        {
+          "key": "f",
+          "syllable": "차",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "카",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "라",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "추",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "쿨",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 11,
+      "difficultyLevel": 4,
+      "bpm": 135,
+      "word": "달고나",
+      "validSyllables": [
+        "달",
+        "고",
+        "나"
+      ],
+      "invalidSyllables": [
+        "도",
+        "가",
+        "너",
+        "두",
+        "기"
+      ],
+      "inputLength": 40,
+      "inputSyllables": [
+        "달",
+        "고",
+        "나",
+        "도",
+        "달",
+        "고",
+        "가",
+        "나",
+        "달",
+        "너",
+        "고",
+        "나",
+        "달",
+        "두",
+        "고",
+        "나",
+        "기",
+        "달",
+        "고",
+        "도",
+        "나",
+        "달",
+        "고",
+        "가",
+        "나",
+        "달",
+        "너",
+        "고",
+        "나",
+        "두",
+        "달",
+        "고",
+        "나",
+        "기",
+        "달",
+        "고",
+        "도",
+        "나",
+        "달",
+        "가"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "달",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "고",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "나",
+          "type": "valid"
+        },
+        {
+          "key": "f",
+          "syllable": "도",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "가",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "너",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "두",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "기",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 12,
+      "difficultyLevel": 4,
+      "bpm": 135,
+      "word": "버섯국",
+      "validSyllables": [
+        "버",
+        "섯",
+        "국"
+      ],
+      "invalidSyllables": [
+        "바",
+        "소",
+        "가",
+        "비",
+        "숲"
+      ],
+      "inputLength": 40,
+      "inputSyllables": [
+        "버",
+        "섯",
+        "국",
+        "바",
+        "버",
+        "섯",
+        "소",
+        "국",
+        "버",
+        "가",
+        "섯",
+        "국",
+        "버",
+        "비",
+        "섯",
+        "국",
+        "숲",
+        "버",
+        "섯",
+        "바",
+        "국",
+        "버",
+        "섯",
+        "소",
+        "국",
+        "버",
+        "가",
+        "섯",
+        "국",
+        "비",
+        "버",
+        "섯",
+        "국",
+        "숲",
+        "버",
+        "섯",
+        "바",
+        "국",
+        "버",
+        "소"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "버",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "섯",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "국",
+          "type": "valid"
+        },
+        {
+          "key": "f",
+          "syllable": "바",
+          "type": "invalid"
+        },
+        {
+          "key": "j",
+          "syllable": "소",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "가",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "비",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "숲",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 13,
+      "difficultyLevel": 5,
+      "bpm": 150,
+      "word": "컴퓨터실",
+      "validSyllables": [
+        "컴",
+        "퓨",
+        "터",
+        "실"
+      ],
+      "invalidSyllables": [
+        "캠",
+        "표",
+        "타",
+        "솔"
+      ],
+      "inputLength": 48,
+      "inputSyllables": [
+        "컴",
+        "퓨",
+        "터",
+        "캠",
+        "실",
+        "컴",
+        "표",
+        "퓨",
+        "터",
+        "실",
+        "타",
+        "컴",
+        "퓨",
+        "솔",
+        "터",
+        "실",
+        "컴",
+        "캠",
+        "퓨",
+        "터",
+        "표",
+        "실",
+        "컴",
+        "타",
+        "퓨",
+        "터",
+        "실",
+        "솔",
+        "컴",
+        "퓨",
+        "캠",
+        "터",
+        "실",
+        "컴",
+        "표",
+        "퓨",
+        "터",
+        "타",
+        "실",
+        "컴",
+        "퓨",
+        "솔",
+        "터",
+        "실",
+        "캠",
+        "컴",
+        "퓨",
+        "표"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "컴",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "퓨",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "터",
+          "type": "valid"
+        },
+        {
+          "key": "f",
+          "syllable": "실",
+          "type": "valid"
+        },
+        {
+          "key": "j",
+          "syllable": "캠",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "표",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "타",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "솔",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 14,
+      "difficultyLevel": 5,
+      "bpm": 150,
+      "word": "리듬게임",
+      "validSyllables": [
+        "리",
+        "듬",
+        "게",
+        "임"
+      ],
+      "invalidSyllables": [
+        "라",
+        "담",
+        "고",
+        "암"
+      ],
+      "inputLength": 48,
+      "inputSyllables": [
+        "리",
+        "듬",
+        "게",
+        "라",
+        "임",
+        "리",
+        "담",
+        "듬",
+        "게",
+        "임",
+        "고",
+        "리",
+        "듬",
+        "암",
+        "게",
+        "임",
+        "리",
+        "라",
+        "듬",
+        "게",
+        "담",
+        "임",
+        "리",
+        "고",
+        "듬",
+        "게",
+        "임",
+        "암",
+        "리",
+        "듬",
+        "라",
+        "게",
+        "임",
+        "리",
+        "담",
+        "듬",
+        "게",
+        "고",
+        "임",
+        "리",
+        "듬",
+        "암",
+        "게",
+        "임",
+        "라",
+        "리",
+        "듬",
+        "담"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "리",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "듬",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "게",
+          "type": "valid"
+        },
+        {
+          "key": "f",
+          "syllable": "임",
+          "type": "valid"
+        },
+        {
+          "key": "j",
+          "syllable": "라",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "담",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "고",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "암",
+          "type": "invalid"
+        }
+      ]
+    },
+    {
+      "stage": 15,
+      "difficultyLevel": 5,
+      "bpm": 150,
+      "word": "해커톤장",
+      "validSyllables": [
+        "해",
+        "커",
+        "톤",
+        "장"
+      ],
+      "invalidSyllables": [
+        "호",
+        "카",
+        "탄",
+        "조"
+      ],
+      "inputLength": 48,
+      "inputSyllables": [
+        "해",
+        "커",
+        "톤",
+        "호",
+        "장",
+        "해",
+        "카",
+        "커",
+        "톤",
+        "장",
+        "탄",
+        "해",
+        "커",
+        "조",
+        "톤",
+        "장",
+        "해",
+        "호",
+        "커",
+        "톤",
+        "카",
+        "장",
+        "해",
+        "탄",
+        "커",
+        "톤",
+        "장",
+        "조",
+        "해",
+        "커",
+        "호",
+        "톤",
+        "장",
+        "해",
+        "카",
+        "커",
+        "톤",
+        "탄",
+        "장",
+        "해",
+        "커",
+        "조",
+        "톤",
+        "장",
+        "호",
+        "해",
+        "커",
+        "카"
+      ],
+      "keyMapping": [
+        {
+          "key": "a",
+          "syllable": "해",
+          "type": "valid"
+        },
+        {
+          "key": "s",
+          "syllable": "커",
+          "type": "valid"
+        },
+        {
+          "key": "d",
+          "syllable": "톤",
+          "type": "valid"
+        },
+        {
+          "key": "f",
+          "syllable": "장",
+          "type": "valid"
+        },
+        {
+          "key": "j",
+          "syllable": "호",
+          "type": "invalid"
+        },
+        {
+          "key": "k",
+          "syllable": "카",
+          "type": "invalid"
+        },
+        {
+          "key": "l",
+          "syllable": "탄",
+          "type": "invalid"
+        },
+        {
+          "key": ";",
+          "syllable": "조",
+          "type": "invalid"
+        }
+      ]
+    }
+  ]
+}
