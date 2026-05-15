@@ -25,6 +25,7 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 .gstack/
+.template_download_temp/
 
 # Python (backend/)
 __pycache__/
