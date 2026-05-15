@@ -271,7 +271,7 @@ jobs:
             fi
 
             echo $PW | sudo -S docker run -d \
-              --network host \
+              -p 8001:8000 \
               --name $CONTAINER_NAME \
               -e TZ=Asia/Seoul \
               -e DATABASE_URL='${{ secrets.BACKEND_DATABASE_URL }}' \
