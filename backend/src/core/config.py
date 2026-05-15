@@ -12,7 +12,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "dev"  # dev | prod
     API_KEY: str = ""  # 간단한 API 키 인증 (선택)
 
-    model_config = SettingsConfigDict(env_file=".env")
+    # env_file은 로컬 개발용 — 없어도 시스템 환경변수에서 읽음
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 
 settings = Settings()
