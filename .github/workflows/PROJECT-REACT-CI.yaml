@@ -33,7 +33,7 @@ on:
 
 env:
   PROJECT_NAME: "project"
-  NODE_VERSION: "20.15.0"
+  NODE_VERSION: "20.19.0"
   ENV_FILE: ".env"
 
 permissions:

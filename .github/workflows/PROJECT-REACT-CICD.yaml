@@ -27,7 +27,7 @@ on:
 env:
   PROJECT_NAME: "pickerpicker"
   DOCKER_IMAGE_PREFIX: "front-container"
-  NODE_VERSION: "20.15.0"
+  NODE_VERSION: "20.19.0"
   ENV_FILE_NAME: ".env"
 
 jobs:
