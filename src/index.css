@@ -1,2 +1,22 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: "pickerpicker";
+  default: true;
+  color-scheme: dark;
+
+  --color-primary: oklch(60.5% 0.218 248.5);
+  --color-primary-content: oklch(98% 0.01 248.5);
+
+  --color-secondary: oklch(42% 0 0);
+  --color-secondary-content: oklch(90% 0 0);
+
+  --color-base-100: oklch(18% 0.015 248);
+  --color-base-200: oklch(14% 0.015 248);
+  --color-base-300: oklch(10% 0.015 248);
+  --color-base-content: oklch(88% 0.01 248);
+
+  --color-neutral: oklch(30% 0.01 248);
+  --color-neutral-content: oklch(85% 0.01 248);
+}
