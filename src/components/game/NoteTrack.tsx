@@ -46,7 +46,7 @@ export function NoteTrack({
           >
             <div
               className={`
-                w-12 h-12 flex items-center justify-center rounded border-2 font-bold text-lg
+                w-36 h-36 flex items-center justify-center rounded border-4 font-bold text-6xl
                 ${i === pendingIndex
                   ? 'border-primary bg-primary/30 text-primary'
                   : 'border-base-content/30 bg-base-300 text-base-content/60'
