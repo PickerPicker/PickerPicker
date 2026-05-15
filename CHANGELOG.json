@@ -1,11 +1,27 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T21:25:35Z",
-    "currentVersion": "0.0.52",
+    "lastUpdated": "2026-05-15T21:30:41Z",
+    "currentVersion": "0.0.53",
     "projectType": "react",
-    "totalReleases": 29
+    "totalReleases": 30
   },
   "releases": [
+    {
+      "version": "0.0.53",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 52,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 랭킹 화면 진입 시 전용 BGM 재생 기능 추가",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "랭킹 화면 진입 시 전용 BGM 재생 기능 추가"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.52",
       "project_type": "react",
