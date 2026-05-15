@@ -35,13 +35,15 @@ app = FastAPI(
     description="PickerPicker 게임 백엔드 API",
     version="0.1.0",
     lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
-# CORS 설정 (React 프론트엔드 연동)
+# CORS 전체 허용 (allow_credentials=True와 allow_origins=["*"] 동시 사용 불가)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # prod에서는 프론트 도메인으로 제한
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
