@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { GameStat, JudgmentType, StageData } from '../../types'
 import { JudgmentDisplay } from './JudgmentDisplay'
 import { KeyboardDisplay } from './KeyboardDisplay'
 import { NoteTrack } from './NoteTrack'
 
-const PERFECT_WINDOW = 70
-const GOOD_WINDOW = 140
+const PERFECT_WINDOW = 100   // ±100ms
+const GOOD_WINDOW = 250      // ±250ms
 const NOTE_TRAVEL_BEATS = 4
 
 interface PlayStageProps {
@@ -26,6 +26,7 @@ export function PlayStage({
   const { bpm, inputSyllables, keyMapping, validSyllables } = stageData
   const beatMs = Math.round(60_000 / bpm)
 
+  // pendingIndex를 state와 ref 둘 다 관리 — ref는 즉시 반영, state는 NoteTrack 렌더용
   const [pendingIndex, setPendingIndex] = useState(0)
   const [lastJudgment, setLastJudgment] = useState<{ type: JudgmentType; id: number } | null>(null)
   const [pressedKey, setPressedKey] = useState<string | undefined>()
@@ -35,12 +36,10 @@ export function PlayStage({
   const pendingIndexRef = useRef(0)
   const statRef = useRef(stat)
   const judgeCountRef = useRef(0)
-  const gameOverRef = useRef(false) // prevents double game-over
+  const gameOverRef = useRef(false)
 
-  // Keep statRef in sync with prop (async, for non-critical reads)
   useEffect(() => { statRef.current = stat }, [stat])
 
-  // Sync callbacks via refs to avoid stale closures
   const onStatUpdateRef = useRef(onStatUpdate)
   const onGameOverRef = useRef(onGameOver)
   const onStageCompleteRef = useRef(onStageComplete)
@@ -48,9 +47,8 @@ export function PlayStage({
   useEffect(() => { onGameOverRef.current = onGameOver }, [onGameOver])
   useEffect(() => { onStageCompleteRef.current = onStageComplete }, [onStageComplete])
 
-  // 무효 음절 노트를 패널티 없이 넘긴다
-  const advanceInvalidNote = useCallback(() => {
-    const next = pendingIndexRef.current + 1
+  const advancePending = useCallback((applyCount = 1) => {
+    const next = pendingIndexRef.current + applyCount
     pendingIndexRef.current = next
     setPendingIndex(next)
     if (next >= inputSyllables.length) {
@@ -59,12 +57,11 @@ export function PlayStage({
   }, [inputSyllables.length])
 
   const applyJudgment = useCallback((type: JudgmentType) => {
-    if (gameOverRef.current) return // guard against double game-over
+    if (gameOverRef.current) return
 
     judgeCountRef.current += 1
     setLastJudgment({ type, id: judgeCountRef.current })
 
-    // Read from statRef synchronously
     const current = statRef.current
     let { score, gauge, perfectCombo: combo, maxCombo, perfectCount, goodCount, missCount } = current
 
@@ -85,10 +82,8 @@ export function PlayStage({
       missCount += 1
     }
 
-    // Update statRef synchronously so next call reads fresh values
     const newStat = { score, gauge, perfectCombo: combo, maxCombo, perfectCount, goodCount, missCount }
     statRef.current = newStat
-
     setPerfectCombo(combo)
     onStatUpdateRef.current(newStat)
 
@@ -98,23 +93,20 @@ export function PlayStage({
       return
     }
 
-    const next = pendingIndexRef.current + 1
-    setPendingIndex(next)
-    pendingIndexRef.current = next
+    advancePending()
+  }, [advancePending])
 
-    if (next >= inputSyllables.length) {
-      onStageCompleteRef.current()
-    }
-  }, [inputSyllables.length])
-
-  // Reset state when stage changes
-  useEffect(() => {
+  // useLayoutEffect: DOM 업데이트 직후 paint 전에 실행 → 애니메이션 시작 시각과 일치
+  useLayoutEffect(() => {
     startTimeRef.current = Date.now() + NOTE_TRAVEL_BEATS * beatMs
-    setPendingIndex(0)
     pendingIndexRef.current = 0
+    setPendingIndex(0)
     setPerfectCombo(0)
     gameOverRef.current = false
+  }, [stageData, beatMs])
 
+  // 자동 MISS/통과 인터벌 (useLayoutEffect 이후 실행되므로 startTimeRef가 올바름)
+  useEffect(() => {
     const interval = setInterval(() => {
       if (gameOverRef.current) return
       const idx = pendingIndexRef.current
@@ -125,14 +117,18 @@ export function PlayStage({
         if (validSyllables.includes(inputSyllables[idx])) {
           applyJudgment('MISS')
         } else {
-          advanceInvalidNote()
+          // 무효 음절: 패널티 없이 통과
+          const next = pendingIndexRef.current + 1
+          pendingIndexRef.current = next
+          setPendingIndex(next)
+          if (next >= inputSyllables.length) onStageCompleteRef.current()
         }
       }
     }, 16)
-
     return () => clearInterval(interval)
-  }, [stageData, beatMs, applyJudgment, advanceInvalidNote, inputSyllables, validSyllables])
+  }, [stageData, beatMs, applyJudgment, inputSyllables, validSyllables])
 
+  // 키 입력 핸들러
   useEffect(() => {
     const codeMap: Record<string, string> = {
       a: 'KeyA', s: 'KeyS', d: 'KeyD', f: 'KeyF',
@@ -151,8 +147,6 @@ export function PlayStage({
       if (idx >= inputSyllables.length) return
 
       const expectedSyllable = inputSyllables[idx]
-
-      // 무효 음절 노트는 키 입력을 무시 (자동으로 window 초과 시 넘어감)
       if (!validSyllables.includes(expectedSyllable)) return
 
       const arrivalTime = startTimeRef.current + idx * beatMs
