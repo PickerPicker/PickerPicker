@@ -271,7 +271,7 @@ jobs:
             fi
 
             echo $PW | sudo -S docker run -d \
-              -p 8001:8000 \
+              -p ${{ env.DEPLOY_PORT }}:${{ env.CONTAINER_INTERNAL_PORT }} \
               --name $CONTAINER_NAME \
               -e TZ=Asia/Seoul \
               -e DATABASE_URL='${{ secrets.BACKEND_DATABASE_URL }}' \
