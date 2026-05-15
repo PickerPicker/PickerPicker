@@ -17,7 +17,7 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, onBgmVolume,
     <div
       className="relative flex flex-col items-center justify-center min-h-screen gap-8"
       style={{
-        backgroundImage: 'url(/bg-home.webp)',
+        backgroundImage: 'url(/bg-home.png)',
         backgroundSize: 'cover',       /* 화면 비율 무관하게 꽉 채움 */
         backgroundPosition: 'center',  /* 중앙 기준 크롭 */
         backgroundRepeat: 'no-repeat',
