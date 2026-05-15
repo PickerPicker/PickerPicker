@@ -1,11 +1,27 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T19:59:25Z",
-    "currentVersion": "0.0.37",
+    "lastUpdated": "2026-05-15T20:06:07Z",
+    "currentVersion": "0.0.38",
     "projectType": "react",
-    "totalReleases": 15
+    "totalReleases": 16
   },
   "releases": [
+    {
+      "version": "0.0.38",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 35,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 게임 중 게이지 바가 단어 카드 아래에 둥근 형태로 표시되어 직관적으로 인식 가능",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "게임 중 게이지 바가 단어 카드 아래에 둥근 형태로 표시되어 직관적으로 인식 가능"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.37",
       "project_type": "react",
