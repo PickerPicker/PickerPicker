@@ -1,11 +1,29 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T19:45:09Z",
-    "currentVersion": "0.0.35",
+    "lastUpdated": "2026-05-15T19:46:19Z",
+    "currentVersion": "0.0.36",
     "projectType": "react",
-    "totalReleases": 13
+    "totalReleases": 14
   },
   "releases": [
+    {
+      "version": "0.0.36",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 29,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 시작 화면 및 스테이지 난이도별 배경음악(BGM) 추가\n  * 버튼 클릭, 채보, 게임 클리어, 게임 오버 효과음 추가\n  * 음향 설정 모달 추가 (BGM 볼륨 슬라이더, 효과음 ON/OFF)",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "시작 화면 및 스테이지 난이도별 배경음악(BGM) 추가",
+            "버튼 클릭, 채보, 게임 클리어, 게임 오버 효과음 추가",
+            "음향 설정 모달 추가 (BGM 볼륨 슬라이더, 효과음 ON/OFF)"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.35",
       "project_type": "react",

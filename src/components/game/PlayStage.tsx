@@ -14,6 +14,7 @@ interface PlayStageProps {
   onStatUpdate: (update: Partial<GameStat>) => void
   onStageComplete: () => void
   onGameOver: () => void
+  onNoteSfx: () => void
 }
 
 export function PlayStage({
@@ -22,6 +23,7 @@ export function PlayStage({
   onStatUpdate,
   onStageComplete,
   onGameOver,
+  onNoteSfx,
 }: PlayStageProps) {
   const { bpm, inputSyllables, keyMapping, validSyllables } = stageData
   const beatMs = Math.round(60_000 / bpm)
@@ -43,9 +45,11 @@ export function PlayStage({
   const onStatUpdateRef = useRef(onStatUpdate)
   const onGameOverRef = useRef(onGameOver)
   const onStageCompleteRef = useRef(onStageComplete)
+  const onNoteSfxRef = useRef(onNoteSfx)
   useEffect(() => { onStatUpdateRef.current = onStatUpdate }, [onStatUpdate])
   useEffect(() => { onGameOverRef.current = onGameOver }, [onGameOver])
   useEffect(() => { onStageCompleteRef.current = onStageComplete }, [onStageComplete])
+  useEffect(() => { onNoteSfxRef.current = onNoteSfx }, [onNoteSfx])
 
   const advancePending = useCallback((applyCount = 1) => {
     const next = pendingIndexRef.current + applyCount
@@ -59,6 +63,7 @@ export function PlayStage({
   const applyJudgment = useCallback((type: JudgmentType) => {
     if (gameOverRef.current) return
 
+    onNoteSfxRef.current()
     judgeCountRef.current += 1
     setLastJudgment({ type, id: judgeCountRef.current })
 
