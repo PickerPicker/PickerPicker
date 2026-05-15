@@ -21,6 +21,10 @@
   --color-neutral-content: oklch(85% 0.01 248);
 }
 
+* {
+  font-family: 'Galmuri9', monospace;
+}
+
 @keyframes note-slide {
   from {
     transform: translateX(2000px);

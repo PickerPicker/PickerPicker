@@ -30,7 +30,7 @@ export function NoteTrack({
       {inputSyllables.map((syllable, i) => {
         if (i < pendingIndex - 1) return null
 
-        const delay = i * beatMs - travelDuration
+        const delay = i * beatMs
 
         return (
           <div
