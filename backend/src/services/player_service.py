@@ -11,16 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 async def check_nickname(db: AsyncSession, nickname: str) -> bool:
-    """닉네임 존재 여부 확인. True = 기존 플레이어"""
+    """닉네임 존재 여부. True = 기존 플레이어"""
     result = await db.execute(select(Player).where(Player.nickname == nickname))
     return result.scalar_one_or_none() is not None
 
 
 async def create_player(db: AsyncSession, nickname: str) -> Player:
-    """신규 플레이어 생성. 중복 닉네임이면 ConflictError"""
+    """신규 플레이어 생성. 중복이면 ConflictError"""
     if await check_nickname(db, nickname):
         raise ConflictError(f"'{nickname}'은 이미 존재하는 닉네임입니다")
-
     player = Player(nickname=nickname)
     db.add(player)
     await db.commit()
@@ -39,17 +38,33 @@ async def get_player(db: AsyncSession, nickname: str) -> Player:
 
 
 async def get_ranking(db: AsyncSession, limit: int = 10) -> list[Player]:
-    """점수 기준 상위 랭킹 조회"""
+    """best_score 기준 상위 랭킹"""
     result = await db.execute(
-        select(Player).order_by(Player.score.desc()).limit(limit)
+        select(Player).order_by(Player.best_score.desc()).limit(limit)
     )
     return list(result.scalars().all())
 
 
-async def update_score(db: AsyncSession, nickname: str, score: int) -> Player:
-    """플레이어 점수 갱신"""
-    player = await get_player(db, nickname)
-    player.score = max(player.score, score)  # 최고 점수만 저장
+async def save_game_result(
+    db: AsyncSession,
+    nickname: str,
+    score: int,
+    stage: int,
+    combo: int,
+) -> Player:
+    """게임 결과 저장 — 각 항목 최고값만 갱신, play_count 증가"""
+    # 플레이어 없으면 자동 생성 (신규로 진행한 경우)
+    result = await db.execute(select(Player).where(Player.nickname == nickname))
+    player = result.scalar_one_or_none()
+    if not player:
+        player = Player(nickname=nickname)
+        db.add(player)
+
+    player.best_score = max(player.best_score, score)
+    player.best_stage = max(player.best_stage, stage)
+    player.best_combo = max(player.best_combo, combo)
+    player.play_count += 1
+
     await db.commit()
     await db.refresh(player)
     return player
