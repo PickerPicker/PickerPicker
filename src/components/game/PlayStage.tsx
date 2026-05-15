@@ -6,6 +6,7 @@ import { NoteTrack } from './NoteTrack'
 
 const PERFECT_WINDOW = 70
 const GOOD_WINDOW = 140
+const NOTE_TRAVEL_BEATS = 4
 
 interface PlayStageProps {
   stageData: StageData
@@ -107,7 +108,7 @@ export function PlayStage({
 
   // Reset state when stage changes
   useEffect(() => {
-    startTimeRef.current = Date.now()
+    startTimeRef.current = Date.now() + NOTE_TRAVEL_BEATS * beatMs
     setPendingIndex(0)
     pendingIndexRef.current = 0
     setPerfectCombo(0)
