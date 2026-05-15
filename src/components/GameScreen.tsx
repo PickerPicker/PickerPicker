@@ -201,43 +201,43 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
     const reachedStage = gameData.stages[stageIndex]?.stage ?? stageIndex + 1
 
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4 bg-base-100">
+      <div className="flex flex-col items-center justify-center h-screen gap-3 px-4 py-4 bg-base-100 overflow-hidden">
         {/* 타이틀 */}
-        <h2 className={`text-5xl font-black tracking-wider ${isClear ? 'text-success' : 'text-error'}`}>
+        <h2 className={`text-4xl font-black tracking-wider shrink-0 ${isClear ? 'text-success' : 'text-error'}`}>
           {isClear ? 'ALL CLEAR' : 'GAME OVER'}
         </h2>
 
         {/* 이번 기록 */}
-        <div className="card bg-base-200 w-full max-w-sm">
-          <div className="card-body gap-3">
+        <div className="card bg-base-200 w-full max-w-sm shrink-0">
+          <div className="card-body gap-1 py-3 px-4">
             {!isClear && (
-              <div className="flex justify-between text-base">
+              <div className="flex justify-between text-sm">
                 <span className="text-base-content/60">도달 스테이지</span>
                 <span className="font-bold">STAGE {reachedStage}</span>
               </div>
             )}
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-sm">
               <span className="text-base-content/60">최종 점수</span>
               <span className="font-mono font-bold text-primary">{stat.score.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-sm">
               <span className="text-base-content/60">최대 콤보</span>
               <span className="font-bold">{stat.maxCombo}</span>
             </div>
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-sm">
               <span className="text-base-content/60">정확도</span>
               <span className="font-bold">{accuracy}%</span>
             </div>
             <div className="divider my-0" />
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-sm">
               <span className="text-success font-bold">PERFECT</span>
               <span>{stat.perfectCount}</span>
             </div>
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-sm">
               <span className="text-warning font-bold">GOOD</span>
               <span>{stat.goodCount}</span>
             </div>
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-sm">
               <span className="text-error font-bold">MISS</span>
               <span>{stat.missCount}</span>
             </div>
@@ -245,31 +245,31 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
         </div>
 
         {/* 내 최고 기록 */}
-        <div className="card w-full max-w-sm border border-primary/60" style={{ background: 'rgba(30,40,70,0.85)' }}>
-          <div className="card-body gap-3">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-primary">내 최고 기록</h3>
-            <div className="flex justify-between items-center text-base">
+        <div className="card w-full max-w-sm border border-primary/60 shrink-0" style={{ background: 'rgba(30,40,70,0.85)' }}>
+          <div className="card-body gap-1 py-3 px-4">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-primary">내 최고 기록</h3>
+            <div className="flex justify-between items-center text-sm">
               <span className="text-base-content/70">최고 점수</span>
               <span className="flex items-center gap-2 font-mono font-bold text-white">
                 {best.bestScore.toLocaleString()}
                 {newRecords.score && <span className="badge badge-sm bg-primary text-white border-0 animate-pulse">NEW</span>}
               </span>
             </div>
-            <div className="flex justify-between items-center text-base">
+            <div className="flex justify-between items-center text-sm">
               <span className="text-base-content/70">최고 스테이지</span>
               <span className="flex items-center gap-2 font-bold text-white">
                 STAGE {best.bestStage}
                 {newRecords.stage && <span className="badge badge-sm bg-primary text-white border-0 animate-pulse">NEW</span>}
               </span>
             </div>
-            <div className="flex justify-between items-center text-base">
+            <div className="flex justify-between items-center text-sm">
               <span className="text-base-content/70">최고 콤보</span>
               <span className="flex items-center gap-2 font-bold text-white">
                 {best.bestCombo}
                 {newRecords.combo && <span className="badge badge-sm bg-primary text-white border-0 animate-pulse">NEW</span>}
               </span>
             </div>
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-sm">
               <span className="text-base-content/70">플레이 횟수</span>
               <span className="font-bold text-white">{best.playCount}회</span>
             </div>
@@ -278,22 +278,22 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
 
         {/* 글로벌 1위 */}
         {globalTop && (
-          <div className="card bg-base-300 w-full max-w-sm border border-yellow-500/40">
-            <div className="card-body gap-2">
-              <h3 className="text-sm font-bold uppercase tracking-widest text-yellow-400">🏆 글로벌 1위</h3>
-              <div className="flex justify-between text-base">
+          <div className="card bg-base-300 w-full max-w-sm border border-yellow-500/40 shrink-0">
+            <div className="card-body gap-1 py-3 px-4">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-yellow-400">🏆 글로벌 1위</h3>
+              <div className="flex justify-between text-sm">
                 <span className="text-base-content/60">닉네임</span>
                 <span className="font-bold text-yellow-300">{globalTop.nickname}</span>
               </div>
-              <div className="flex justify-between text-base">
+              <div className="flex justify-between text-sm">
                 <span className="text-base-content/60">최고 점수</span>
                 <span className="font-mono font-bold">{globalTop.best_score.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-base">
+              <div className="flex justify-between text-sm">
                 <span className="text-base-content/60">최고 스테이지</span>
                 <span className="font-bold">STAGE {globalTop.best_stage}</span>
               </div>
-              <div className="flex justify-between text-base">
+              <div className="flex justify-between text-sm">
                 <span className="text-base-content/60">최고 콤보</span>
                 <span className="font-bold">{globalTop.best_combo}</span>
               </div>
@@ -302,14 +302,14 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
         )}
 
         {/* 하단 버튼 3개 */}
-        <div className="flex flex-col w-full max-w-sm gap-2">
-          <button className="btn btn-primary w-full" onClick={() => { onButtonSfx(); handleRestart() }}>
+        <div className="flex flex-col w-full max-w-sm gap-2 shrink-0">
+          <button className="btn btn-primary btn-lg w-full text-lg" onClick={() => { onButtonSfx(); handleRestart() }}>
             다시 하기
           </button>
-          <button className="btn btn-outline w-full" onClick={() => { onButtonSfx(); onRanking() }}>
+          <button className="btn btn-outline btn-lg w-full text-lg" onClick={() => { onButtonSfx(); onRanking() }}>
             랭킹 보기
           </button>
-          <button className="btn w-full border border-white/60 text-white hover:bg-white/10" onClick={() => { onButtonSfx(); onHome() }}>
+          <button className="btn btn-lg w-full text-lg border border-white/60 text-white hover:bg-white/10" onClick={() => { onButtonSfx(); onHome() }}>
             홈으로 가기
           </button>
         </div>

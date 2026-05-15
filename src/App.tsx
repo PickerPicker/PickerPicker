@@ -13,6 +13,7 @@ import { useAudio } from './hooks/useAudio'
 type PinStep = 'login' | 'create' | 'confirm'
 
 const LS_OFFSET_KEY = 'pickerpicker_offset'
+const LS_NICKNAME_KEY = 'pickerpicker_nickname'
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('start')
@@ -41,15 +42,26 @@ function App() {
 
   const [showNicknameModal, setShowNicknameModal] = useState(false)
   const [pinStep, setPinStep] = useState<PinStep | null>(null)
-  const [nickname, setNickname] = useState('')
+  // localStorage에서 닉네임 복원 — 있으면 자동 로그인 상태
+  const [nickname, setNickname] = useState<string>(() => localStorage.getItem(LS_NICKNAME_KEY) ?? '')
   const [pendingPin, setPendingPin] = useState('')   // 신규 생성 시 첫 입력 임시 보관
   const [isNewPlayer, setIsNewPlayer] = useState(true)
 
   const handleStart = () => {
-    // 첫 클릭 시 AudioContext 초기화 + SFX 프리로드 시작
     audio.ensureAudioCtx()
     audio.playButtonSfx()
+    // 이미 로그인된 경우 바로 게임 진입
+    if (nickname) {
+      setCurrentScreen('game')
+      return
+    }
     setShowNicknameModal(true)
+  }
+
+  const handleLogout = () => {
+    audio.playButtonSfx()
+    localStorage.removeItem(LS_NICKNAME_KEY)
+    setNickname('')
   }
 
   const resetModals = () => {
@@ -70,7 +82,7 @@ function App() {
   /** PinModal 성공 콜백 */
   const handlePinSuccess = async (pin: string) => {
     if (pinStep === 'login') {
-      // 검증은 PinModal 내부(verifyPin prop)에서 완료 후 호출됨
+      localStorage.setItem(LS_NICKNAME_KEY, nickname)
       resetModals()
       setCurrentScreen('game')
     } else if (pinStep === 'create') {
@@ -85,6 +97,7 @@ function App() {
         return
       }
       await createPlayer(nickname, pin)
+      localStorage.setItem(LS_NICKNAME_KEY, nickname)
       resetModals()
       setCurrentScreen('game')
     }
@@ -112,6 +125,8 @@ function App() {
           onToggleSfx={audio.toggleSfx}
           offset={offset}
           onOffset={handleOffset}
+          nickname={nickname}
+          onLogout={handleLogout}
         />
       )}
       {currentScreen === 'game' && (
