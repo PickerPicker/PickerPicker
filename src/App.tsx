@@ -62,7 +62,7 @@ function App() {
       {currentScreen === 'game' && (
         <GameScreen nickname={nickname} isNewPlayer={isNewPlayer} />
       )}
-      {currentScreen === 'ranking' && <RankingScreen />}
+      {currentScreen === 'ranking' && <RankingScreen onBack={() => setCurrentScreen('start')} />}
 
       {showNicknameModal && (
         <NicknameModal
