@@ -1,11 +1,35 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-15T20:33:31Z",
-    "currentVersion": "0.0.43",
+    "lastUpdated": "2026-05-15T20:48:18Z",
+    "currentVersion": "0.0.44",
     "projectType": "react",
-    "totalReleases": 21
+    "totalReleases": 22
   },
   "releases": [
+    {
+      "version": "0.0.44",
+      "project_type": "react",
+      "date": "2026-05-15",
+      "pr_number": 43,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 게임 결과 화면에 글로벌 1위 플레이어 정보 표시\n  * 신기록 달성 시 점수/스테이지/콤보에 NEW 뱃지 표시\n\n* **개선**\n  * 게임 결과 화면 디자인 개선 (판정 항목 강조, 내 최고 기록 카드 스타일)\n  * 단어 미리보기 화면의 글자 크기 확대",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "게임 결과 화면에 글로벌 1위 플레이어 정보 표시",
+            "신기록 달성 시 점수/스테이지/콤보에 NEW 뱃지 표시"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "게임 결과 화면 디자인 개선 (판정 항목 강조, 내 최고 기록 카드 스타일)",
+            "단어 미리보기 화면의 글자 크기 확대"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.43",
       "project_type": "react",
