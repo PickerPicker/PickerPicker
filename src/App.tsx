@@ -1,18 +1,76 @@
+import { useState } from 'react'
 import './index.css'
+import type { Screen } from './types'
+import { checkNickname } from './services/playerService'
+import { StartScreen } from './components/StartScreen'
+import { NicknameModal } from './components/NicknameModal'
+import { PlayerTypeModal } from './components/PlayerTypeModal'
+import { GameScreen } from './components/GameScreen'
+import { RankingScreen } from './components/RankingScreen'
 
 function App() {
+  const [currentScreen, setCurrentScreen] = useState<Screen>('start')
+  const [showNicknameModal, setShowNicknameModal] = useState(false)
+  const [showPlayerTypeModal, setShowPlayerTypeModal] = useState(false)
+  const [nickname, setNickname] = useState('')
+  const [isNewPlayer, setIsNewPlayer] = useState(true)
+
+  const handleStart = () => setShowNicknameModal(true)
+
+  const handleNicknameConfirm = async (name: string) => {
+    setNickname(name)
+    const exists = await checkNickname(name)
+    if (exists) {
+      setShowPlayerTypeModal(true)
+    } else {
+      setIsNewPlayer(true)
+      setShowNicknameModal(false)
+      setCurrentScreen('game')
+    }
+  }
+
+  const handleExistingPlayer = () => {
+    setIsNewPlayer(false)
+    setShowNicknameModal(false)
+    setShowPlayerTypeModal(false)
+    setCurrentScreen('game')
+  }
+
+  const handleNewPlayer = () => {
+    setIsNewPlayer(true)
+    setShowNicknameModal(false)
+    setShowPlayerTypeModal(false)
+    setCurrentScreen('game')
+  }
+
   return (
-    <div className="min-h-screen bg-base-200 flex items-center justify-center">
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <div className="card-body items-center text-center">
-          <h1 className="card-title text-3xl font-bold text-primary">PickerPicker</h1>
-          <p className="text-base-content/70">피커피커에 오신 걸 환영합니다</p>
-          <div className="card-actions mt-4">
-            <button className="btn btn-primary">시작하기</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <>
+      {currentScreen === 'start' && (
+        <StartScreen
+          onRanking={() => setCurrentScreen('ranking')}
+          onStart={handleStart}
+        />
+      )}
+      {currentScreen === 'game' && (
+        <GameScreen nickname={nickname} isNewPlayer={isNewPlayer} />
+      )}
+      {currentScreen === 'ranking' && <RankingScreen />}
+
+      {showNicknameModal && (
+        <NicknameModal
+          onConfirm={handleNicknameConfirm}
+          onClose={() => setShowNicknameModal(false)}
+        />
+      )}
+      {showPlayerTypeModal && (
+        <PlayerTypeModal
+          nickname={nickname}
+          onExisting={handleExistingPlayer}
+          onNew={handleNewPlayer}
+          onClose={() => setShowPlayerTypeModal(false)}
+        />
+      )}
+    </>
   )
 }
 
