@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { GameData, GamePhase, GameStat, KeyMapping, StageData } from '../types'
 import { GameHeader } from './game/GameHeader'
 import { PlayStage } from './game/PlayStage'
@@ -70,10 +70,12 @@ export function GameScreen({ nickname }: GameScreenProps) {
   }
 
   const currentStage: StageData = gameData.stages[stageIndex]
-  const stageWithShuffle: StageData = {
+  // useMemo로 메모이제이션 — stat 업데이트 시 리렌더가 발생해도
+  // stageData 참조가 유지되어 PlayStage의 startTime이 리셋되지 않음
+  const stageWithShuffle: StageData = useMemo(() => ({
     ...currentStage,
     keyMapping: shuffledKeyMapping.length > 0 ? shuffledKeyMapping : currentStage.keyMapping,
-  }
+  }), [currentStage, shuffledKeyMapping])
 
   const handlePreviewEnd = () => setPhase('playing')
   const handleStatUpdate = (update: Partial<GameStat>) => setStat(prev => ({ ...prev, ...update }))
