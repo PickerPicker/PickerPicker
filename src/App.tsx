@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './index.css'
 import type { Screen } from './types'
 import { checkNickname, createPlayer } from './services/playerService'
@@ -7,15 +7,28 @@ import { NicknameModal } from './components/NicknameModal'
 import { PlayerTypeModal } from './components/PlayerTypeModal'
 import { GameScreen } from './components/GameScreen'
 import { RankingScreen } from './components/RankingScreen'
+import { useAudio } from './hooks/useAudio'
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('start')
+  const audio = useAudio()
+
+  // 화면 전환 시 BGM 제어
+  useEffect(() => {
+    if (currentScreen === 'start' || currentScreen === 'ranking') {
+      audio.playStartBgm()
+    }
+    // game 화면 BGM은 GameScreen이 직접 제어
+  }, [currentScreen])
   const [showNicknameModal, setShowNicknameModal] = useState(false)
   const [showPlayerTypeModal, setShowPlayerTypeModal] = useState(false)
   const [nickname, setNickname] = useState('')
   const [isNewPlayer, setIsNewPlayer] = useState(true)
 
-  const handleStart = () => setShowNicknameModal(true)
+  const handleStart = () => {
+    audio.playButtonSfx()
+    setShowNicknameModal(true)
+  }
 
   const handleNicknameConfirm = async (name: string) => {
     setNickname(name)
@@ -55,19 +68,44 @@ function App() {
     <>
       {currentScreen === 'start' && (
         <StartScreen
-          onRanking={() => setCurrentScreen('ranking')}
+          onRanking={() => {
+            audio.playButtonSfx()
+            setCurrentScreen('ranking')
+          }}
           onStart={handleStart}
+          bgmVolume={audio.bgmVolume}
+          sfxOn={audio.sfxOn}
+          onBgmVolume={audio.setBgmVol}
+          onToggleSfx={audio.toggleSfx}
         />
       )}
       {currentScreen === 'game' && (
         <GameScreen
           nickname={nickname}
           isNewPlayer={isNewPlayer}
-          onHome={() => setCurrentScreen('start')}
-          onRanking={() => setCurrentScreen('ranking')}
+          onHome={() => {
+            audio.stopBgm()
+            setCurrentScreen('start')
+          }}
+          onRanking={() => {
+            audio.stopBgm()
+            setCurrentScreen('ranking')
+          }}
+          onButtonSfx={audio.playButtonSfx}
+          onClearSfx={audio.playClearSfx}
+          onGameOverSfx={audio.playGameOverSfx}
+          onNoteSfx={audio.playNoteSfx}
+          onGameBgm={audio.playGameBgm}
         />
       )}
-      {currentScreen === 'ranking' && <RankingScreen onBack={() => setCurrentScreen('start')} />}
+      {currentScreen === 'ranking' && (
+        <RankingScreen
+          onBack={() => {
+            audio.playButtonSfx()
+            setCurrentScreen('start')
+          }}
+        />
+      )}
 
       {showNicknameModal && (
         <NicknameModal
