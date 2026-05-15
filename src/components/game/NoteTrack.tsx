@@ -13,6 +13,8 @@ export function NoteTrack({
   pendingIndex,
 }: NoteTrackProps) {
   const travelDuration = NOTE_TRAVEL_BEATS * beatMs
+  // 2000px → -500px (총 2500px), 판정선(0) 도달 시각 = travelDuration 유지
+  const totalDuration = Math.round(travelDuration * 2500 / 2000)
 
   return (
     <div className="relative flex-1 overflow-hidden">
@@ -38,9 +40,9 @@ export function NoteTrack({
             className="absolute top-1/2 -translate-y-1/2"
             style={{
               left: JUDGMENT_X,
-              animation: `note-slide ${travelDuration}ms linear`,
+              animation: `note-slide ${totalDuration}ms linear`,
               animationDelay: `${delay}ms`,
-              animationFillMode: 'backwards',
+              animationFillMode: 'both',
               opacity: i === pendingIndex ? 1 : 0.4,
             }}
           >
