@@ -7,6 +7,7 @@ interface StartScreenProps {
   onRanking: () => void
   onStart: () => void
   onPractice: () => void
+  onTutorial: () => void
   hasPlayedBefore: boolean
   bgmVolume: number
   sfxOn: boolean
@@ -190,7 +191,7 @@ function SettingsView({
   )
 }
 
-export function StartScreen({ onRanking, onStart, onPractice, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout }: StartScreenProps) {
+export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout }: StartScreenProps) {
   const [screen, setScreen] = useState<Screen>('home')
 
   return (
@@ -232,6 +233,13 @@ export function StartScreen({ onRanking, onStart, onPractice, hasPlayedBefore, b
               {/* 로그인 상태면 "플레이하기", 비로그인이면 "시작" (닉네임+PIN 입력) */}
               <SoundButton className="btn btn-primary btn-lg w-full text-lg" onClick={onStart}>
                 {nickname ? '플레이하기' : '시작'}
+              </SoundButton>
+              <SoundButton
+                className="btn btn-lg w-full text-lg"
+                style={{ background: 'rgba(0,180,255,0.18)', color: '#fff', border: '1px solid rgba(0,180,255,0.45)' }}
+                onClick={onTutorial}
+              >
+                게임 방법
               </SoundButton>
               {hasPlayedBefore && (
                 <SoundButton
