@@ -1,3 +1,5 @@
+import { SoundButton } from './common/SoundButton'
+
 interface PlayerTypeModalProps {
   nickname: string
   onExisting: () => void
@@ -14,12 +16,12 @@ export function PlayerTypeModal({ nickname, onExisting, onNew, onClose }: Player
           <span className="text-primary font-bold">{nickname}</span>으로 계속 플레이하시겠습니까?
         </p>
         <div className="flex gap-3 justify-end">
-          <button className="btn btn-secondary" onClick={onExisting}>
+          <SoundButton className="btn btn-secondary" onClick={onExisting}>
             기존 플레이어로 플레이
-          </button>
-          <button className="btn btn-primary" onClick={onNew}>
+          </SoundButton>
+          <SoundButton className="btn btn-primary" onClick={onNew}>
             신규 플레이어로 플레이
-          </button>
+          </SoundButton>
         </div>
       </div>
       <div className="modal-backdrop" onClick={onClose} />

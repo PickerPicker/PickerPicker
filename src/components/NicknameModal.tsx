@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { SoundButton } from './common/SoundButton'
 
 interface NicknameModalProps {
   onConfirm: (nickname: string) => void
@@ -32,13 +33,13 @@ export function NicknameModal({ onConfirm, onClose }: NicknameModalProps) {
           autoFocus
         />
         <div className="modal-action">
-          <button
+          <SoundButton
             className="btn btn-primary"
             onClick={handleConfirm}
             disabled={!value.trim()}
           >
             확인
-          </button>
+          </SoundButton>
         </div>
       </div>
       <div className="modal-backdrop" onClick={onClose} />

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getRanking, type RankingEntry } from '../services/playerService'
 import rankingBg from '../assets/ranking-bg.png'
+import { SoundButton } from './common/SoundButton'
 
 interface RankingScreenProps {
   onBack: () => void
@@ -29,9 +30,9 @@ export function RankingScreen({ onBack }: RankingScreenProps) {
     >
       {/* 헤더 */}
       <div className="flex items-center w-full max-w-2xl">
-        <button className="btn btn-ghost btn-sm" style={{ color: '#c084fc' }} onClick={onBack}>
+        <SoundButton className="btn btn-ghost btn-sm" style={{ color: '#c084fc' }} onClick={onBack}>
           ← 돌아가기
-        </button>
+        </SoundButton>
         {/* 픽셀아트 배경 위 가독성용 텍스트 쉐도우 */}
         <h1
           className="text-3xl font-black tracking-widest mx-auto pr-16"

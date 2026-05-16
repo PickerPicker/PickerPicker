@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { SoundButton } from './common/SoundButton'
 
 type Screen = 'home' | 'settings' | 'credits'
 
@@ -68,13 +69,13 @@ function CreditsView({ onBack }: { onBack: () => void }) {
         © 2026 PickerPicker Team
       </p>
 
-      <button
+      <SoundButton
         className="btn btn-sm w-full"
         style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontFamily: 'monospace' }}
         onClick={onBack}
       >
         ← BACK
-      </button>
+      </SoundButton>
     </div>
   )
 }
@@ -142,13 +143,13 @@ function SettingsView({
           <span className="font-mono text-primary">{offsetLabel}</span>
         </div>
         <div className="flex items-center justify-center gap-4">
-          <button
+          <SoundButton
             className="btn btn-sm btn-outline w-10"
             onClick={() => onOffset(offset - 1)}
             disabled={offset <= -100}
           >
             −
-          </button>
+          </SoundButton>
           <div className="flex flex-col items-center gap-0.5">
             <input
               type="range"
@@ -163,26 +164,26 @@ function SettingsView({
               <span>-100</span><span>0</span><span>+100</span>
             </div>
           </div>
-          <button
+          <SoundButton
             className="btn btn-sm btn-outline w-10"
             onClick={() => onOffset(offset + 1)}
             disabled={offset >= 100}
           >
             +
-          </button>
+          </SoundButton>
         </div>
         <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.3)' }}>
           음수: 판정 앞당김 · 양수: 판정 늦춤
         </p>
       </div>
 
-      <button
+      <SoundButton
         className="btn btn-sm w-full mt-2"
         style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontFamily: 'monospace' }}
         onClick={onBack}
       >
         ← BACK
-      </button>
+      </SoundButton>
     </div>
   )
 }
@@ -227,39 +228,39 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBg
             </div>
             <div className="flex flex-col gap-3 w-full">
               {/* 로그인 상태면 "플레이하기", 비로그인이면 "시작" (닉네임+PIN 입력) */}
-              <button className="btn btn-primary btn-lg w-full text-lg" onClick={onStart}>
+              <SoundButton className="btn btn-primary btn-lg w-full text-lg" onClick={onStart}>
                 {nickname ? '플레이하기' : '시작'}
-              </button>
-              <button
+              </SoundButton>
+              <SoundButton
                 className="btn btn-lg w-full text-lg"
                 style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
                 onClick={onRanking}
               >
                 랭킹
-              </button>
-              <button
+              </SoundButton>
+              <SoundButton
                 className="btn btn-lg w-full text-lg"
                 style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
                 onClick={() => setScreen('settings')}
               >
                 설정
-              </button>
-              <button
+              </SoundButton>
+              <SoundButton
                 className="btn btn-lg w-full text-lg"
                 style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
                 onClick={() => setScreen('credits')}
               >
                 크레딧
-              </button>
+              </SoundButton>
               {/* 로그인 상태일 때만 로그아웃 버튼 표시 */}
               {nickname && (
-                <button
+                <SoundButton
                   className="btn btn-lg w-full text-lg"
                   style={{ background: 'rgba(180,40,40,0.25)', color: 'rgba(255,100,100,0.85)', border: '1px solid rgba(255,80,80,0.25)' }}
                   onClick={onLogout}
                 >
                   로그아웃
-                </button>
+                </SoundButton>
               )}
             </div>
           </>

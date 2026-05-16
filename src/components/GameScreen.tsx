@@ -4,6 +4,7 @@ import { saveGameResult, getRanking } from '../services/playerService'
 import { GameHeader } from './game/GameHeader'
 import { PlayStage } from './game/PlayStage'
 import { PreviewStage } from './game/PreviewStage'
+import { SoundButton } from './common/SoundButton'
 
 const LS_KEY = 'pickerpicker_best'
 
@@ -50,7 +51,6 @@ interface GameScreenProps {
   isNewPlayer: boolean
   onHome: () => void
   onRanking: () => void
-  onButtonSfx: () => void
   onClearSfx: () => void
   onGameOverSfx: () => void
   onHitSfx: () => void
@@ -59,7 +59,7 @@ interface GameScreenProps {
   offset: number
 }
 
-export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset }: GameScreenProps) {
+export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset }: GameScreenProps) {
   const [gameData, setGameData] = useState<GameData | null>(null)
   const [loading, setLoading] = useState(true)
   const [stageIndex, setStageIndex] = useState(0)
@@ -308,15 +308,15 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
 
         {/* 하단 버튼 3개 */}
         <div className="flex flex-col w-full max-w-sm gap-2 shrink-0">
-          <button className="btn btn-primary btn-lg w-full text-lg" onClick={() => { onButtonSfx(); handleRestart() }}>
+          <SoundButton className="btn btn-primary btn-lg w-full text-lg" onClick={handleRestart}>
             다시 하기
-          </button>
-          <button className="btn btn-outline btn-lg w-full text-lg" onClick={() => { onButtonSfx(); onRanking() }}>
+          </SoundButton>
+          <SoundButton className="btn btn-outline btn-lg w-full text-lg" onClick={onRanking}>
             랭킹 보기
-          </button>
-          <button className="btn btn-lg w-full text-lg border border-white/60 text-white hover:bg-white/10" onClick={() => { onButtonSfx(); onHome() }}>
+          </SoundButton>
+          <SoundButton className="btn btn-lg w-full text-lg border border-white/60 text-white hover:bg-white/10" onClick={onHome}>
             홈으로 가기
-          </button>
+          </SoundButton>
         </div>
       </div>
     )
