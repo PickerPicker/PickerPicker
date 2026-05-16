@@ -23,6 +23,8 @@ interface SpawnedNote {
 interface TutorialStageProps {
   step: TutorialStep
   gauge: number
+  progressLabel: string
+  cleared: boolean
   onStepCleared: () => void
   onGaugeChange: (next: number) => void
   onHitSfx: () => void
@@ -32,6 +34,8 @@ interface TutorialStageProps {
 export function TutorialStage({
   step,
   gauge,
+  progressLabel,
+  cleared,
   onStepCleared,
   onGaugeChange,
   onHitSfx,
@@ -107,9 +111,9 @@ export function TutorialStage({
     }
   }, [gauge, onGaugeChange, onHitSfx, onMissSfx, step.gaugeLoss, step.missMode, step.target, markCleared])
 
-  // 노트 spawn 루프
+  // 노트 spawn 루프 — step 진입 700ms 후 시작 (메시지 페이드인 + 사용자 준비 시간), cleared 되면 즉시 정지
   useEffect(() => {
-    if (step.isReady || step.noteLoop.length === 0) return
+    if (step.isReady || step.noteLoop.length === 0 || cleared) return
     let spawnIndex = 0
     const spawn = () => {
       const now = performance.now()
@@ -125,30 +129,28 @@ export function TutorialStage({
       notesRef.current.push(note)
       setNotes([...notesRef.current])
     }
-    spawn()
-    const id = setInterval(spawn, beatMs)
-    return () => clearInterval(id)
-  }, [step.id, step.isReady, step.noteLoop, beatMs, travelMs])
+    let intervalId: ReturnType<typeof setInterval> | null = null
+    const startDelay = setTimeout(() => {
+      spawn()
+      intervalId = setInterval(spawn, beatMs)
+    }, 700)
+    return () => {
+      clearTimeout(startDelay)
+      if (intervalId) clearInterval(intervalId)
+    }
+  }, [step.id, step.isReady, step.noteLoop, beatMs, travelMs, cleared])
 
-  // 노트 정리: 통과한 노트 자동 MISS (튜토리얼: 게이지 미차감) + 화면 밖 제거
+  // 노트 정리: 튜토리얼은 통과해도 MISS 안 띄움 — 그냥 조용히 사라짐 (학습 부담 X)
   useEffect(() => {
     if (step.isReady) return
     const id = setInterval(() => {
       const now = performance.now()
-      let changed = false
       let removedAny = false
       notesRef.current = notesRef.current.filter(n => {
         const t = (now - n.spawnTime) / travelMs
         const x = computeNoteX(t, trackWidth)
         if (!n.hit && now - n.arrivalTime > GOOD_WINDOW) {
           n.hit = true
-          n.hitType = 'MISS'
-          changed = true
-          if (!step.missMode) {
-            judgeIdRef.current += 1
-            setLastJudgment({ type: 'MISS', id: judgeIdRef.current })
-            onMissSfx()
-          }
         }
         if (n.hit && x < JUDGMENT_X - 60) {
           removedAny = true
@@ -156,10 +158,10 @@ export function TutorialStage({
         }
         return true
       })
-      if (changed || removedAny) setNotes([...notesRef.current])
+      if (removedAny) setNotes([...notesRef.current])
     }, 16)
     return () => clearInterval(id)
-  }, [step.id, step.isReady, step.missMode, travelMs, trackWidth, onMissSfx])
+  }, [step.id, step.isReady, travelMs, trackWidth])
 
   // 키 입력
   useEffect(() => {
@@ -215,6 +217,13 @@ export function TutorialStage({
     return () => window.removeEventListener('keydown', handler)
   }, [step.keyMapping, step.missMode, step.target, applyJudgment, markCleared])
 
+  // hint 키 색상 tone: invalid 키면 빨강(이건 틀린 키), valid 키면 파랑(눌러라)
+  const hintIsInvalid = step.hintKeys.some(k => {
+    const km = step.keyMapping.find(m => m.key === k)
+    return km?.type === 'invalid'
+  })
+  const hintTone: 'primary' | 'error' = hintIsInvalid ? 'error' : 'primary'
+
   return (
     <div className="flex flex-col flex-1 min-h-0">
       {/* 노트 트랙 */}
@@ -224,40 +233,65 @@ export function TutorialStage({
         </div>
         {/* 판정선 박스 */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-28 h-28 border-4 rounded z-10"
+          className="absolute top-1/2 -translate-y-1/2 w-32 h-32 border-4 rounded-lg z-10"
           style={{
             left: JUDGMENT_X,
-            borderColor: 'rgba(255,255,255,0.25)',
+            borderColor: 'rgba(255,255,255,0.3)',
             background: 'rgba(255,255,255,0.04)',
           }}
         />
-        {/* 노트들 */}
         {notes.map(n => (
           <NoteView key={n.id} note={n} travelMs={travelMs} trackWidth={trackWidth} hintActive={step.hintKeys.length > 0} />
         ))}
       </div>
 
-      {/* 키보드 */}
+      {/* 키보드 바로 위 안내 메시지 (STEP 배지 + 메시지 + 진행도, 페이드 in) */}
+      <div
+        key={`${step.id}-${cleared ? 'done' : 'play'}`}
+        className={`flex items-center justify-center gap-4 px-4 py-4 border-t border-base-300 tutorial-fade ${cleared ? 'bg-success/15' : 'bg-base-200'}`}
+      >
+        {cleared ? (
+          <span className="text-2xl font-black tracking-wide text-success">
+            ✓ 잘했어요!
+          </span>
+        ) : (
+          <>
+            <span
+              className="px-3 py-1 rounded font-mono text-xs font-black tracking-[2px]"
+              style={{
+                background: 'rgba(0,180,255,0.2)',
+                border: '1px solid rgba(0,180,255,0.5)',
+                color: '#00b4ff',
+              }}
+            >
+              {step.label}
+            </span>
+            <span className="text-lg font-bold tracking-wide text-base-content">
+              {step.message}
+            </span>
+            {progressLabel && (
+              <span className="font-mono text-base font-bold text-primary">
+                {progressLabel}
+              </span>
+            )}
+          </>
+        )}
+      </div>
+      <style>{`
+        @keyframes tutorial-fade-in {
+          0%   { opacity: 0; transform: translateY(6px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        .tutorial-fade { animation: tutorial-fade-in 0.45s ease-out; }
+      `}</style>
+
       <KeyboardDisplay
         keyMapping={step.keyMapping}
         pressedKey={pressedKey}
-        highlightSyllable={undefined}
+        hintKeys={step.hintKeys}
+        hintTone={hintTone}
       />
 
-      {/* hint key 깜빡 효과 — KeyboardDisplay 위에 inline override */}
-      <style>{`
-        ${step.hintKeys.map(k => `
-          .tutorial-stage [data-key="${k}"], .tutorial-stage .hint-${k} {
-            animation: tutorial-key-pulse 1s infinite;
-          }
-        `).join('\n')}
-        @keyframes tutorial-key-pulse {
-          0%, 100% { box-shadow: 0 0 10px rgba(0,180,255,0.5); }
-          50% { box-shadow: 0 0 22px rgba(0,180,255,1); }
-        }
-      `}</style>
-
-      {/* progress hidden in 상위에서 banner로 노출 */}
       <div data-tutorial-progress={progress} style={{ display: 'none' }} />
     </div>
   )
@@ -303,12 +337,12 @@ function NoteView({ note, travelMs, trackWidth, hintActive }: {
 
   return (
     <div
-      className="absolute top-1/2 -translate-y-1/2 w-24 h-24 flex items-center justify-center rounded border-[3px] font-black text-4xl text-white"
+      className="absolute top-1/2 -translate-y-1/2 w-32 h-32 flex items-center justify-center rounded-lg border-4 font-black text-6xl text-white"
       style={{
         left: x,
         borderColor,
-        background: 'rgba(0,180,255,0.18)',
-        boxShadow: note.hit ? 'none' : '0 0 14px rgba(0,180,255,0.4)',
+        background: 'rgba(0,180,255,0.22)',
+        boxShadow: note.hit ? 'none' : '0 0 22px rgba(0,180,255,0.55)',
         opacity,
         transition: 'opacity 0.2s, border-color 0.15s',
       }}

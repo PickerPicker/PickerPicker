@@ -1,27 +1,30 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { CloseButton } from '../common/CloseButton'
 import { TUTORIAL_STEPS } from './tutorialSteps'
-import { TutorialBanner } from './TutorialBanner'
 import { TutorialStage } from './TutorialStage'
 
 interface TutorialScreenProps {
+  /** 마지막 STEP 완료 시 호출 (자동 노출 흐름에서 본 게임 진입) */
   onComplete: () => void
+  /** ESC / 나가기 버튼으로 즉시 종료 */
+  onExit: () => void
+  /** 자동 노출 흐름이면 true — STEP 4에 READY 카운트다운 표시 */
+  showReadyCountdown: boolean
   onHitSfx: () => void
   onMissSfx: () => void
 }
 
-export function TutorialScreen({ onComplete, onHitSfx, onMissSfx }: TutorialScreenProps) {
+export function TutorialScreen({ onComplete, onExit, showReadyCountdown, onHitSfx, onMissSfx }: TutorialScreenProps) {
   const [stepIdx, setStepIdx] = useState(0)
   const [cleared, setCleared] = useState(false)
   const [gauge, setGauge] = useState(100)
   const [progress, setProgress] = useState(0)
   const [countdown, setCountdown] = useState(3)
   const clearedRef = useRef(false)
-  const stepIdxRef = useRef(0)
 
   const step = TUTORIAL_STEPS[stepIdx]
 
   useEffect(() => {
-    stepIdxRef.current = stepIdx
     clearedRef.current = false
     setCleared(false)
     setProgress(0)
@@ -34,11 +37,20 @@ export function TutorialScreen({ onComplete, onHitSfx, onMissSfx }: TutorialScre
     setCleared(true)
   }, [])
 
+  // 클리어 후 자동 다음 STEP
+  useEffect(() => {
+    if (!cleared || step.isReady) return
+    const id = setTimeout(() => {
+      setStepIdx(i => Math.min(TUTORIAL_STEPS.length - 1, i + 1))
+    }, 1200)
+    return () => clearTimeout(id)
+  }, [cleared, step.isReady])
+
   const handleGaugeChange = useCallback((next: number) => {
     setGauge(next)
   }, [])
 
-  // STEP 진행도 추적 (TutorialStage가 progress 자체 관리하므로 banner용 별도 tick으로 DOM에서 읽기)
+  // STEP 진행도 추적
   useEffect(() => {
     if (step.isReady) return
     const id = setInterval(() => {
@@ -51,21 +63,26 @@ export function TutorialScreen({ onComplete, onHitSfx, onMissSfx }: TutorialScre
     return () => clearInterval(id)
   }, [step.isReady])
 
-  // READY 카운트다운
+  // STEP 4: 자동 노출이면 READY 카운트다운, 시작화면 진입이면 짧게 보여주고 복귀
   useEffect(() => {
     if (!step.isReady) return
-    setCountdown(step.countdownSec ?? 3)
-    let sec = step.countdownSec ?? 3
-    const id = setInterval(() => {
-      sec -= 1
-      setCountdown(sec)
-      if (sec <= 0) {
-        clearInterval(id)
-        onComplete()
-      }
-    }, 1000)
-    return () => clearInterval(id)
-  }, [step.isReady, step.countdownSec, onComplete])
+    if (showReadyCountdown) {
+      setCountdown(step.countdownSec ?? 3)
+      let sec = step.countdownSec ?? 3
+      const id = setInterval(() => {
+        sec -= 1
+        setCountdown(sec)
+        if (sec <= 0) {
+          clearInterval(id)
+          onComplete()
+        }
+      }, 1000)
+      return () => clearInterval(id)
+    } else {
+      const id = setTimeout(onExit, 1500)
+      return () => clearTimeout(id)
+    }
+  }, [step.isReady, step.countdownSec, showReadyCountdown, onComplete, onExit])
 
   // 글로벌 키
   useEffect(() => {
@@ -73,7 +90,7 @@ export function TutorialScreen({ onComplete, onHitSfx, onMissSfx }: TutorialScre
       if (e.repeat) return
       if (e.key === 'Escape') {
         e.preventDefault()
-        setStepIdx(TUTORIAL_STEPS.length - 1)
+        onExit()
         return
       }
       if (e.key === 'ArrowLeft') {
@@ -84,7 +101,8 @@ export function TutorialScreen({ onComplete, onHitSfx, onMissSfx }: TutorialScre
       if (e.key === ' ' || e.key === 'ArrowRight') {
         e.preventDefault()
         if (step.isReady) {
-          onComplete()
+          if (showReadyCountdown) onComplete()
+          else onExit()
           return
         }
         if (clearedRef.current) {
@@ -95,28 +113,17 @@ export function TutorialScreen({ onComplete, onHitSfx, onMissSfx }: TutorialScre
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [step.isReady, onComplete])
+  }, [step.isReady, showReadyCountdown, onComplete, onExit])
 
-  const progressLabel = step.missMode
-    ? `시도: ${progress} / ${step.target}`
-    : step.target > 0
-      ? `진행: ${progress} / ${step.target} 성공`
-      : ''
+  const progressLabel = step.target > 0 ? `${progress}/${step.target}` : ''
 
   const gaugeColor = gauge <= 25 ? 'linear-gradient(90deg, #ff5577, #ffaa00)'
     : gauge <= 50 ? 'linear-gradient(90deg, #ffaa00, #ffd700)'
     : 'linear-gradient(90deg, #00b4ff, #00ffaa)'
 
   return (
-    <div className="tutorial-stage flex flex-col h-screen bg-base-100">
-      <TutorialBanner
-        label={step.label}
-        message={step.message}
-        progress={progressLabel}
-        cleared={cleared}
-      />
-
-      {/* 미니 HUD: 게이지 */}
+    <div className="flex flex-col h-screen bg-base-100">
+      {/* 미니 HUD: 게이지 + 단어 + ESC 나가기 */}
       <div className="flex items-center gap-3 px-4 py-2 bg-base-200 border-b border-base-300">
         <span className="font-mono text-xs text-base-content/60 tracking-widest">LIFE</span>
         <div className="flex-1 h-3 rounded-full overflow-hidden bg-base-300 border border-base-content/20">
@@ -129,18 +136,21 @@ export function TutorialScreen({ onComplete, onHitSfx, onMissSfx }: TutorialScre
         {step.word && (
           <>
             <span className="font-mono text-xs text-base-content/40">|</span>
-            <span className="font-mono text-xs text-base-content/60">단어:</span>
+            <span className="font-mono text-xs text-base-content/60">단어</span>
             <span className="font-bold text-base-content text-sm">{step.word}</span>
           </>
         )}
+        <CloseButton onClick={onExit} className="ml-2" />
       </div>
 
       {step.isReady ? (
-        <ReadyView countdown={countdown} />
+        <ReadyView countdown={countdown} showCountdown={showReadyCountdown} />
       ) : (
         <TutorialStage
           step={step}
           gauge={gauge}
+          progressLabel={progressLabel}
+          cleared={cleared}
           onStepCleared={handleStepCleared}
           onGaugeChange={handleGaugeChange}
           onHitSfx={onHitSfx}
@@ -148,32 +158,37 @@ export function TutorialScreen({ onComplete, onHitSfx, onMissSfx }: TutorialScre
         />
       )}
 
-      <KeyHintBar canPrev={stepIdx > 0} canNext={cleared || Boolean(step.isReady)} />
     </div>
   )
 }
 
-function ReadyView({ countdown }: { countdown: number }) {
+function ReadyView({ countdown, showCountdown }: { countdown: number; showCountdown: boolean }) {
+  if (!showCountdown) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 bg-black/40">
+        <div
+          className="font-mono font-black tracking-[6px]"
+          style={{ fontSize: 42, color: '#00ffaa', textShadow: '0 0 24px rgba(0,255,170,0.6)' }}
+        >
+          TUTORIAL CLEAR
+        </div>
+        <p className="font-mono text-xs tracking-widest text-base-content/60">
+          잠시 후 시작 화면으로 돌아갑니다
+        </p>
+      </div>
+    )
+  }
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-4 bg-black/40">
       <div
         className="font-mono font-black tracking-[8px]"
-        style={{
-          fontSize: 56,
-          color: '#00ffaa',
-          textShadow: '0 0 30px rgba(0,255,170,0.7)',
-        }}
+        style={{ fontSize: 56, color: '#00ffaa', textShadow: '0 0 30px rgba(0,255,170,0.7)' }}
       >
         READY!
       </div>
       <div
         className="font-mono font-black"
-        style={{
-          fontSize: 88,
-          color: '#00b4ff',
-          lineHeight: 1,
-          textShadow: '0 0 30px rgba(0,180,255,0.8)',
-        }}
+        style={{ fontSize: 88, color: '#00b4ff', lineHeight: 1, textShadow: '0 0 30px rgba(0,180,255,0.8)' }}
       >
         {Math.max(0, countdown)}
       </div>
@@ -184,34 +199,3 @@ function ReadyView({ countdown }: { countdown: number }) {
   )
 }
 
-function KeyHintBar({ canPrev, canNext }: { canPrev: boolean; canNext: boolean }) {
-  return (
-    <div className="flex items-center justify-between px-4 py-2 bg-base-200 border-t border-base-300 font-mono text-xs">
-      <span className={`flex items-center gap-2 ${canPrev ? 'text-base-content/70' : 'text-base-content/25'}`}>
-        <Kbd>←</Kbd> 이전
-      </span>
-      <span className="flex items-center gap-2 text-base-content/70">
-        <Kbd>ESC</Kbd> 건너뛰기
-      </span>
-      <span className={`flex items-center gap-2 ${canNext ? 'text-base-content/70' : 'text-base-content/25'}`}>
-        <Kbd primary>SPACE</Kbd> / <Kbd primary>→</Kbd> 다음
-      </span>
-    </div>
-  )
-}
-
-function Kbd({ children, primary }: { children: React.ReactNode; primary?: boolean }) {
-  return (
-    <kbd
-      className="px-2 py-0.5 border border-b-2 rounded text-xs font-bold"
-      style={{
-        background: primary ? 'rgba(0,180,255,0.3)' : 'rgba(255,255,255,0.08)',
-        borderColor: primary ? 'rgba(0,180,255,0.6)' : 'rgba(255,255,255,0.25)',
-        color: '#fff',
-        boxShadow: primary ? '0 0 8px rgba(0,180,255,0.5)' : 'none',
-      }}
-    >
-      {children}
-    </kbd>
-  )
-}

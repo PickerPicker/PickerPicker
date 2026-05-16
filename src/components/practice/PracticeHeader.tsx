@@ -1,3 +1,5 @@
+import { CloseButton } from '../common/CloseButton'
+
 interface PracticeHeaderProps {
   levelTitle: string
   stepIndex: number       // 0~2
@@ -12,13 +14,13 @@ export function PracticeHeader({ levelTitle, stepIndex, word, score, combo = 0, 
     <div className="flex flex-col bg-base-200 border-b border-base-300 shrink-0">
       <div className="flex items-center justify-between px-6 pt-4 pb-4">
         <div className="flex flex-col gap-1 w-40">
-          <span className="text-[10px] tracking-widest text-primary/80" style={{ fontFamily: 'monospace' }}>
+          <span className="text-[10px] tracking-widest text-primary/80" style={{  }}>
             [PRACTICE]
           </span>
           <span className="text-lg font-bold text-base-content leading-tight">
             {levelTitle}
           </span>
-          <span className="text-xs text-base-content/50" style={{ fontFamily: 'monospace' }}>
+          <span className="text-xs text-base-content/50" style={{  }}>
             {stepIndex + 1} / 3
           </span>
         </div>
@@ -42,16 +44,11 @@ export function PracticeHeader({ levelTitle, stepIndex, word, score, combo = 0, 
             Score: {score.toString().padStart(6, '0')}
           </span>
           {combo > 0 && (
-            <span className="text-xs font-bold text-warning">
+            <span className="text-xs font-bold text-warning font-mono">
               {combo} COMBO
             </span>
           )}
-          <button
-            className="btn btn-xs btn-ghost text-base-content/60 hover:text-error"
-            onClick={onExit}
-          >
-            ← 메뉴
-          </button>
+          <CloseButton onClick={onExit} label="메뉴" />
         </div>
       </div>
     </div>

@@ -164,6 +164,11 @@ function AppInner() {
       {currentScreen === 'tutorial' && (
         <TutorialScreen
           onComplete={handleTutorialComplete}
+          onExit={() => {
+            localStorage.setItem(LS_TUTORIAL_KEY, 'true')
+            setCurrentScreen(afterTutorial === 'game' ? 'game' : 'start')
+          }}
+          showReadyCountdown={afterTutorial === 'game'}
           onHitSfx={audio.playHitSfx}
           onMissSfx={audio.playMissSfx}
         />

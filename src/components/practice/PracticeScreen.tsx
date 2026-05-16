@@ -143,6 +143,18 @@ export function PracticeScreen({
     onHome()
   }
 
+  // ESC: 메뉴면 홈으로, 플레이/완료면 메뉴로
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      if (pPhase === 'menu') exitToHome()
+      else backToMenu()
+    }
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+  }, [pPhase])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -182,19 +194,19 @@ export function PracticeScreen({
           <div className="flex flex-col items-center gap-1">
             <h1
               className="text-3xl font-black tracking-widest text-primary"
-              style={{ textShadow: '0 2px 16px rgba(0,180,255,0.5)', fontFamily: 'monospace' }}
+              style={{ textShadow: '0 2px 16px rgba(0,180,255,0.5)' }}
             >
               ─ PRACTICE ─
             </h1>
             <p
               className="text-xs tracking-widest"
-              style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace' }}
+              style={{ color: 'rgba(255,255,255,0.45)' }}
             >
               난이도를 골라 3스테이지를 연습하세요
             </p>
             <p
               className="text-[10px] tracking-wider"
-              style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}
+              style={{ color: 'rgba(255,255,255,0.3)' }}
             >
               · 게임오버 없음 · 기록 저장 안함 ·
             </p>
@@ -211,33 +223,33 @@ export function PracticeScreen({
                 }}
                 onClick={() => startLevel(d.level)}
               >
-                <div className="flex flex-col">
-                  <span className="text-xs tracking-widest" style={{ color: 'rgba(0,180,255,0.7)', fontFamily: 'monospace' }}>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs tracking-widest" style={{ color: 'rgba(0,180,255,0.7)' }}>
                     [LV {d.level}]
                   </span>
-                  <span className="text-lg font-bold text-white tracking-wider">
+                  <span className="text-lg font-bold text-white tracking-wider" style={{  }}>
                     {d.title}
                   </span>
-                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>
+                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.55)', letterSpacing: '1px' }}>
                     {d.subtitle} · {d.keys} · BPM {d.bpm}
                   </span>
                 </div>
-                <span className="text-2xl text-primary opacity-80">›</span>
+                <span className="text-2xl text-primary opacity-80 font-mono">›</span>
               </button>
             ))}
           </div>
 
           <button
-            className="btn btn-sm w-full mt-1"
+            className="btn btn-lg w-full mt-2 text-base"
             style={{
               background: 'rgba(60,80,120,0.45)',
               color: '#fff',
-              border: '1px solid rgba(255,255,255,0.2)',
-              fontFamily: 'monospace',
+              border: '1px solid rgba(255,255,255,0.3)',
+              letterSpacing: '2px',
             }}
             onClick={onHome}
           >
-            ← 홈으로
+            ← 홈으로  <kbd className="kbd kbd-xs ml-2">ESC</kbd>
           </button>
         </div>
       </div>
@@ -250,11 +262,11 @@ export function PracticeScreen({
 
     return (
       <div className="flex flex-col items-center justify-center h-screen gap-4 px-4 py-4 bg-base-100">
-        <h2 className="text-3xl font-black tracking-wider text-success">
+        <h2 className="text-3xl font-black tracking-widest text-success" style={{  }}>
           {levelInfo.title} 연습 완료
         </h2>
-        <p className="text-sm text-base-content/60" style={{ fontFamily: 'monospace' }}>
-          {levelInfo.subtitle} · 기록은 저장되지 않습니다
+        <p className="text-xs tracking-widest text-base-content/60" style={{  }}>
+          {levelInfo.subtitle} · 기록 저장 안 함
         </p>
 
         <div className="card bg-base-200 w-full max-w-sm">
