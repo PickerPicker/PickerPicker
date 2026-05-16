@@ -52,7 +52,6 @@ export interface BestRecord {
   bestStage: number
   bestCombo: number
   bestPerfectCount: number
-  playCount: number
 }
 
 export type JudgmentType = 'PERFECT' | 'GOOD' | 'MISS'

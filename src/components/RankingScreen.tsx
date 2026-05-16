@@ -62,6 +62,7 @@ export function RankingScreen({ onBack }: RankingScreenProps) {
                 <th style={{ background: 'transparent' }}>점수</th>
                 <th style={{ background: 'transparent' }}>스테이지</th>
                 <th style={{ background: 'transparent' }}>콤보</th>
+                <th style={{ background: 'transparent' }}>플레이</th>
               </tr>
             </thead>
             <tbody>
@@ -79,6 +80,7 @@ export function RankingScreen({ onBack }: RankingScreenProps) {
                   <td style={{ background: 'transparent' }}>{entry.best_score.toLocaleString()}</td>
                   <td style={{ background: 'transparent' }}>STAGE {entry.best_stage}</td>
                   <td style={{ background: 'transparent' }}>{entry.best_combo}콤보</td>
+                  <td style={{ background: 'transparent' }}>{entry.play_count}회</td>
                 </tr>
               ))}
             </tbody>
