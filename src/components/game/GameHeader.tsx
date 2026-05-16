@@ -4,9 +4,11 @@ interface GameHeaderProps {
   gauge: number
   score: number
   combo?: number
+  hideGauge?: boolean
+  stageLabel?: string
 }
 
-export function GameHeader({ stage, word, gauge, score, combo = 0 }: GameHeaderProps) {
+export function GameHeader({ stage, word, gauge, score, combo = 0, hideGauge = false, stageLabel }: GameHeaderProps) {
   const gaugePercent = Math.max(0, Math.min(100, gauge))
   const gaugeColor =
     gaugePercent > 50 ? 'bg-primary' : gaugePercent > 25 ? 'bg-warning' : 'bg-error'
@@ -15,7 +17,7 @@ export function GameHeader({ stage, word, gauge, score, combo = 0 }: GameHeaderP
     <div className="flex flex-col bg-base-200 border-b border-base-300 shrink-0">
       <div className="flex items-center justify-between px-6 pt-4 pb-2">
         <span className="text-2xl font-bold text-base-content w-32">
-          Stage {stage}
+          {stageLabel ?? `Stage ${stage}`}
         </span>
 
         <div className="flex flex-col items-center gap-2">
@@ -44,14 +46,17 @@ export function GameHeader({ stage, word, gauge, score, combo = 0 }: GameHeaderP
         </div>
       </div>
 
-      <div className="px-6 pb-4">
-        <div className="w-full h-4 bg-base-300 rounded-full overflow-hidden">
-          <div
-            className={`h-full ${gaugeColor} rounded-full transition-all duration-300`}
-            style={{ width: `${gaugePercent}%` }}
-          />
+      {!hideGauge && (
+        <div className="px-6 pb-4">
+          <div className="w-full h-4 bg-base-300 rounded-full overflow-hidden">
+            <div
+              className={`h-full ${gaugeColor} rounded-full transition-all duration-300`}
+              style={{ width: `${gaugePercent}%` }}
+            />
+          </div>
         </div>
-      </div>
+      )}
+      {hideGauge && <div className="pb-4" />}
     </div>
   )
 }

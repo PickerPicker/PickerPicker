@@ -48,3 +48,6 @@ backend/.env.*
 # Backend 로그
 backend/logs/
 backend/*.log
+
+# Superpowers brainstorm mockups (gitignored)
+.superpowers/

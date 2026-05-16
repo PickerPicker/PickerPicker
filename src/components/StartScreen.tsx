@@ -6,6 +6,9 @@ type Screen = 'home' | 'settings' | 'credits'
 interface StartScreenProps {
   onRanking: () => void
   onStart: () => void
+  onPractice: () => void
+  onTutorial: () => void
+  hasPlayedBefore: boolean
   bgmVolume: number
   sfxOn: boolean
   offset: number
@@ -30,11 +33,11 @@ function CreditsView({ onBack }: { onBack: () => void }) {
       <div className="flex flex-col items-center gap-1">
         <h2
           className="text-2xl font-black tracking-widest text-primary"
-          style={{ textShadow: '0 0 12px rgba(0,180,255,0.7)', fontFamily: 'monospace' }}
+          style={{ textShadow: '0 0 12px rgba(0,180,255,0.7)' }}
         >
           ─ CREDITS ─
         </h2>
-        <p className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace' }}>
+        <p className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.45)' }}>
           2026 INTERCON
         </p>
       </div>
@@ -48,13 +51,13 @@ function CreditsView({ onBack }: { onBack: () => void }) {
           >
             <span
               className="text-xs font-black tracking-widest"
-              style={{ color: 'rgba(0,180,255,0.7)', fontFamily: 'monospace', minWidth: '80px' }}
+              style={{ color: 'rgba(0,180,255,0.7)', minWidth: '80px' }}
             >
               [{role}]
             </span>
             <span
               className="text-base font-bold tracking-wider"
-              style={{ fontFamily: 'monospace', color: '#e2e8f0' }}
+              style={{ color: '#e2e8f0' }}
             >
               {name}
             </span>
@@ -64,14 +67,14 @@ function CreditsView({ onBack }: { onBack: () => void }) {
 
       <p
         className="text-xs tracking-widest text-center"
-        style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}
+        style={{ color: 'rgba(255,255,255,0.3)' }}
       >
         © 2026 PickerPicker Team
       </p>
 
       <SoundButton
         className="btn btn-sm w-full"
-        style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontFamily: 'monospace' }}
+        style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
         onClick={onBack}
       >
         ← BACK
@@ -97,7 +100,7 @@ function SettingsView({
     <div className="flex flex-col gap-6 w-full">
       <h2
         className="text-2xl font-black tracking-widest text-primary text-center"
-        style={{ textShadow: '0 0 12px rgba(0,180,255,0.7)', fontFamily: 'monospace' }}
+        style={{ textShadow: '0 0 12px rgba(0,180,255,0.7)' }}
       >
         ─ SETTINGS ─
       </h2>
@@ -105,7 +108,7 @@ function SettingsView({
       {/* BGM 볼륨 */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-bold tracking-widest" style={{ fontFamily: 'monospace', color: 'rgba(0,180,255,0.8)' }}>[BGM]</span>
+          <span className="font-bold tracking-widest" style={{ color: 'rgba(0,180,255,0.8)' }}>[BGM]</span>
           <span className="font-mono text-primary">{bgmVolume}%</span>
         </div>
         <input
@@ -127,7 +130,7 @@ function SettingsView({
         className="flex items-center justify-between px-4 py-3 rounded-lg"
         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
       >
-        <span className="font-bold tracking-widest text-sm" style={{ fontFamily: 'monospace', color: 'rgba(0,180,255,0.8)' }}>[SFX]</span>
+        <span className="font-bold tracking-widest text-sm" style={{ color: 'rgba(0,180,255,0.8)' }}>[SFX]</span>
         <input
           type="checkbox"
           className="toggle toggle-primary"
@@ -139,7 +142,7 @@ function SettingsView({
       {/* 판정 오프셋 */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-bold tracking-widest" style={{ fontFamily: 'monospace', color: 'rgba(0,180,255,0.8)' }}>[OFFSET]</span>
+          <span className="font-bold tracking-widest" style={{ color: 'rgba(0,180,255,0.8)' }}>[OFFSET]</span>
           <span className="font-mono text-primary">{offsetLabel}</span>
         </div>
         <div className="flex items-center justify-center gap-4">
@@ -179,7 +182,7 @@ function SettingsView({
 
       <SoundButton
         className="btn btn-sm w-full mt-2"
-        style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontFamily: 'monospace' }}
+        style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
         onClick={onBack}
       >
         ← BACK
@@ -188,7 +191,7 @@ function SettingsView({
   )
 }
 
-export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout }: StartScreenProps) {
+export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout }: StartScreenProps) {
   const [screen, setScreen] = useState<Screen>('home')
 
   return (
@@ -212,16 +215,16 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBg
                 PickerPicker
               </h1>
               <div className="flex items-center gap-2">
-                <p className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+                <p className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
                   2026 InCerthon
                 </p>
-                <span className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>
+                <span className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
                   v{__APP_VERSION__}
                 </span>
               </div>
               {/* 로그인 상태일 때 닉네임 표시 */}
               {nickname && (
-                <p className="text-sm font-bold tracking-wider" style={{ color: 'rgba(0,180,255,0.9)', fontFamily: 'monospace', marginTop: '2px' }}>
+                <p className="text-sm font-bold tracking-wider" style={{ color: 'rgba(0,180,255,0.9)', marginTop: '2px' }}>
                   안녕하세요, {nickname}님!
                 </p>
               )}
@@ -231,6 +234,22 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBg
               <SoundButton className="btn btn-primary btn-lg w-full text-lg" onClick={onStart}>
                 {nickname ? '플레이하기' : '시작'}
               </SoundButton>
+              <SoundButton
+                className="btn btn-lg w-full text-lg"
+                style={{ background: 'rgba(0,180,255,0.18)', color: '#fff', border: '1px solid rgba(0,180,255,0.45)' }}
+                onClick={onTutorial}
+              >
+                게임 방법
+              </SoundButton>
+              {hasPlayedBefore && (
+                <SoundButton
+                  className="btn btn-lg w-full text-lg"
+                  style={{ background: 'rgba(80,140,200,0.35)', color: '#fff', border: '1px solid rgba(0,180,255,0.4)' }}
+                  onClick={onPractice}
+                >
+                  연습모드
+                </SoundButton>
+              )}
               <SoundButton
                 className="btn btn-lg w-full text-lg"
                 style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
