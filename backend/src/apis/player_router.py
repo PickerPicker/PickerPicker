@@ -42,11 +42,20 @@ class VerifyPinResponse(BaseModel):
     success: bool
 
 
+# 비정상/치팅 값 차단을 위한 상한. 향후 스테이지/스코어링 확장 여유 포함.
+# score:       현재 스테이지 최대 ~수만점. 50+ 스테이지 + 배율 보너스 감안 10M
+# stage:       현재 1~15. 100까지 여유 (메이저 확장 대비)
+# combo:       곡당 최대 노트 ~300. 4자리 상한
+MAX_SCORE = 10_000_000
+MAX_STAGE = 100
+MAX_COMBO = 9_999
+
+
 class SaveResultRequest(BaseModel):
     nickname: str
-    score: int = Field(..., ge=0)
-    stage: int = Field(..., ge=1, le=15)
-    combo: int = Field(..., ge=0)
+    score: int = Field(..., ge=0, le=MAX_SCORE)
+    stage: int = Field(..., ge=1, le=MAX_STAGE)
+    combo: int = Field(..., ge=0, le=MAX_COMBO)
 
 
 # ── 엔드포인트 ───────────────────────────────────────────────────
