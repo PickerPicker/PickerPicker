@@ -249,7 +249,7 @@ export function PracticeScreen({
             }}
             onClick={onHome}
           >
-            ← 홈으로  <kbd className="kbd kbd-xs ml-2">ESC</kbd>
+            ← 홈으로
           </button>
         </div>
       </div>
