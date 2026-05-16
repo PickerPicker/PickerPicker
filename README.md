@@ -122,10 +122,10 @@ main push
 
 <div align="center">
 
-| <img src="여기에_프로필사진" width="80" style="border-radius:50%"/> | <img src="여기에_프로필사진" width="80" style="border-radius:50%"/> | <img src="여기에_프로필사진" width="80" style="border-radius:50%"/> | <img src="여기에_프로필사진" width="80" style="border-radius:50%"/> | <img src="여기에_프로필사진" width="80" style="border-radius:50%"/> |
+| <img width="1376" height="1371" alt="KakaoTalk_Photo_2026-05-16-18-45-49" src="https://github.com/user-attachments/assets/4b9d30dc-5c04-4fb0-abd5-9ae814ec4af7" width="80" style="border-radius:50%"/> | <img src="여기에_프로필사진" width="80" style="border-radius:50%"/> | <img src="여기에_프로필사진" width="80" style="border-radius:50%"/> | <img width="834" height="834" alt="KakaoTalk_Photo_2026-05-16-18-45-56" src="https://github.com/user-attachments/assets/c12043a5-c906-4533-a535-85e860094465" width="80" style="border-radius:50%"/> | <img width="1081" height="1080" alt="KakaoTalk_Photo_2026-05-16-18-44-09" src="https://github.com/user-attachments/assets/d368999d-cfea-4dc8-9bd4-21f067cd47ce" width="80" style="border-radius:50%"/> |
 |:---:|:---:|:---:|:---:|:---:|
-| **서새찬** | **이하경** | **배나현** | **이건희** | **황시선** |
-| LEAD | PM | DESIGN | FRONTEND | BACKEND |
+| **이하경** | **배나현** | **이건희** | **황시선** | **서새찬** |
+| PM | DESIGN | FRONTEND | BACKEND | LEAD |
 
 </div>
 
