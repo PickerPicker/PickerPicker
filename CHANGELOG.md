@@ -1,7 +1,19 @@
 # Changelog
 
-**현재 버전:** 0.0.74  
-**마지막 업데이트:** 2026-05-16T12:16:18Z  
+**현재 버전:** 0.0.76  
+**마지막 업데이트:** 2026-05-16T12:30:35Z  
+
+---
+
+## [0.0.76] - 2026-05-16
+
+**PR:** #80  
+
+**기타**
+- 플레이어 통계 대시보드 + 백엔드 통계 로직 고도화 : feat : 세션/일별 집계/세션 토큰 테이블 신설, 본인·전체·시계열·스테이지별 통계 API, StatsScreen 추가 https://github.com/PickerPicker/PickerPicker/issues/78
+- 관리자 페이지 추가 — 플레이어 CRUD·PIN 초기화·치트 기록 정리 : docs : 설계서 작성 (인증 JWT·is_active 컬럼·일괄 정리 API 포함) https://github.com/PickerPicker/PickerPicker/issues/81
+- 10라운드 이상 미리보기 화면에서 음절 배열이 키매핑을 가리는 문제 : docs : 구현 보고서 및 QA 테스트케이스 추가 https://github.com/PickerPicker/PickerPicker/issues/79
+- 10라운드 이상 미리보기 화면에서 음절 배열이 키매핑을 가리는 문제 : fix : PreviewStage 음절 칸 크기·컨테이너 폭·gap을 음절 수 tier별 동적 조정 (≤16 w-20/max-w-2xl, ≤32 w-16/max-w-4xl, ≤48 w-12/max-w-5xl) https://github.com/PickerPicker/PickerPicker/issues/79
 
 ---
 
