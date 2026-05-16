@@ -175,6 +175,7 @@ export function useAudio() {
   return {
     bgmVolume,
     sfxOn,
+    bgmPlaying,
     setBgmVol,
     toggleSfx,
     ensureAudioCtx,

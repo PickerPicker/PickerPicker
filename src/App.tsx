@@ -7,17 +7,25 @@ import { NicknameModal } from './components/NicknameModal'
 import { PinModal } from './components/PinModal'
 import { GameScreen } from './components/GameScreen'
 import { RankingScreen } from './components/RankingScreen'
+import { PracticeScreen } from './components/practice/PracticeScreen'
 import { AudioProvider, useAudioContext } from './contexts/AudioContext'
 
 /** PIN 입력 단계 */
 type PinStep = 'login' | 'create' | 'confirm'
 
+/** App.tsx 한정 화면 union — types/Screen 확장 없이 'practice' 추가 */
+type AppScreen = Screen | 'practice'
+
 const LS_OFFSET_KEY = 'pickerpicker_offset'
 const LS_NICKNAME_KEY = 'pickerpicker_nickname'
+const LS_BEST_KEY = 'pickerpicker_best'
 
 function AppInner() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('start')
+  const [currentScreen, setCurrentScreen] = useState<AppScreen>('start')
   const audio = useAudioContext()
+
+  // 본 게임 1회 이상 플레이 여부 — 연습모드 노출 조건
+  const hasPlayedBefore = typeof window !== 'undefined' && localStorage.getItem(LS_BEST_KEY) !== null
 
   const [offset, setOffset] = useState<number>(() => {
     const saved = localStorage.getItem(LS_OFFSET_KEY)
@@ -114,6 +122,11 @@ function AppInner() {
         <StartScreen
           onRanking={() => setCurrentScreen('ranking')}
           onStart={handleStart}
+          onPractice={() => {
+            audio.ensureAudioCtx()
+            setCurrentScreen('practice')
+          }}
+          hasPlayedBefore={hasPlayedBefore}
           bgmVolume={audio.bgmVolume}
           sfxOn={audio.sfxOn}
           onBgmVolume={audio.setBgmVol}
@@ -122,6 +135,19 @@ function AppInner() {
           onOffset={handleOffset}
           nickname={nickname}
           onLogout={handleLogout}
+        />
+      )}
+      {currentScreen === 'practice' && (
+        <PracticeScreen
+          onHome={() => {
+            audio.stopBgm()
+            setCurrentScreen('start')
+          }}
+          onHitSfx={audio.playHitSfx}
+          onMissSfx={audio.playMissSfx}
+          onGameBgm={audio.playGameBgm}
+          onStopBgm={audio.stopBgm}
+          offset={offset}
         />
       )}
       {currentScreen === 'game' && (

@@ -1,4 +1,4 @@
-export type Screen = 'start' | 'game' | 'ranking'
+export type Screen = 'start' | 'game' | 'ranking' | 'practice' | 'tutorial'
 
 export type GamePhase = 'preview' | 'playing' | 'result'
 

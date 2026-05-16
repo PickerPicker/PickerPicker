@@ -6,6 +6,8 @@ type Screen = 'home' | 'settings' | 'credits'
 interface StartScreenProps {
   onRanking: () => void
   onStart: () => void
+  onPractice: () => void
+  hasPlayedBefore: boolean
   bgmVolume: number
   sfxOn: boolean
   offset: number
@@ -188,7 +190,7 @@ function SettingsView({
   )
 }
 
-export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout }: StartScreenProps) {
+export function StartScreen({ onRanking, onStart, onPractice, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout }: StartScreenProps) {
   const [screen, setScreen] = useState<Screen>('home')
 
   return (
@@ -215,7 +217,7 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBg
                 <p className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
                   2026 InCerthon
                 </p>
-                <span className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>
+                <span className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
                   v{__APP_VERSION__}
                 </span>
               </div>
@@ -231,6 +233,15 @@ export function StartScreen({ onRanking, onStart, bgmVolume, sfxOn, offset, onBg
               <SoundButton className="btn btn-primary btn-lg w-full text-lg" onClick={onStart}>
                 {nickname ? '플레이하기' : '시작'}
               </SoundButton>
+              {hasPlayedBefore && (
+                <SoundButton
+                  className="btn btn-lg w-full text-lg"
+                  style={{ background: 'rgba(80,140,200,0.35)', color: '#fff', border: '1px solid rgba(0,180,255,0.4)' }}
+                  onClick={onPractice}
+                >
+                  연습모드
+                </SoundButton>
+              )}
               <SoundButton
                 className="btn btn-lg w-full text-lg"
                 style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
