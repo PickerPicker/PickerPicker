@@ -1,40 +1,35 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { GameStat, JudgmentType, StageData } from '../../types'
-import { JudgmentDisplay } from './JudgmentDisplay'
-import { KeyboardDisplay } from './KeyboardDisplay'
-import { NoteTrack } from './NoteTrack'
+import { JudgmentDisplay } from '../game/JudgmentDisplay'
+import { KeyboardDisplay } from '../game/KeyboardDisplay'
+import { NoteTrack } from '../game/NoteTrack'
 
-const PERFECT_WINDOW = 40   // ±100ms
-const GOOD_WINDOW = 100      // ±250ms
+const PERFECT_WINDOW = 40
+const GOOD_WINDOW = 100
 const NOTE_TRAVEL_BEATS = 4
 
-interface PlayStageProps {
+interface PracticePlayStageProps {
   stageData: StageData
   stat: GameStat
   onStatUpdate: (update: Partial<GameStat>) => void
   onStageComplete: () => void
-  onGameOver: () => void
   onHitSfx: () => void
   onMissSfx: () => void
   offset: number
-  practiceMode?: boolean
 }
 
-export function PlayStage({
+export function PracticePlayStage({
   stageData,
   stat,
   onStatUpdate,
   onStageComplete,
-  onGameOver,
   onHitSfx,
   onMissSfx,
   offset,
-  practiceMode = false,
-}: PlayStageProps) {
+}: PracticePlayStageProps) {
   const { bpm, inputSyllables, keyMapping, validSyllables } = stageData
   const beatMs = Math.round(60_000 / bpm)
 
-  // pendingIndex를 state와 ref 둘 다 관리 — ref는 즉시 반영, state는 NoteTrack 렌더용
   const [pendingIndex, setPendingIndex] = useState(0)
   const [lastJudgment, setLastJudgment] = useState<{ type: JudgmentType; id: number } | null>(null)
   const [pressedKey, setPressedKey] = useState<string | undefined>()
@@ -44,17 +39,14 @@ export function PlayStage({
   const pendingIndexRef = useRef(0)
   const statRef = useRef(stat)
   const judgeCountRef = useRef(0)
-  const gameOverRef = useRef(false)
 
   useEffect(() => { statRef.current = stat }, [stat])
 
   const onStatUpdateRef = useRef(onStatUpdate)
-  const onGameOverRef = useRef(onGameOver)
   const onStageCompleteRef = useRef(onStageComplete)
   const onHitSfxRef = useRef(onHitSfx)
   const onMissSfxRef = useRef(onMissSfx)
   useEffect(() => { onStatUpdateRef.current = onStatUpdate }, [onStatUpdate])
-  useEffect(() => { onGameOverRef.current = onGameOver }, [onGameOver])
   useEffect(() => { onStageCompleteRef.current = onStageComplete }, [onStageComplete])
   useEffect(() => { onHitSfxRef.current = onHitSfx }, [onHitSfx])
   useEffect(() => { onMissSfxRef.current = onMissSfx }, [onMissSfx])
@@ -68,65 +60,56 @@ export function PlayStage({
     }
   }, [inputSyllables.length])
 
+  // 연습모드: 게이지 변화/게임오버 처리 없음. 점수/콤보/카운트만 갱신.
   const applyJudgment = useCallback((type: JudgmentType) => {
-    if (gameOverRef.current) return
+    if (type === 'MISS') onMissSfxRef.current()
+    else onHitSfxRef.current()
 
-    // PERFECT/GOOD → 정타음, MISS → 미스음
-    if (type === 'MISS') {
-      onMissSfxRef.current()
-    } else {
-      onHitSfxRef.current()
-    }
     judgeCountRef.current += 1
     setLastJudgment({ type, id: judgeCountRef.current })
 
     const current = statRef.current
-    let { score, gauge, perfectCombo: combo, maxCombo, perfectCount, goodCount, missCount } = current
+    let { score, perfectCombo: combo, maxCombo, perfectCount, goodCount, missCount } = current
 
     if (type === 'PERFECT') {
       combo += 1
       if (combo > maxCombo) maxCombo = combo
       score += combo >= 5 ? 200 : 100
-      gauge = Math.min(100, gauge + (combo >= 5 ? 2 : 1))
       perfectCount += 1
-      if (combo > maxCombo) maxCombo = combo  // 최대 콤보 갱신
     } else if (type === 'GOOD') {
       combo = 0
       score += 50
       goodCount += 1
     } else {
       combo = 0
-      gauge = Math.max(0, gauge - 15)
       missCount += 1
     }
 
-    const newStat = { score, gauge, perfectCombo: combo, maxCombo, perfectCount, goodCount, missCount }
+    const newStat: GameStat = {
+      score,
+      gauge: 100,  // 연습모드는 항상 100으로 고정 (사용처에서 표시 안 함)
+      perfectCombo: combo,
+      maxCombo,
+      perfectCount,
+      goodCount,
+      missCount,
+    }
     statRef.current = newStat
     setPerfectCombo(combo)
     onStatUpdateRef.current(newStat)
 
-    if (!practiceMode && gauge <= 0) {
-      gameOverRef.current = true
-      onGameOverRef.current()
-      return
-    }
-
     advancePending()
-  }, [advancePending, practiceMode])
+  }, [advancePending])
 
-  // useLayoutEffect: DOM 업데이트 직후 paint 전에 실행 → 애니메이션 시작 시각과 일치
   useLayoutEffect(() => {
     startTimeRef.current = Date.now() + NOTE_TRAVEL_BEATS * beatMs
     pendingIndexRef.current = 0
     setPendingIndex(0)
     setPerfectCombo(0)
-    gameOverRef.current = false
   }, [stageData, beatMs])
 
-  // 자동 MISS/통과 인터벌 (useLayoutEffect 이후 실행되므로 startTimeRef가 올바름)
   useEffect(() => {
     const interval = setInterval(() => {
-      if (gameOverRef.current) return
       const idx = pendingIndexRef.current
       if (idx >= inputSyllables.length) return
       const arrivalTime = startTimeRef.current + idx * beatMs + offset
@@ -135,7 +118,6 @@ export function PlayStage({
         if (validSyllables.includes(inputSyllables[idx])) {
           applyJudgment('MISS')
         } else {
-          // 무효 음절: 패널티 없이 통과
           const next = pendingIndexRef.current + 1
           pendingIndexRef.current = next
           setPendingIndex(next)
@@ -146,7 +128,6 @@ export function PlayStage({
     return () => clearInterval(interval)
   }, [stageData, beatMs, applyJudgment, inputSyllables, validSyllables, offset])
 
-  // 키 입력 핸들러
   useEffect(() => {
     const codeMap: Record<string, string> = {
       a: 'KeyA', s: 'KeyS', d: 'KeyD', f: 'KeyF',
@@ -154,7 +135,7 @@ export function PlayStage({
     }
 
     const handler = (e: KeyboardEvent) => {
-      if (e.repeat || gameOverRef.current) return
+      if (e.repeat) return
       const km = keyMapping.find(k => codeMap[k.key] === e.code)
       if (!km) return
 
