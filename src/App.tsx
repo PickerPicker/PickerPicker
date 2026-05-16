@@ -7,7 +7,7 @@ import { NicknameModal } from './components/NicknameModal'
 import { PinModal } from './components/PinModal'
 import { GameScreen } from './components/GameScreen'
 import { RankingScreen } from './components/RankingScreen'
-import { useAudio } from './hooks/useAudio'
+import { AudioProvider, useAudioContext } from './contexts/AudioContext'
 
 /** PIN 입력 단계 */
 type PinStep = 'login' | 'create' | 'confirm'
@@ -15,9 +15,9 @@ type PinStep = 'login' | 'create' | 'confirm'
 const LS_OFFSET_KEY = 'pickerpicker_offset'
 const LS_NICKNAME_KEY = 'pickerpicker_nickname'
 
-function App() {
+function AppInner() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('start')
-  const audio = useAudio()
+  const audio = useAudioContext()
 
   const [offset, setOffset] = useState<number>(() => {
     const saved = localStorage.getItem(LS_OFFSET_KEY)
@@ -49,7 +49,6 @@ function App() {
 
   const handleStart = () => {
     audio.ensureAudioCtx()
-    audio.playButtonSfx()
     // 이미 로그인된 경우 바로 게임 진입
     if (nickname) {
       setCurrentScreen('game')
@@ -59,7 +58,6 @@ function App() {
   }
 
   const handleLogout = () => {
-    audio.playButtonSfx()
     localStorage.removeItem(LS_NICKNAME_KEY)
     setNickname('')
   }
@@ -114,10 +112,7 @@ function App() {
     <>
       {currentScreen === 'start' && (
         <StartScreen
-          onRanking={() => {
-            audio.playButtonSfx()
-            setCurrentScreen('ranking')
-          }}
+          onRanking={() => setCurrentScreen('ranking')}
           onStart={handleStart}
           bgmVolume={audio.bgmVolume}
           sfxOn={audio.sfxOn}
@@ -141,7 +136,6 @@ function App() {
             audio.stopBgm()
             setCurrentScreen('ranking')
           }}
-          onButtonSfx={audio.playButtonSfx}
           onClearSfx={audio.playClearSfx}
           onGameOverSfx={audio.playGameOverSfx}
           onHitSfx={audio.playHitSfx}
@@ -151,12 +145,7 @@ function App() {
         />
       )}
       {currentScreen === 'ranking' && (
-        <RankingScreen
-          onBack={() => {
-            audio.playButtonSfx()
-            setCurrentScreen('start')
-          }}
-        />
+        <RankingScreen onBack={() => setCurrentScreen('start')} />
       )}
 
       {showNicknameModal && (
@@ -195,4 +184,10 @@ function App() {
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <AudioProvider>
+      <AppInner />
+    </AudioProvider>
+  )
+}

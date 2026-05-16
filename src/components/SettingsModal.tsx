@@ -1,3 +1,5 @@
+import { SoundButton } from './common/SoundButton'
+
 interface SettingsModalProps {
   bgmVolume: number
   sfxOn: boolean
@@ -23,7 +25,7 @@ export function SettingsModal({ bgmVolume, sfxOn, offset, onBgmVolume, onToggleS
         <div className="card-body gap-6">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-lg tracking-wide">게임 설정</h2>
-            <button className="btn btn-ghost btn-sm btn-circle" onClick={onClose}>✕</button>
+            <SoundButton className="btn btn-ghost btn-sm btn-circle" onClick={onClose}>✕</SoundButton>
           </div>
 
           {/* BGM 볼륨 */}
@@ -66,13 +68,13 @@ export function SettingsModal({ bgmVolume, sfxOn, offset, onBgmVolume, onToggleS
               <span className="font-mono text-primary w-16 text-right">{offsetLabel}</span>
             </div>
             <div className="flex items-center justify-center gap-4">
-              <button
+              <SoundButton
                 className="btn btn-sm btn-outline w-10"
                 onClick={() => onOffset(offset - 1)}
                 disabled={offset <= -100}
               >
                 −
-              </button>
+              </SoundButton>
               <div className="flex flex-col items-center gap-0.5">
                 <input
                   type="range"
@@ -89,13 +91,13 @@ export function SettingsModal({ bgmVolume, sfxOn, offset, onBgmVolume, onToggleS
                   <span>+100</span>
                 </div>
               </div>
-              <button
+              <SoundButton
                 className="btn btn-sm btn-outline w-10"
                 onClick={() => onOffset(offset + 1)}
                 disabled={offset >= 100}
               >
                 +
-              </button>
+              </SoundButton>
             </div>
             <p className="text-xs text-base-content/40 text-center">
               음수: 판정 앞당김 · 양수: 판정 늦춤

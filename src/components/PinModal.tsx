@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { SoundButton } from './common/SoundButton'
 
 type PinMode = 'login' | 'create' | 'confirm'
 
@@ -72,16 +73,16 @@ export function PinModal({ nickname, mode, onSuccess, onBack, verifyPin }: PinMo
         />
         {error && <p className="text-error text-sm">{error}</p>}
         <div className="modal-action justify-between">
-          <button className="btn btn-ghost" onClick={onBack} disabled={loading}>
+          <SoundButton className="btn btn-ghost" onClick={onBack} disabled={loading}>
             닉네임 변경
-          </button>
-          <button
+          </SoundButton>
+          <SoundButton
             className="btn btn-primary"
             onClick={handleConfirm}
             disabled={pin.length !== 4 || loading}
           >
             {loading ? <span className="loading loading-spinner loading-sm" /> : '확인'}
-          </button>
+          </SoundButton>
         </div>
       </div>
     </dialog>
