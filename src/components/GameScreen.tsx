@@ -196,7 +196,11 @@ export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOver
     setIsClear(false)
     setServerPlayCount(null)
     setPhase('preview')
-    // stageIndex가 이미 0이면 useEffect 미트리거 → 명시적으로 BGM 재시작
+    // stageIndex가 이미 0(첫 스테이지 사망)이면 useEffect 미트리거 →
+    // 매핑 재셔플 + BGM 모두 명시적으로 재실행
+    if (gameData) {
+      setShuffledKeyMapping(shuffleKeyMapping(gameData.stages[0].keyMapping))
+    }
     onGameBgm(0)
   }
 
