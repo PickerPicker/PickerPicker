@@ -5,6 +5,7 @@ import { GameHeader } from './game/GameHeader'
 import { PlayStage } from './game/PlayStage'
 import { PreviewStage } from './game/PreviewStage'
 import { SoundButton } from './common/SoundButton'
+import gameoverBg from '../assets/gameover-bg.png'
 
 const LS_KEY = 'pickerpicker_best'
 
@@ -204,7 +205,15 @@ export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOver
     const reachedStage = gameData.stages[stageIndex]?.stage ?? stageIndex + 1
 
     return (
-      <div className="flex flex-col items-center justify-center h-screen gap-3 px-4 py-4 bg-base-100 overflow-hidden">
+      <div
+        className="flex flex-col items-center justify-center h-screen gap-3 px-4 py-4 overflow-hidden"
+        style={{
+          backgroundImage: `url(${gameoverBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
         {/* 타이틀 */}
         <h2 className={`text-4xl font-black tracking-wider shrink-0 ${isClear ? 'text-success' : 'text-error'}`}>
           {isClear ? 'ALL CLEAR' : 'GAME OVER'}
