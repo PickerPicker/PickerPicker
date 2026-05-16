@@ -1,11 +1,35 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-16T08:34:08Z",
-    "currentVersion": "0.0.68",
+    "lastUpdated": "2026-05-16T11:51:44Z",
+    "currentVersion": "0.0.72",
     "projectType": "react",
-    "totalReleases": 40
+    "totalReleases": 41
   },
   "releases": [
+    {
+      "version": "0.0.72",
+      "project_type": "react",
+      "date": "2026-05-16",
+      "pr_number": 74,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **버그 수정**\n  * PIN 재입력 화면 진입 시 입력값 자동 초기화\n\n* **문서**\n  * 프로젝트 소개 페이지에 팀원 프로필 사진 추가\n  * 한국 음절 표현 문구 다듬기\n  * 프로젝트 문서 구조 정리",
+      "parsed_changes": {
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "PIN 재입력 화면 진입 시 입력값 자동 초기화"
+          ]
+        },
+        "문서": {
+          "title": "문서",
+          "items": [
+            "프로젝트 소개 페이지에 팀원 프로필 사진 추가",
+            "한국 음절 표현 문구 다듬기",
+            "프로젝트 문서 구조 정리"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.68",
       "project_type": "react",
