@@ -8,6 +8,7 @@ import { PinModal } from './components/PinModal'
 import { GameScreen } from './components/GameScreen'
 import { RankingScreen } from './components/RankingScreen'
 import { PracticeScreen } from './components/practice/PracticeScreen'
+import { TutorialScreen } from './components/tutorial/TutorialScreen'
 import { AudioProvider, useAudioContext } from './contexts/AudioContext'
 
 /** PIN 입력 단계 */
@@ -19,9 +20,11 @@ type AppScreen = Screen | 'practice'
 const LS_OFFSET_KEY = 'pickerpicker_offset'
 const LS_NICKNAME_KEY = 'pickerpicker_nickname'
 const LS_BEST_KEY = 'pickerpicker_best'
+const LS_TUTORIAL_KEY = 'pickerpicker_tutorial_seen'
 
 function AppInner() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('start')
+  const [afterTutorial, setAfterTutorial] = useState<AppScreen>('start')
   const audio = useAudioContext()
 
   // 본 게임 1회 이상 플레이 여부 — 연습모드 노출 조건
@@ -55,14 +58,34 @@ function AppInner() {
   const [pendingPin, setPendingPin] = useState('')   // 신규 생성 시 첫 입력 임시 보관
   const [isNewPlayer, setIsNewPlayer] = useState(true)
 
+  const goToGameOrTutorial = (next: AppScreen) => {
+    if (!localStorage.getItem(LS_TUTORIAL_KEY)) {
+      setAfterTutorial(next)
+      setCurrentScreen('tutorial')
+    } else {
+      setCurrentScreen(next)
+    }
+  }
+
   const handleStart = () => {
     audio.ensureAudioCtx()
-    // 이미 로그인된 경우 바로 게임 진입
+    // 이미 로그인된 경우 바로 게임 진입 (튜토리얼 미경험 시 자동 노출)
     if (nickname) {
-      setCurrentScreen('game')
+      goToGameOrTutorial('game')
       return
     }
     setShowNicknameModal(true)
+  }
+
+  const handleTutorialOpen = () => {
+    audio.ensureAudioCtx()
+    setAfterTutorial('start')
+    setCurrentScreen('tutorial')
+  }
+
+  const handleTutorialComplete = () => {
+    localStorage.setItem(LS_TUTORIAL_KEY, 'true')
+    setCurrentScreen(afterTutorial)
   }
 
   const handleLogout = () => {
@@ -90,7 +113,7 @@ function AppInner() {
     if (pinStep === 'login') {
       localStorage.setItem(LS_NICKNAME_KEY, nickname)
       resetModals()
-      setCurrentScreen('game')
+      goToGameOrTutorial('game')
     } else if (pinStep === 'create') {
       // 신규 — 확인 단계로
       setPendingPin(pin)
@@ -105,7 +128,7 @@ function AppInner() {
       await createPlayer(nickname, pin)
       localStorage.setItem(LS_NICKNAME_KEY, nickname)
       resetModals()
-      setCurrentScreen('game')
+      goToGameOrTutorial('game')
     }
   }
 
@@ -126,6 +149,7 @@ function AppInner() {
             audio.ensureAudioCtx()
             setCurrentScreen('practice')
           }}
+          onTutorial={handleTutorialOpen}
           hasPlayedBefore={hasPlayedBefore}
           bgmVolume={audio.bgmVolume}
           sfxOn={audio.sfxOn}
@@ -135,6 +159,13 @@ function AppInner() {
           onOffset={handleOffset}
           nickname={nickname}
           onLogout={handleLogout}
+        />
+      )}
+      {currentScreen === 'tutorial' && (
+        <TutorialScreen
+          onComplete={handleTutorialComplete}
+          onHitSfx={audio.playHitSfx}
+          onMissSfx={audio.playMissSfx}
         />
       )}
       {currentScreen === 'practice' && (
