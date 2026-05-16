@@ -68,7 +68,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 3,
     label: 'STEP 3 / 4',
-    message: '틀린 키 = MISS! 게이지가 줄어듭니다. 일부러 D 키를 눌러보세요',
+    message: '틀린 키 = MISS! 게이지가 줄어듭니다. 일부러 D 키를 3번 눌러보세요',
     hintKeys: ['d'],
     word: '커',
     validSyllables: ['커'],
@@ -83,7 +83,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
       { key: 'l', syllable: '-', type: 'invalid' },
       { key: ';', syllable: '-', type: 'invalid' },
     ],
-    target: 1,
+    target: 3,
     gaugeLoss: true,
     missMode: true,
   },

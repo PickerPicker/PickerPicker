@@ -1,31 +1,18 @@
 interface TutorialBannerProps {
   label: string
-  message: string
   progress: string
-  cleared: boolean
 }
 
-export function TutorialBanner({ label, message, progress, cleared }: TutorialBannerProps) {
+/** 상단 미니멀 진행 표시 — STEP 번호와 진행도만. 안내 메시지는 키보드 위에 별도 표시. */
+export function TutorialBanner({ label, progress }: TutorialBannerProps) {
   return (
-    <div
-      className="w-full text-center px-5 py-2.5 border-b-2"
-      style={{
-        background: 'linear-gradient(180deg, rgba(0,180,255,0.95), rgba(0,180,255,0.85))',
-        borderBottomColor: '#00ffaa',
-        color: '#001020',
-        boxShadow: '0 4px 20px rgba(0,180,255,0.4)',
-      }}
-    >
-      <div className="text-[11px] font-mono font-bold tracking-[2px]" style={{ color: 'rgba(0,30,60,0.7)' }}>
-        {label}
-      </div>
-      <div className="text-sm font-extrabold mt-0.5">
-        {cleared ? '✓ 완료! SPACE 또는 → 눌러 다음 STEP' : message}
-      </div>
+    <div className="flex items-center justify-center gap-4 px-5 py-2 border-b border-primary/30 bg-base-200/70 font-mono">
+      <span className="text-xs font-bold tracking-[2px] text-primary">{label}</span>
       {progress && (
-        <div className="text-[11px] font-mono mt-0.5" style={{ color: 'rgba(0,30,60,0.7)' }}>
-          {progress}
-        </div>
+        <>
+          <span className="text-xs text-base-content/30">|</span>
+          <span className="text-xs text-base-content/70 tracking-wider">{progress}</span>
+        </>
       )}
     </div>
   )
