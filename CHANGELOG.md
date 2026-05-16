@@ -1,7 +1,16 @@
 # Changelog
 
 **현재 버전:** 0.0.74  
-**마지막 업데이트:** 2026-05-16T12:00:34Z  
+**마지막 업데이트:** 2026-05-16T12:16:18Z  
+
+---
+
+## [0.0.74] - 2026-05-16
+
+**PR:** #77  
+
+**기타**
+- 🚀[기능개선][Backend] API 인증 및 점수 검증 보안 강화 : docs : CLAUDE.md DB 자격증명 placeholder 마스킹 + 구현 보고서/QA 테스트케이스 추가 https://github.com/PickerPicker/PickerPicker/issues/72
 
 ---
 
