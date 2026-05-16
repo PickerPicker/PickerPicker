@@ -30,7 +30,7 @@ VITE_API_BASE_URL=http://suh-project.synology.me:8001   # 실서버
 
 ### 백엔드 (`backend/.env`)
 ```
-DATABASE_URL=postgresql+asyncpg://kimchi:***REMOVED***@suh-project.synology.me:5430/pickerpicker
+DATABASE_URL=postgresql+asyncpg://<DB_USER>:<DB_PASSWORD>@suh-project.synology.me:5430/pickerpicker
 ENVIRONMENT=dev
 API_KEY=
 ```
