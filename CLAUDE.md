@@ -70,44 +70,107 @@ API_KEY=
 | `SERVER_PASSWORD` | SSH 비밀번호 |
 | `PROJECT_DEPLOY_PORT` | 프론트 배포 포트 (3010) |
 
-## 개발 워크플로우
+## 협업 기본 Flow (필수 준수)
 
-### 표준 작업 순서
+모든 작업은 아래 순서대로 진행한다. 각 단계는 건너뛰지 않는다.
 
+### 1) 이슈 확인 / 생성
+
+- 기존 이슈가 있으면 번호 확인 (예: `#40`)
+- 없으면 `/issue` 로 생성
+- 이슈에는 SUH-LAB 가이드 댓글이 자동 작성되어 **브랜치명**과 **커밋 메시지 템플릿** 제공됨
+
+### 2) 원인 분석 (코드 수정 전 필수)
+
+**버그/이슈는 먼저 근본 원인부터 찾는다. 추측 금지.**
+
+- FE/BE 경계 확인: 어느 레이어에서 데이터가 변형/소실되는지 추적
+- 증거 표 작성:
+  | 레이어 | 상태 |
+  |--------|------|
+  | 백엔드 DB 동작 | ✓ / ✗ |
+  | 백엔드 API 응답 | ✓ / ✗ |
+  | FE 수신 처리 | ✓ / ✗ |
+  | FE 렌더 | ✓ / ✗ |
+- DB 변경 필요 여부 명확히 판정 (스키마 변경 시 마이그레이션 별도)
+
+### 3) 수정안 제시 → 사용자 승인
+
+- 최소 수정 vs 정리 포함 옵션 둘 다 제시
+- 승인 후 진행. 단독 진행 금지
+
+### 4) 코드 작업 + 검증
+
+- 구현 후 `npx -p typescript tsc --noEmit` (FE) 또는 백엔드 빌드 확인
+- 잔여 참조 검색 (`grep`)
+
+### 5) 커밋
+
+`/commit` 사용 또는 수동.
+
+**커밋 메시지 형식**:
 ```
-1. 이슈 생성    → /issue
-2. 코드 작업    → 구현
-3. 커밋         → /commit  (이슈 번호 자동 연결)
-4. 푸시         → git push origin main
-5. 배포         → /changelog-deploy
-```
-
-### 커밋 메시지 형식
-
-```
-{작업 내용} : feat|fix|docs : {변경사항 설명} {이슈URL}
+{이슈 제목} : feat|fix|docs|refactor|chore : {변경사항 요약} https://github.com/PickerPicker/PickerPicker/issues/{번호}
 ```
 
 예시:
 ```
-백엔드 게임 결과 저장 API : feat : Player 모델 확장, save_game_result 구현 https://github.com/PickerPicker/PickerPicker/issues/14
+게임 화면 playCount가 DB 값이 아닌 로컬 실행 횟수로 표시되는 문제 : fix : 서버 응답 play_count를 진실 소스로 사용, 랭킹 화면에 플레이 횟수 컬럼 추가 https://github.com/PickerPicker/PickerPicker/issues/40
 ```
 
-### 배포 흐름
+### 6) 푸시
 
+```bash
+git push origin main
 ```
-main push
-  → VERSION-CONTROL (버전 자동 증가)
-  → PROJECT-REACT-CI (프론트 빌드 검증)
-  → PROJECT-PYTHON-CI (백엔드 Docker 빌드 검증)
 
-/changelog-deploy 실행
-  → main → deploy PR 생성
-  → 릴리스 노트 작성
-  → AUTO-CHANGELOG-CONTROL automerge
+자동 트리거:
+- `VERSION-CONTROL` (patch 버전 자동 증가, 태그 생성)
+- `PROJECT-REACT-CI` (프론트 빌드 검증)
+- `PROJECT-PYTHON-CI` (백엔드 Docker 빌드 검증)
+
+### 7) 배포
+
+`/changelog-deploy` 실행.
+
+흐름:
+```
+main → deploy PR 생성 (예: #60)
+  → 릴리스 노트 즉시 작성 (클라이언트 관점, 파일명/prefix 금지)
+  → AUTO-CHANGELOG-CONTROL 워크플로우가 "Summary by CodeRabbit" 감지
+  → CHANGELOG.md 업데이트
+  → automerge → deploy 브랜치
   → PROJECT-REACT-CICD (프론트 배포, 포트 3010)
   → PROJECT-PYTHON-SYNOLOGY-CICD (백엔드 배포, 포트 8001)
 ```
+
+automerge 실패 시: `/changelog-deploy` fix 모드로 재실행 (기존 PR 닫고 새 PR 생성).
+
+### 8) 이슈 마무리
+
+**작업 완료 후 반드시 다음 세 가지 수행:**
+
+1. **`/report` 스킬로 구현 보고서 작성 → 이슈 댓글 등록**
+   - Git diff + 이슈 분석 기반 자동 생성
+   - `Closes #{이슈번호}` 명시
+2. **`/testcase` 스킬로 QA 테스트케이스 작성 → 이슈 댓글 등록**
+   - 이슈 분석 기반 테스트 체크리스트 생성
+3. **이슈 라벨 변경**: `작업중` → `작업완료`
+   - 기존 라벨 (예: `긴급`) 은 유지
+
+### 라벨 체계
+
+| 라벨 | 의미 |
+|------|------|
+| `작업전` | 미착수 |
+| `작업중` | 진행 중 |
+| `작업완료` | 작업 + 배포 완료 |
+| `긴급` | 우선 처리 필요 |
+| `보류` | 일시 중단 |
+| `취소` | 중단 |
+| `담당자확인` | 담당자 결정 대기 |
+| `피드백` | 사용자 피드백 반영 필요 |
+| `문서` | 문서 작업 |
 
 ## 로컬 실행
 
