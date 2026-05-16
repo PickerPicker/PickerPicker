@@ -3,9 +3,13 @@
 """
 import hashlib
 import logging
-from sqlalchemy import select
+from datetime import datetime, date
+from sqlalchemy import select, func
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.player import Player
+from src.models.game_session import GameSession
+from src.models.player_stats_daily import PlayerStatsDaily
 from src.core.exceptions import NotFoundError, ConflictError
 
 logger = logging.getLogger(__name__)
@@ -68,9 +72,18 @@ async def save_game_result(
     score: int,
     stage: int,
     combo: int,
+    stage_scores: dict | None = None,
 ) -> Player:
-    """게임 결과 저장 — 각 항목 최고값만 갱신, play_count 증가"""
-    # 플레이어 없으면 자동 생성 (신규로 진행한 경우)
+    """게임 결과 저장. 단일 트랜잭션:
+    1) Player upsert (없으면 생성, 최고값/play_count 갱신)
+    2) game_sessions INSERT (snapshot)
+    3) player_stats_daily UPSERT (일별 집계)
+    """
+    now = datetime.utcnow()
+    today: date = now.date()
+    stage_scores = stage_scores or {}
+
+    # 1) Player
     result = await db.execute(select(Player).where(Player.nickname == nickname))
     player = result.scalar_one_or_none()
     if not player:
@@ -81,6 +94,39 @@ async def save_game_result(
     player.best_stage = max(player.best_stage, stage)
     player.best_combo = max(player.best_combo, combo)
     player.play_count += 1
+
+    # 2) GameSession 스냅샷
+    session = GameSession(
+        nickname=nickname,
+        score=score,
+        stage=stage,
+        combo=combo,
+        stage_scores=stage_scores,
+        played_at=now,
+    )
+    db.add(session)
+
+    # 3) PlayerStatsDaily UPSERT
+    stmt = pg_insert(PlayerStatsDaily).values(
+        nickname=nickname,
+        date=today,
+        play_count=1,
+        sum_score=score,
+        max_score=score,
+        max_stage=stage,
+        max_combo=combo,
+    )
+    stmt = stmt.on_conflict_do_update(
+        index_elements=["nickname", "date"],
+        set_={
+            "play_count": PlayerStatsDaily.play_count + 1,
+            "sum_score": PlayerStatsDaily.sum_score + score,
+            "max_score": func.greatest(PlayerStatsDaily.max_score, score),
+            "max_stage": func.greatest(PlayerStatsDaily.max_stage, stage),
+            "max_combo": func.greatest(PlayerStatsDaily.max_combo, combo),
+        },
+    )
+    await db.execute(stmt)
 
     await db.commit()
     await db.refresh(player)

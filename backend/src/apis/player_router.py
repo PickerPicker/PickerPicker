@@ -56,6 +56,8 @@ class SaveResultRequest(BaseModel):
     score: int = Field(..., ge=0, le=MAX_SCORE)
     stage: int = Field(..., ge=1, le=MAX_STAGE)
     combo: int = Field(..., ge=0, le=MAX_COMBO)
+    # 스테이지별 점수: {"1": 1200, "2": 950, ...}. 누락 시 빈 dict.
+    stage_scores: dict[str, int] | None = None
 
 
 # ── 엔드포인트 ───────────────────────────────────────────────────
@@ -90,8 +92,22 @@ async def get_player(nickname: str, db: AsyncSession = Depends(get_db)):
 
 @router.post("/result", response_model=PlayerResponse)
 async def save_result(body: SaveResultRequest, db: AsyncSession = Depends(get_db)):
-    """게임 결과 저장 — 최고 기록 갱신"""
+    """게임 결과 저장 — 최고 기록 갱신 + 세션 스냅샷 + 일별 집계 UPSERT"""
+    # stage_scores 검증: 키는 "1"~str(MAX_STAGE), 값은 0~MAX_SCORE
+    validated_stage_scores: dict[str, int] = {}
+    if body.stage_scores:
+        for k, v in body.stage_scores.items():
+            try:
+                stage_num = int(k)
+            except (TypeError, ValueError):
+                continue
+            if not (1 <= stage_num <= MAX_STAGE):
+                continue
+            if not isinstance(v, int) or not (0 <= v <= MAX_SCORE):
+                continue
+            validated_stage_scores[str(stage_num)] = v
+
     player = await player_service.save_game_result(
-        db, body.nickname, body.score, body.stage, body.combo
+        db, body.nickname, body.score, body.stage, body.combo, validated_stage_scores
     )
     return PlayerResponse.model_validate(player)

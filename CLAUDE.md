@@ -43,9 +43,15 @@ API_KEY=
 |--------|------|------|
 | GET | `/players/check/{nickname}` | 닉네임 존재 여부 (기존/신규 구분) |
 | POST | `/players` | 신규 플레이어 등록 |
+| POST | `/players/verify-pin` | PIN 검증 |
 | GET | `/players/{nickname}` | 플레이어 역대 최고 기록 조회 |
-| POST | `/players/result` | 게임 결과 저장 (최고값만 갱신) |
+| POST | `/players/result` | 게임 결과 저장 (세션 INSERT + 최고값/일별 집계 UPSERT) |
+| GET | `/players/{nickname}/stats` | 본인 종합 통계 (Bearer 토큰 필수) |
+| GET | `/players/{nickname}/sessions?days=30` | 본인 일별 시계열 (Bearer 토큰 필수) |
+| POST | `/auth/login` | PIN 검증 후 세션 토큰 발급 (24h TTL) |
+| POST | `/auth/logout` | 세션 토큰 폐기 |
 | GET | `/ranking` | best_score 기준 상위 랭킹 |
+| GET | `/stats/global` | 전체 통계 (5분 캐시, 공개) |
 | GET | `/health` | 헬스체크 |
 | GET | `/docs` | Swagger UI |
 

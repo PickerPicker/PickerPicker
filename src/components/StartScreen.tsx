@@ -9,6 +9,7 @@ interface StartScreenProps {
   onStart: () => void
   onPractice: () => void
   onTutorial: () => void
+  onStats?: () => void
   hasPlayedBefore: boolean
   bgmVolume: number
   sfxOn: boolean
@@ -343,7 +344,7 @@ function SettingsView({
   )
 }
 
-export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout, onLoginComplete }: StartScreenProps) {
+export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStats, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout, onLoginComplete }: StartScreenProps) {
   const [screen, setScreen] = useState<Screen>('home')
   const [loginNickname, setLoginNickname] = useState('')
   const [pendingPin, setPendingPin] = useState('')
@@ -460,6 +461,15 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPla
               >
                 랭킹
               </SoundButton>
+              {nickname && onStats && (
+                <SoundButton
+                  className="btn btn-lg w-full text-lg"
+                  style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
+                  onClick={onStats}
+                >
+                  내 통계
+                </SoundButton>
+              )}
               <SoundButton
                 className="btn btn-lg w-full text-lg"
                 style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}

@@ -52,6 +52,7 @@ interface GameScreenProps {
   isNewPlayer: boolean
   onHome: () => void
   onRanking: () => void
+  onStats?: () => void
   onClearSfx: () => void
   onGameOverSfx: () => void
   onHitSfx: () => void
@@ -60,7 +61,7 @@ interface GameScreenProps {
   offset: number
 }
 
-export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset }: GameScreenProps) {
+export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset }: GameScreenProps) {
   const [gameData, setGameData] = useState<GameData | null>(null)
   const [loading, setLoading] = useState(true)
   const [stageIndex, setStageIndex] = useState(0)
@@ -74,6 +75,8 @@ export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOver
   const [newRecords, setNewRecords] = useState<{ score: boolean; stage: boolean; combo: boolean }>({ score: false, stage: false, combo: false })
   const resultSavedRef = useRef(false)  // 결과 화면에서 중복 저장 방지
   const statRef = useRef<GameStat>(INITIAL_STAT)  // PlayStage의 onStatUpdate 후 최신값 보관
+  const stageStartScoreRef = useRef<number>(0)  // 현재 스테이지 진입 시점 누적 score
+  const stageScoresRef = useRef<Record<string, number>>({})  // 스테이지별 획득 점수
 
   useEffect(() => {
     fetch('/rhythm_stages_001_015.json')
@@ -89,7 +92,9 @@ export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOver
   useEffect(() => {
     if (gameData) {
       setShuffledKeyMapping(shuffleKeyMapping(gameData.stages[stageIndex].keyMapping))
-      // 난이도 그룹 변경 시 BGM 자동 교체 (같은 그룹이면 useAudio 내부에서 유지)
+      // 스테이지 시작 시점의 누적 score 기록 (스테이지별 획득 점수 계산용)
+      stageStartScoreRef.current = statRef.current.score
+      // 난이도 그룹 변경 시 BGM 자동 교체
       onGameBgm(stageIndex)
     }
   }, [stageIndex, gameData])
@@ -157,12 +162,19 @@ export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOver
       combo: finalStat.maxCombo > prev.bestCombo,
     })
 
+    // 현재 스테이지에서 획득한 점수 추가 (마지막 스테이지 분량)
+    const lastStageGain = Math.max(0, finalStat.score - stageStartScoreRef.current)
+    if (lastStageGain > 0) {
+      stageScoresRef.current[String(reachedStage)] = lastStageGain
+    }
+
     // 서버 저장 후 응답의 play_count로 화면 표시
     saveGameResult({
       nickname,
       score: finalStat.score,
       stage: reachedStage,
       combo: finalStat.maxCombo,
+      stage_scores: stageScoresRef.current,
     })
       .then(record => setServerPlayCount(record.play_count))
       .catch(() => {})
@@ -173,6 +185,13 @@ export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOver
   }
 
   const handleStageComplete = () => {
+    // 클리어한 스테이지의 획득 점수 누적
+    const cleared = gameData.stages[stageIndex]
+    const gain = Math.max(0, statRef.current.score - stageStartScoreRef.current)
+    if (cleared) {
+      stageScoresRef.current[String(cleared.stage)] = gain
+    }
+
     const nextIndex = stageIndex + 1
     if (nextIndex >= gameData.stages.length) {
       finishGame(statRef.current, true, stageIndex)
@@ -191,6 +210,8 @@ export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOver
   const handleRestart = () => {
     resultSavedRef.current = false
     statRef.current = INITIAL_STAT
+    stageStartScoreRef.current = 0
+    stageScoresRef.current = {}
     setStageIndex(0)
     setStat(INITIAL_STAT)
     setIsClear(false)
@@ -319,11 +340,16 @@ export function GameScreen({ nickname, onHome, onRanking, onClearSfx, onGameOver
           </div>
         )}
 
-        {/* 하단 버튼 3개 */}
+        {/* 하단 버튼들 */}
         <div className="flex flex-col w-full max-w-sm gap-2 shrink-0">
           <SoundButton className="btn btn-primary btn-lg w-full text-lg" onClick={handleRestart}>
             다시 하기
           </SoundButton>
+          {onStats && (
+            <SoundButton className="btn btn-outline btn-lg w-full text-lg" onClick={onStats}>
+              내 통계 보기
+            </SoundButton>
+          )}
           <SoundButton className="btn btn-outline btn-lg w-full text-lg" onClick={onRanking}>
             랭킹 보기
           </SoundButton>
