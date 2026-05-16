@@ -63,12 +63,13 @@ export async function getPlayer(nickname: string): Promise<PlayerRecord | null> 
   return res.json()
 }
 
-/** 게임 결과 저장 */
+/** 게임 결과 저장. stage_scores는 선택 사항 */
 export async function saveGameResult(params: {
   nickname: string
   score: number
   stage: number
   combo: number
+  stage_scores?: Record<string, number>
 }): Promise<PlayerRecord> {
   const res = await fetch(`${BASE_URL}/players/result`, {
     method: 'POST',

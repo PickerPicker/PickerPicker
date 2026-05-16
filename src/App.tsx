@@ -6,11 +6,12 @@ import { GameScreen } from './components/GameScreen'
 import { RankingScreen } from './components/RankingScreen'
 import { PracticeScreen } from './components/practice/PracticeScreen'
 import { TutorialScreen } from './components/tutorial/TutorialScreen'
+import { StatsScreen } from './components/StatsScreen'
 import { AudioProvider, useAudioContext } from './contexts/AudioContext'
 import { MobileWarningModal } from './components/common/MobileWarningModal'
 
-/** App.tsx 한정 화면 union — types/Screen 확장 없이 'practice' 추가 */
-type AppScreen = Screen | 'practice'
+/** App.tsx 한정 화면 union — types/Screen 확장 없이 'practice', 'stats' 추가 */
+type AppScreen = Screen | 'practice' | 'stats'
 
 const LS_OFFSET_KEY = 'pickerpicker_offset'
 const SS_MOBILE_WARNED_KEY = 'pickerpicker_mobile_warned'
@@ -121,6 +122,7 @@ function AppInner() {
           nickname={nickname}
           onLogout={handleLogout}
           onLoginComplete={handleLoginComplete}
+          onStats={() => setCurrentScreen('stats')}
         />
       )}
       {currentScreen === 'tutorial' && (
@@ -160,6 +162,10 @@ function AppInner() {
             audio.stopBgm()
             setCurrentScreen('ranking')
           }}
+          onStats={() => {
+            audio.stopBgm()
+            setCurrentScreen('stats')
+          }}
           onClearSfx={audio.playClearSfx}
           onGameOverSfx={audio.playGameOverSfx}
           onHitSfx={audio.playHitSfx}
@@ -170,6 +176,12 @@ function AppInner() {
       )}
       {currentScreen === 'ranking' && (
         <RankingScreen onBack={() => setCurrentScreen('start')} />
+      )}
+      {currentScreen === 'stats' && (
+        <StatsScreen
+          nickname={nickname}
+          onBack={() => setCurrentScreen('start')}
+        />
       )}
 
       {showMobileWarning && (
