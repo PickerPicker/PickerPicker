@@ -31,7 +31,7 @@ function loadBest(): BestRecord {
     const raw = localStorage.getItem(LS_KEY)
     if (raw) return JSON.parse(raw) as BestRecord
   } catch { /* 손상된 데이터 무시 */ }
-  return { bestScore: 0, bestStage: 0, bestCombo: 0, bestPerfectCount: 0, playCount: 0 }
+  return { bestScore: 0, bestStage: 0, bestCombo: 0, bestPerfectCount: 0 }
 }
 
 function saveBest(record: BestRecord) {
@@ -67,6 +67,7 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
   const [stat, setStat] = useState<GameStat>(INITIAL_STAT)
   const [shuffledKeyMapping, setShuffledKeyMapping] = useState<KeyMapping[]>([])
   const [best, setBest] = useState<BestRecord>(loadBest)
+  const [serverPlayCount, setServerPlayCount] = useState<number | null>(null)
   const [isClear, setIsClear] = useState(false)
   const [globalTop, setGlobalTop] = useState<{ nickname: string; best_score: number; best_stage: number; best_combo: number } | null>(null)
   const [newRecords, setNewRecords] = useState<{ score: boolean; stage: boolean; combo: boolean }>({ score: false, stage: false, combo: false })
@@ -146,7 +147,6 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
       bestStage: Math.max(prev.bestStage, reachedStage),
       bestCombo: Math.max(prev.bestCombo, finalStat.maxCombo),
       bestPerfectCount: Math.max(prev.bestPerfectCount, finalStat.perfectCount),
-      playCount: prev.playCount + 1,
     }
     saveBest(updated)
     setBest(updated)
@@ -156,13 +156,15 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
       combo: finalStat.maxCombo > prev.bestCombo,
     })
 
-    // 서버 저장 후 글로벌 1위 fetch
+    // 서버 저장 후 응답의 play_count로 화면 표시
     saveGameResult({
       nickname,
       score: finalStat.score,
       stage: reachedStage,
       combo: finalStat.maxCombo,
-    }).catch(() => {})
+    })
+      .then(record => setServerPlayCount(record.play_count))
+      .catch(() => {})
 
     getRanking(1).then(ranking => {
       if (ranking.length > 0) setGlobalTop(ranking[0])
@@ -191,6 +193,7 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
     setStageIndex(0)
     setStat(INITIAL_STAT)
     setIsClear(false)
+    setServerPlayCount(null)
     setPhase('preview')
     // stageIndex가 이미 0이면 useEffect 미트리거 → 명시적으로 BGM 재시작
     onGameBgm(0)
@@ -271,7 +274,9 @@ export function GameScreen({ nickname, onHome, onRanking, onButtonSfx, onClearSf
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-base-content/70">플레이 횟수</span>
-              <span className="font-bold text-white">{best.playCount}회</span>
+              <span className="font-bold text-white">
+                {serverPlayCount === null ? '...' : `${serverPlayCount}회`}
+              </span>
             </div>
           </div>
         </div>
