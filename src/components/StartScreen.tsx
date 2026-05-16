@@ -497,6 +497,7 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPla
 
         {(screen === 'pin-login' || screen === 'pin-create' || screen === 'pin-confirm') && (
           <PinView
+            key={screen}
             mode={
               screen === 'pin-login' ? 'login'
               : screen === 'pin-create' ? 'create'
