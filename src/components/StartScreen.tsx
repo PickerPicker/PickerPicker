@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { SoundButton } from './common/SoundButton'
+import { checkNickname, createPlayer, verifyPin } from '../services/playerService'
 
-type Screen = 'home' | 'settings' | 'credits'
+type Screen = 'home' | 'settings' | 'credits' | 'nickname' | 'pin-login' | 'pin-create' | 'pin-confirm'
 
 interface StartScreenProps {
   onRanking: () => void
@@ -17,6 +18,7 @@ interface StartScreenProps {
   onOffset: (v: number) => void
   nickname: string
   onLogout: () => void
+  onLoginComplete: (nickname: string) => void
 }
 
 const CREDITS = [
@@ -79,6 +81,156 @@ function CreditsView({ onBack }: { onBack: () => void }) {
       >
         ← BACK
       </SoundButton>
+    </div>
+  )
+}
+
+function NicknameView({
+  onConfirm,
+  onBack,
+}: {
+  onConfirm: (name: string) => Promise<void>
+  onBack: () => void
+}) {
+  const [value, setValue] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleConfirm = async () => {
+    const trimmed = value.trim()
+    if (!trimmed) return
+    setLoading(true)
+    await onConfirm(trimmed)
+    setLoading(false)
+  }
+
+  return (
+    <div className="flex flex-col gap-6 w-full">
+      <h2
+        className="text-xl font-black tracking-widest text-center"
+        style={{ color: 'rgba(0,180,255,0.9)' }}
+      >
+        닉네임 입력
+      </h2>
+      <input
+        type="text"
+        placeholder="닉네임을 입력하세요"
+        className="input input-bordered w-full"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') handleConfirm() }}
+        autoFocus
+        maxLength={20}
+      />
+      <div className="flex flex-col gap-2">
+        <SoundButton
+          className="btn btn-primary w-full"
+          onClick={handleConfirm}
+          disabled={!value.trim() || loading}
+        >
+          {loading ? <span className="loading loading-spinner loading-sm" /> : '확인'}
+        </SoundButton>
+        <SoundButton
+          className="btn btn-sm w-full"
+          style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+          onClick={onBack}
+          disabled={loading}
+        >
+          ← BACK
+        </SoundButton>
+      </div>
+    </div>
+  )
+}
+
+function PinView({
+  mode,
+  nickname,
+  onConfirm,
+  onBack,
+  error,
+}: {
+  mode: 'login' | 'create' | 'confirm'
+  nickname: string
+  onConfirm: (pin: string) => Promise<void>
+  onBack: () => void
+  error: string
+}) {
+  const [pin, setPin] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const title =
+    mode === 'login'
+      ? `${nickname}님, PIN 입력`
+      : mode === 'create'
+      ? 'PIN 설정 (4자리 숫자)'
+      : 'PIN 확인 (다시 입력)'
+
+  const handleConfirm = async () => {
+    if (pin.length !== 4) return
+    setLoading(true)
+    await onConfirm(pin)
+    setLoading(false)
+  }
+
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      <h2
+        className="text-xl font-black tracking-widest text-center"
+        style={{ color: 'rgba(0,180,255,0.9)' }}
+      >
+        {title}
+      </h2>
+
+      {/* 신규 PIN 설정 시 가이드라인 (create, confirm 공통) */}
+      {(mode === 'create' || mode === 'confirm') && (
+        <div
+          className="rounded-lg px-4 py-3 text-sm"
+          style={{
+            background: 'rgba(255,180,0,0.10)',
+            border: '1px solid rgba(255,180,0,0.4)',
+            color: 'rgba(255,210,80,0.95)',
+          }}
+        >
+          {mode === 'create'
+            ? '⚠️ 이 PIN은 다음 로그인 시 필요합니다. 꼭 기억해 두세요!'
+            : '⚠️ PIN을 다시 한번 입력하세요. 잊어버리면 재설정이 불가합니다.'}
+        </div>
+      )}
+
+      <input
+        type="password"
+        inputMode="numeric"
+        maxLength={4}
+        placeholder="● ● ● ●"
+        className="input input-bordered w-full text-center tracking-widest text-2xl"
+        value={pin}
+        onChange={(e) => {
+          const digits = e.target.value.replace(/\D/g, '').slice(0, 4)
+          setPin(digits)
+        }}
+        onKeyDown={(e) => { if (e.key === 'Enter') handleConfirm() }}
+        autoFocus
+      />
+
+      {error && <p className="text-error text-sm text-center">{error}</p>}
+
+      <div className="flex flex-col gap-2">
+        <SoundButton
+          className="btn btn-primary w-full"
+          onClick={handleConfirm}
+          disabled={pin.length !== 4 || loading}
+        >
+          {loading ? <span className="loading loading-spinner loading-sm" /> : '확인'}
+        </SoundButton>
+        <SoundButton
+          className="btn btn-sm w-full"
+          style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+          onClick={onBack}
+          disabled={loading}
+        >
+          ← BACK
+        </SoundButton>
+      </div>
     </div>
   )
 }
@@ -191,8 +343,60 @@ function SettingsView({
   )
 }
 
-export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout }: StartScreenProps) {
+export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout, onLoginComplete }: StartScreenProps) {
   const [screen, setScreen] = useState<Screen>('home')
+  const [loginNickname, setLoginNickname] = useState('')
+  const [pendingPin, setPendingPin] = useState('')
+  const [pinError, setPinError] = useState('')
+
+  const resetLogin = () => {
+    setLoginNickname('')
+    setPendingPin('')
+    setPinError('')
+  }
+
+  const handleStartClick = () => {
+    if (nickname) {
+      onStart()
+      return
+    }
+    resetLogin()
+    setScreen('nickname')
+  }
+
+  const handleNicknameConfirm = async (name: string) => {
+    const exists = await checkNickname(name)
+    setLoginNickname(name)
+    setScreen(exists ? 'pin-login' : 'pin-create')
+  }
+
+  const handlePinConfirm = async (pin: string) => {
+    if (screen === 'pin-login') {
+      const ok = await verifyPin(loginNickname, pin)
+      if (!ok) {
+        setPinError('PIN이 틀렸습니다')
+        return
+      }
+      resetLogin()
+      setScreen('home')
+      onLoginComplete(loginNickname)
+    } else if (screen === 'pin-create') {
+      setPendingPin(pin)
+      setPinError('')
+      setScreen('pin-confirm')
+    } else if (screen === 'pin-confirm') {
+      if (pin !== pendingPin) {
+        setPinError('PIN이 일치하지 않습니다')
+        setPendingPin('')
+        setScreen('pin-create')
+        return
+      }
+      await createPlayer(loginNickname, pin)
+      resetLogin()
+      setScreen('home')
+      onLoginComplete(loginNickname)
+    }
+  }
 
   return (
     <div
@@ -211,7 +415,7 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPla
         {screen === 'home' && (
           <>
             <div className="flex flex-col items-center gap-1">
-              <h1 className="text-5xl font-black text-primary tracking-widest text-center" style={{ textShadow: '0 2px 24px rgba(0,180,255,0.5)' }}>
+              <h1 className="text-3xl sm:text-5xl font-black text-primary tracking-widest text-center" style={{ textShadow: '0 2px 24px rgba(0,180,255,0.5)' }}>
                 PickerPicker
               </h1>
               <div className="flex items-center gap-2">
@@ -230,8 +434,7 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPla
               )}
             </div>
             <div className="flex flex-col gap-3 w-full">
-              {/* 로그인 상태면 "플레이하기", 비로그인이면 "시작" (닉네임+PIN 입력) */}
-              <SoundButton className="btn btn-primary btn-lg w-full text-lg" onClick={onStart}>
+              <SoundButton className="btn btn-primary btn-lg w-full text-lg" onClick={handleStartClick}>
                 {nickname ? '플레이하기' : '시작'}
               </SoundButton>
               <SoundButton
@@ -283,6 +486,31 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, hasPla
               )}
             </div>
           </>
+        )}
+
+        {screen === 'nickname' && (
+          <NicknameView
+            onConfirm={handleNicknameConfirm}
+            onBack={() => { resetLogin(); setScreen('home') }}
+          />
+        )}
+
+        {(screen === 'pin-login' || screen === 'pin-create' || screen === 'pin-confirm') && (
+          <PinView
+            mode={
+              screen === 'pin-login' ? 'login'
+              : screen === 'pin-create' ? 'create'
+              : 'confirm'
+            }
+            nickname={loginNickname}
+            onConfirm={handlePinConfirm}
+            onBack={() => {
+              setPinError('')
+              setPendingPin('')
+              setScreen('nickname')
+            }}
+            error={pinError}
+          />
         )}
 
         {screen === 'settings' && (
