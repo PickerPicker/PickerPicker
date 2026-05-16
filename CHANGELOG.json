@@ -1,11 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-16T07:22:44Z",
-    "currentVersion": "0.0.65",
+    "lastUpdated": "2026-05-16T08:20:33Z",
+    "currentVersion": "0.0.66",
     "projectType": "react",
-    "totalReleases": 37
+    "totalReleases": 38
   },
   "releases": [
+    {
+      "version": "0.0.66",
+      "project_type": "react",
+      "date": "2026-05-16",
+      "pr_number": 65,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 게임오버 화면에 픽셀아트 배경 이미지 적용\n\n* **문서**\n  * 로그인 플로우 설계 문서 추가",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "게임오버 화면에 픽셀아트 배경 이미지 적용"
+          ]
+        },
+        "문서": {
+          "title": "문서",
+          "items": [
+            "로그인 플로우 설계 문서 추가"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.65",
       "project_type": "react",
