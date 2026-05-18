@@ -8,6 +8,7 @@ export interface PlayerRecord {
   best_stage: number
   best_combo: number
   play_count: number
+  tutorial_seen: boolean
 }
 
 export interface RankingEntry extends PlayerRecord {
@@ -84,6 +85,20 @@ export async function saveGameResult(params: {
   })
   if (!res.ok) throw new Error('결과 저장 실패')
   return res.json()
+}
+
+/** 튜토리얼 시청 완료 서버 기록. 실패 시 null (fallback은 호출부에서 처리) */
+export async function markTutorialSeen(nickname: string): Promise<PlayerRecord | null> {
+  try {
+    const res = await fetch(`${BASE_URL}/players/${encodeURIComponent(nickname)}/tutorial-seen`, {
+      method: 'PATCH',
+      headers: await authHeaders(),
+    })
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
 }
 
 /** 랭킹 조회 */

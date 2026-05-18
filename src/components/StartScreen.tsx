@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { SoundButton } from './common/SoundButton'
-import { checkNickname, createPlayer, verifyPin } from '../services/playerService'
+import { checkNickname, createPlayer, verifyPin, getPlayer } from '../services/playerService'
 
 type Screen = 'home' | 'settings' | 'credits' | 'nickname' | 'pin-login' | 'pin-create' | 'pin-confirm'
 
@@ -19,7 +19,7 @@ interface StartScreenProps {
   onOffset: (v: number) => void
   nickname: string
   onLogout: () => void
-  onLoginComplete: (nickname: string) => void
+  onLoginComplete: (nickname: string, tutorialSeen: boolean) => void
 }
 
 const CREDITS = [
@@ -378,9 +378,12 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStat
         setPinError('PIN이 틀렸습니다')
         return
       }
+      // 기존 플레이어 — 서버에서 tutorial_seen 조회 (실패 시 false로 fallback)
+      const player = await getPlayer(loginNickname).catch(() => null)
+      const tutorialSeen = player?.tutorial_seen ?? false
       resetLogin()
       setScreen('home')
-      onLoginComplete(loginNickname)
+      onLoginComplete(loginNickname, tutorialSeen)
     } else if (screen === 'pin-create') {
       setPendingPin(pin)
       setPinError('')
@@ -392,10 +395,12 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStat
         setScreen('pin-create')
         return
       }
-      await createPlayer(loginNickname, pin)
+      // 신규 플레이어 — createPlayer 응답에 tutorial_seen 포함 (항상 false)
+      const player = await createPlayer(loginNickname, pin)
+      const tutorialSeen = player?.tutorial_seen ?? false
       resetLogin()
       setScreen('home')
-      onLoginComplete(loginNickname)
+      onLoginComplete(loginNickname, tutorialSeen)
     }
   }
 

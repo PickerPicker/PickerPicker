@@ -2,7 +2,7 @@
 플레이어 ORM 모델 — 결과 화면에 필요한 최고 기록 저장
 """
 from datetime import datetime
-from sqlalchemy import String, Integer, DateTime, func
+from sqlalchemy import String, Integer, Boolean, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 from src.core.database import Base
 
@@ -20,6 +20,8 @@ class Player(Base):
     best_stage: Mapped[int] = mapped_column(Integer, default=0)   # 1~15
     best_combo: Mapped[int] = mapped_column(Integer, default=0)
     play_count: Mapped[int] = mapped_column(Integer, default=0)
+    # 튜토리얼 시청 여부 — 사용자 기준으로 관리 (브라우저 localStorage 대체)
+    tutorial_seen: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
