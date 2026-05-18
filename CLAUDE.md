@@ -67,8 +67,7 @@ API_KEY=
 
 | Secret | 설명 |
 |--------|------|
-| `BACKEND_DATABASE_URL` | `postgresql+asyncpg://...localhost:5430/pickerpicker` |
-| `BACKEND_ENV_FILE` | 백엔드 `.env` 전체 내용 (CI 빌드 검증용) |
+| `BACKEND_ENV_FILE` | 백엔드 `backend/.env` 전체 내용 (빌드 및 런타임 `.env` 파일 생성용) |
 | `DOCKERHUB_USERNAME` | DockerHub 사용자명 |
 | `DOCKERHUB_TOKEN` | DockerHub 액세스 토큰 |
 | `SERVER_HOST` | 시놀로지 호스트 |

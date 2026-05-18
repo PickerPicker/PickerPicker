@@ -256,8 +256,17 @@ jobs:
             # - 볼륨 마운트: 로컬 시간 동기화 및 프로젝트 데이터
             # ⚠️ .env 파일은 이미 Docker 이미지에 포함되어 있습니다
 
+            # .env 파일 서버에 생성
+            ENV_DIR="/volume1/projects/pickerpicker/back"
+            echo $PW | sudo -S mkdir -p "$ENV_DIR"
+            echo $PW | sudo -S bash -c "cat > $ENV_DIR/.env << 'ENVEOF'
+${{ secrets.BACKEND_ENV_FILE }}
+ENVEOF"
+            echo "✅ .env 파일 생성: $ENV_DIR/.env"
+
             # 볼륨 마운트 옵션 구성
             VOLUME_OPTS="-v /etc/localtime:/etc/localtime:ro"
+            VOLUME_OPTS="$VOLUME_OPTS -v $ENV_DIR/.env:/app/.env:ro"
             if [ "${{ env.ENABLE_VOLUME_MOUNT }}" == "true" ]; then
               # 디렉토리가 없으면 생성
               if [ ! -d "${{ env.VOLUME_HOST_PATH }}" ]; then
@@ -274,8 +283,6 @@ jobs:
               -p ${{ env.DEPLOY_PORT }}:${{ env.CONTAINER_INTERNAL_PORT }} \
               --name $CONTAINER_NAME \
               -e TZ=Asia/Seoul \
-              -e DATABASE_URL='${{ secrets.BACKEND_DATABASE_URL }}' \
-              -e ENVIRONMENT=prod \
               $VOLUME_OPTS \
               ${{ secrets.DOCKERHUB_USERNAME }}/${PROJECT_NAME}:${BRANCH}
 
