@@ -1,0 +1,111 @@
+name: PROJECT-AUTO-FILE-UPLOAD
+
+# ===================================================================
+# GitHub Secrets의 env 파일을 시놀로지 NAS에 자동 업로드
+# main 브랜치 push 시 트리거
+#
+# 필수 GitHub Secrets:
+#   FRONTEND_ENV_FILE  - 프론트엔드 .env 파일 전체 내용
+#   BACKEND_ENV_FILE   - 백엔드 backend/.env 파일 전체 내용
+#   SERVER_HOST        - 시놀로지 NAS 호스트
+#   SERVER_USER        - SSH 사용자명
+#   SERVER_PASSWORD    - SSH 비밀번호
+#
+# 업로드 경로:
+#   /volume1/projects/pickerpicker/github_secret/frontend/.env
+#   /volume1/projects/pickerpicker/github_secret/backend/backend.env
+# ===================================================================
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  upload-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 타임스탬프 생성
+        run: |
+          export TZ='Asia/Seoul'
+          TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          echo "BUILD_DATE=$(date '+%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+
+      - name: 짧은 커밋 해시 계산
+        run: |
+          echo "SHORT_COMMIT_HASH=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: 서버에 env 파일 업로드
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 2022
+          envs: TIMESTAMP,SHORT_COMMIT_HASH,BUILD_DATE
+          script: |
+            set -e
+
+            export PW=${{ secrets.SERVER_PASSWORD }}
+
+            # 디렉토리 생성 (최신 + 타임스탬프 백업)
+            echo $PW | sudo -S mkdir -p /volume1/projects/pickerpicker/github_secret/frontend
+            echo $PW | sudo -S mkdir -p /volume1/projects/pickerpicker/github_secret/backend
+            echo $PW | sudo -S mkdir -p /volume1/projects/pickerpicker/github_secret/frontend/$TIMESTAMP
+            echo $PW | sudo -S mkdir -p /volume1/projects/pickerpicker/github_secret/backend/$TIMESTAMP
+
+            # 프론트엔드 .env 업로드
+            echo "프론트엔드 .env 업로드 중..."
+            cat << 'EOF' | sudo tee /volume1/projects/pickerpicker/github_secret/frontend/.env > /dev/null
+            ${{ secrets.FRONTEND_ENV_FILE }}
+            EOF
+            cat << 'EOF' | sudo tee /volume1/projects/pickerpicker/github_secret/frontend/$TIMESTAMP/.env > /dev/null
+            ${{ secrets.FRONTEND_ENV_FILE }}
+            EOF
+            echo "프론트엔드 .env 업로드 완료"
+
+            # 백엔드 backend.env 업로드
+            echo "백엔드 backend.env 업로드 중..."
+            cat << 'EOF' | sudo tee /volume1/projects/pickerpicker/github_secret/backend/backend.env > /dev/null
+            ${{ secrets.BACKEND_ENV_FILE }}
+            EOF
+            cat << 'EOF' | sudo tee /volume1/projects/pickerpicker/github_secret/backend/$TIMESTAMP/backend.env > /dev/null
+            ${{ secrets.BACKEND_ENV_FILE }}
+            EOF
+            echo "백엔드 backend.env 업로드 완료"
+
+            # 메타데이터 JSON 생성
+            cat << EOF | sudo tee /volume1/projects/pickerpicker/github_secret/backend/$TIMESTAMP/cicd-upload-meta.json > /dev/null
+            {
+              "build_info": {
+                "timestamp": "$TIMESTAMP",
+                "workflow": "env 파일 자동 업로드",
+                "run_id": "${{ github.run_id }}",
+                "run_number": "${{ github.run_number }}",
+                "branch": "${{ github.ref_name }}",
+                "commit_hash": "${{ github.sha }}",
+                "short_hash": "$SHORT_COMMIT_HASH",
+                "commit_url": "https://github.com/${{ github.repository }}/commit/${{ github.sha }}",
+                "actor": "${{ github.actor }}",
+                "build_date": "$BUILD_DATE"
+              },
+              "files": [
+                {
+                  "file_name": ".env",
+                  "file_path": "/volume1/projects/pickerpicker/github_secret/frontend/",
+                  "last_updated": "$BUILD_DATE"
+                },
+                {
+                  "file_name": "backend.env",
+                  "file_path": "/volume1/projects/pickerpicker/github_secret/backend/",
+                  "last_updated": "$BUILD_DATE"
+                }
+              ]
+            }
+            EOF
+
+            echo "모든 env 파일 업로드 완료"
