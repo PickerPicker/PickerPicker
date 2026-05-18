@@ -23,6 +23,7 @@ class PlayerResponse(BaseModel):
     best_stage: int
     best_combo: int
     play_count: int
+    tutorial_seen: bool
 
     class Config:
         from_attributes = True
@@ -87,6 +88,13 @@ async def verify_pin(body: VerifyPinRequest, db: AsyncSession = Depends(get_db))
 async def get_player(nickname: str, db: AsyncSession = Depends(get_db)):
     """닉네임으로 플레이어 조회 (역대 최고 기록 포함)"""
     player = await player_service.get_player(db, nickname)
+    return PlayerResponse.model_validate(player)
+
+
+@router.patch("/{nickname}/tutorial-seen", response_model=PlayerResponse)
+async def mark_tutorial_seen(nickname: str, db: AsyncSession = Depends(get_db)):
+    """튜토리얼 시청 완료 표시 — 사용자 기준으로 tutorial_seen 관리"""
+    player = await player_service.mark_tutorial_seen(db, nickname)
     return PlayerResponse.model_validate(player)
 
 

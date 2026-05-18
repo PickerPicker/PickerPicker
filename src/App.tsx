@@ -10,6 +10,7 @@ import { StatsScreen } from './components/StatsScreen'
 import { AudioProvider, useAudioContext } from './contexts/AudioContext'
 import { MobileWarningModal } from './components/common/MobileWarningModal'
 import { WelcomeModal } from './components/common/WelcomeModal'
+import { getPlayer, markTutorialSeen } from './services/playerService'
 
 /** App.tsx 한정 화면 union — types/Screen 확장 없이 'practice', 'stats' 추가 */
 type AppScreen = Screen | 'practice' | 'stats'
@@ -79,8 +80,10 @@ function AppInner() {
   // localStorage에서 닉네임 복원 — 있으면 자동 로그인 상태
   const [nickname, setNickname] = useState<string>(() => localStorage.getItem(LS_NICKNAME_KEY) ?? '')
 
-  const goToGameOrTutorial = (next: AppScreen) => {
-    if (!localStorage.getItem(LS_TUTORIAL_KEY)) {
+  // tutorialSeen: 서버값 우선, API 실패 시 localStorage fallback
+  const goToGameOrTutorial = (next: AppScreen, tutorialSeen?: boolean) => {
+    const seen = tutorialSeen ?? !!localStorage.getItem(LS_TUTORIAL_KEY)
+    if (!seen) {
       setAfterTutorial(next)
       setCurrentScreen('tutorial')
     } else {
@@ -91,7 +94,10 @@ function AppInner() {
   const handleStart = () => {
     audio.ensureAudioCtx()
     if (nickname) {
-      goToGameOrTutorial('game')
+      // 이미 로그인된 사용자 — 서버에서 tutorial_seen 조회
+      getPlayer(nickname)
+        .then(player => goToGameOrTutorial('game', player?.tutorial_seen))
+        .catch(() => goToGameOrTutorial('game'))
     }
     // 비로그인 시 StartScreen 내부에서 처리
   }
@@ -103,6 +109,10 @@ function AppInner() {
   }
 
   const handleTutorialComplete = () => {
+    // 서버 기록 시도 + localStorage 동기화 (fallback)
+    if (nickname) {
+      markTutorialSeen(nickname).catch(() => {})
+    }
     localStorage.setItem(LS_TUTORIAL_KEY, 'true')
     setCurrentScreen(afterTutorial)
   }
@@ -112,10 +122,10 @@ function AppInner() {
     setNickname('')
   }
 
-  const handleLoginComplete = (name: string) => {
+  const handleLoginComplete = (name: string, tutorialSeen: boolean) => {
     setNickname(name)
     localStorage.setItem(LS_NICKNAME_KEY, name)
-    goToGameOrTutorial('game')
+    goToGameOrTutorial('game', tutorialSeen)
   }
 
   return (

@@ -58,6 +58,15 @@ async def get_player(db: AsyncSession, nickname: str) -> Player:
     return player
 
 
+async def mark_tutorial_seen(db: AsyncSession, nickname: str) -> Player:
+    """튜토리얼 시청 완료 처리. 닉네임 없으면 NotFoundError"""
+    player = await get_player(db, nickname)
+    player.tutorial_seen = True
+    await db.commit()
+    await db.refresh(player)
+    return player
+
+
 async def get_ranking(db: AsyncSession, limit: int = 10) -> list[Player]:
     """best_score 기준 상위 랭킹"""
     result = await db.execute(
