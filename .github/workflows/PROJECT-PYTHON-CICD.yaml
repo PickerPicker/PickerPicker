@@ -178,6 +178,8 @@ jobs:
       # SSH를 통한 원격 서버 배포 실행
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          BACKEND_ENV_FILE: ${{ secrets.BACKEND_ENV_FILE }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -185,6 +187,7 @@ jobs:
           port: ${{ env.SSH_PORT }}
           command_timeout: ${{ env.SSH_COMMAND_TIMEOUT }}
           timeout: ${{ env.SSH_CONNECTION_TIMEOUT }}
+          envs: BACKEND_ENV_FILE
           script: |
             set -e
 
@@ -256,12 +259,10 @@ jobs:
             # - 볼륨 마운트: 로컬 시간 동기화 및 프로젝트 데이터
             # ⚠️ .env 파일은 이미 Docker 이미지에 포함되어 있습니다
 
-            # .env 파일 서버에 생성
+            # .env 파일 서버에 생성 (envs로 전달된 BACKEND_ENV_FILE 사용)
             ENV_DIR="/volume1/projects/pickerpicker/back"
             echo $PW | sudo -S mkdir -p "$ENV_DIR"
-            echo $PW | sudo -S bash -c "cat > $ENV_DIR/.env << EOF
-${{ secrets.BACKEND_ENV_FILE }}
-EOF"
+            echo $PW | sudo -S bash -c "printf '%s' \"$BACKEND_ENV_FILE\" > $ENV_DIR/.env"
             echo "✅ .env 파일 생성: $ENV_DIR/.env"
 
             # 볼륨 마운트 옵션 구성

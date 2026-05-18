@@ -1,7 +1,16 @@
 # Changelog
 
-**현재 버전:** 0.0.91  
-**마지막 업데이트:** 2026-05-18T16:31:24Z  
+**현재 버전:** 0.0.92  
+**마지막 업데이트:** 2026-05-18T16:43:36Z  
+
+---
+
+## [0.0.92] - 2026-05-18
+
+**PR:** #104  
+
+**기타**
+- 신규 플레이어 튜토리얼 미노출 문제 및 사용자 기준 tutorial_seen 관리 : fix : CICD .env 생성 envs 파라미터로 secret 전달, CLAUDE.md YAML 규칙 추가 https://github.com/PickerPicker/PickerPicker/issues/96
 
 ---
 

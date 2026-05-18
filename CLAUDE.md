@@ -206,4 +206,10 @@ docker-compose up
 - `.env` / `backend/.env` 절대 커밋 금지
 - 파일 삭제 시 반드시 사용자 확인
 - DB는 시놀로지 NAS PostgreSQL 컨테이너 사용 (포트 5430)
-- 백엔드 컨테이너는 `--network host` 옵션으로 실행 (localhost로 DB 접근)
+- 백엔드 컨테이너는 bridge 네트워크, DB 접근은 `suh-project.synology.me:5430` 외부 도메인으로 함 (`--network host` 사용 안 함)
+
+## GitHub Actions YAML 규칙
+
+- **`run:` 블록에서 `${{ secrets.* }}`를 heredoc(`<< 'EOF'` / `<< EOF`) 안에 직접 넣지 않는다** — YAML 파서 오류 발생
+- secrets를 multiline으로 파일에 써야 할 때: `env:` 섹션에서 환경변수로 받고 (`BACKEND_ENV_FILE: ${{ secrets.BACKEND_ENV_FILE }}`), `appleboy/ssh-action`은 `envs: BACKEND_ENV_FILE` 추가 후 script에서 `$BACKEND_ENV_FILE`로 사용
+- 기존 배포 로직(`PROJECT-PYTHON-CICD.yaml`) 구조는 변경하지 않는다
