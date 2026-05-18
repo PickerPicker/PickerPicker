@@ -44,7 +44,7 @@ export interface DailyEntry {
 /** 본인 통계. 401이면 null (재로그인 필요) */
 export async function getMyStats(nickname: string): Promise<MyStatsResponse | null> {
   const res = await fetch(`${BASE_URL}/players/${encodeURIComponent(nickname)}/stats`, {
-    headers: authHeaders(),
+    headers: await authHeaders(),
   })
   if (res.status === 401 || res.status === 403) return null
   if (!res.ok) throw new Error('통계 조회 실패')
