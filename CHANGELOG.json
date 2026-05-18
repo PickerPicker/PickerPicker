@@ -1,11 +1,27 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-18T15:20:53Z",
-    "currentVersion": "0.0.82",
+    "lastUpdated": "2026-05-18T15:24:58Z",
+    "currentVersion": "0.0.84",
     "projectType": "react",
-    "totalReleases": 47
+    "totalReleases": 48
   },
   "releases": [
+    {
+      "version": "0.0.84",
+      "project_type": "react",
+      "date": "2026-05-18",
+      "pr_number": 93,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **버그 수정**\n  * 버튼 클릭 및 게임 효과음이 입력 직후 즉시 재생되지 않던 문제 해결",
+      "parsed_changes": {
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "버튼 클릭 및 게임 효과음이 입력 직후 즉시 재생되지 않던 문제 해결"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.82",
       "project_type": "react",
