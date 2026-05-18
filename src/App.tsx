@@ -9,6 +9,7 @@ import { TutorialScreen } from './components/tutorial/TutorialScreen'
 import { StatsScreen } from './components/StatsScreen'
 import { AudioProvider, useAudioContext } from './contexts/AudioContext'
 import { MobileWarningModal } from './components/common/MobileWarningModal'
+import { WelcomeModal } from './components/common/WelcomeModal'
 
 /** App.tsx 한정 화면 union — types/Screen 확장 없이 'practice', 'stats' 추가 */
 type AppScreen = Screen | 'practice' | 'stats'
@@ -30,11 +31,6 @@ function AppInner() {
     return window.innerWidth < 768
   })
 
-  const handleMobileWarningClose = () => {
-    sessionStorage.setItem(SS_MOBILE_WARNED_KEY, 'true')
-    setShowMobileWarning(false)
-  }
-
   // 본 게임 1회 이상 플레이 여부 — 연습모드 노출 조건
   const hasPlayedBefore = typeof window !== 'undefined' && localStorage.getItem(LS_BEST_KEY) !== null
 
@@ -49,12 +45,33 @@ function AppInner() {
     localStorage.setItem(LS_OFFSET_KEY, String(clamped))
   }
 
+  // Welcome 모달 — PC 전용, sessionStorage 기반 세션당 1회
+  const SS_WELCOME_KEY = 'pickerpicker_welcome_seen'
+  const isMobile = window.innerWidth < 768
+  const [showWelcome, setShowWelcome] = useState<boolean>(
+    () => !isMobile && !sessionStorage.getItem(SS_WELCOME_KEY)
+  )
+
+  const handleWelcomeClose = () => {
+    sessionStorage.setItem(SS_WELCOME_KEY, 'true')
+    setShowWelcome(false)
+    audio.playStartBgm()
+  }
+
+  const handleMobileWarningClose = () => {
+    sessionStorage.setItem(SS_MOBILE_WARNED_KEY, 'true')
+    setShowMobileWarning(false)
+    // 모바일도 첫 인터랙션 → BGM 시작
+    audio.playStartBgm()
+  }
+
   // 화면 전환 시 BGM 제어
   useEffect(() => {
-    if (currentScreen === 'start') {
-      audio.playStartBgm()
-    } else if (currentScreen === 'ranking') {
+    if (currentScreen === 'ranking') {
       audio.playRankingBgm()
+    } else if (currentScreen === 'start' && !showWelcome) {
+      // Welcome 모달 없을 때만 (재방문 등) 즉시 BGM 시도
+      audio.playStartBgm()
     }
     // game 화면 BGM은 GameScreen이 직접 제어
   }, [currentScreen])
@@ -184,7 +201,11 @@ function AppInner() {
         />
       )}
 
-      {showMobileWarning && (
+      {showWelcome && (
+        <WelcomeModal onClose={handleWelcomeClose} />
+      )}
+
+      {!showWelcome && showMobileWarning && (
         <MobileWarningModal onClose={handleMobileWarningClose} />
       )}
     </>
