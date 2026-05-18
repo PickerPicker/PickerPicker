@@ -54,7 +54,7 @@ export async function getMyStats(nickname: string): Promise<MyStatsResponse | nu
 export async function getMySessions(nickname: string, days = 30): Promise<DailyEntry[] | null> {
   const res = await fetch(
     `${BASE_URL}/players/${encodeURIComponent(nickname)}/sessions?days=${days}`,
-    { headers: authHeaders() },
+    { headers: await authHeaders() },
   )
   if (res.status === 401 || res.status === 403) return null
   if (!res.ok) throw new Error('일별 시계열 조회 실패')
