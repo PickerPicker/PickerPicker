@@ -1,4 +1,17 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const SECRET_KEY = import.meta.env.VITE_SECRET_KEY || ''
+
+/** HMAC-SHA256(timestamp, secretKey) → hex 서명 생성 */
+async function generateSignature(timestamp: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const keyData = encoder.encode(SECRET_KEY)
+  const msgData = encoder.encode(timestamp)
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+  )
+  const sig = await crypto.subtle.sign('HMAC', cryptoKey, msgData)
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
 
 const SS_TOKEN_KEY = 'pickerpicker_token'
 const SS_TOKEN_NICK_KEY = 'pickerpicker_token_nickname'
@@ -61,7 +74,15 @@ export function getStoredTokenNickname(): string | null {
   return sessionStorage.getItem(SS_TOKEN_NICK_KEY)
 }
 
-export function authHeaders(): HeadersInit {
+/** 모든 API 요청 공통 헤더 — Bearer 토큰 + HMAC 서명 */
+export async function authHeaders(): Promise<Record<string, string>> {
+  const timestamp = String(Date.now())
+  const signature = await generateSignature(timestamp)
   const token = getStoredToken()
-  return token ? { Authorization: `Bearer ${token}` } : {}
+  return {
+    'Content-Type': 'application/json',
+    'X-Timestamp': timestamp,
+    'X-Signature': signature,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
 }
