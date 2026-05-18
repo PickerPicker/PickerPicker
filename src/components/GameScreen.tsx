@@ -346,11 +346,11 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
             다시 하기
           </SoundButton>
           {onStats && (
-            <SoundButton className="btn btn-outline btn-lg w-full text-lg" onClick={onStats}>
+            <SoundButton className="btn btn-lg w-full text-lg border border-white/60 text-white bg-white/10 hover:bg-white/20" onClick={onStats}>
               내 통계 보기
             </SoundButton>
           )}
-          <SoundButton className="btn btn-outline btn-lg w-full text-lg" onClick={onRanking}>
+          <SoundButton className="btn btn-lg w-full text-lg border border-white/60 text-white bg-white/10 hover:bg-white/20" onClick={onRanking}>
             랭킹 보기
           </SoundButton>
           <SoundButton className="btn btn-lg w-full text-lg border border-white/60 text-white hover:bg-white/10" onClick={onHome}>
