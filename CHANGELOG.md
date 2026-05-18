@@ -1,7 +1,16 @@
 # Changelog
 
 **현재 버전:** 0.0.90  
-**마지막 업데이트:** 2026-05-18T16:08:45Z  
+**마지막 업데이트:** 2026-05-18T16:23:02Z  
+
+---
+
+## [0.0.90] - 2026-05-18
+
+**PR:** #101  
+
+**기타**
+- 신규 플레이어 튜토리얼 미노출 문제 및 사용자 기준 tutorial_seen 관리 : fix : CICD .env 생성 방식 cat EOF heredoc으로 복원 (따옴표 제거) https://github.com/PickerPicker/PickerPicker/issues/96
 
 ---
 
