@@ -1,7 +1,16 @@
 # Changelog
 
-**현재 버전:** 0.0.84  
-**마지막 업데이트:** 2026-05-18T15:24:58Z  
+**현재 버전:** 0.0.85  
+**마지막 업데이트:** 2026-05-18T15:37:34Z  
+
+---
+
+## [0.0.85] - 2026-05-18
+
+**PR:** #94  
+
+**기타**
+- GitHub Actions에서 env 파일 시놀로지 자동 업로드 워크플로 추가 : fix : statsService getMySessions authHeaders await 누락으로 인한 TS2322 빌드 에러 수정 https://github.com/PickerPicker/PickerPicker/issues/90
 
 ---
 
