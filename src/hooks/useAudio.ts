@@ -88,22 +88,29 @@ export function useAudio() {
     currentBgmSrc.current = src
 
     return new Promise<number>((resolve) => {
-      const onReady = () => {
-        audio.removeEventListener('canplaythrough', onReady)
-        audio.play().catch(() => {})
+      const tryPlay = () => {
+        audio.play().catch(() => {
+          // autoplay 차단 시 첫 인터랙션에 재시도
+          const resume = () => { audio.play().catch(() => {}) }
+          document.addEventListener('click', resume, { once: true })
+          document.addEventListener('keydown', resume, { once: true })
+          document.addEventListener('touchstart', resume, { once: true })
+        })
         resolve(Date.now())
       }
-      // 이미 버퍼링 완료 상태면 즉시 resolve
+      // 이미 버퍼링 완료 상태면 즉시 시도
       if (audio.readyState >= 3) {
-        audio.play().catch(() => {})
-        resolve(Date.now())
+        tryPlay()
       } else {
+        const onReady = () => {
+          audio.removeEventListener('canplaythrough', onReady)
+          tryPlay()
+        }
         audio.addEventListener('canplaythrough', onReady, { once: true })
         // 최대 500ms 대기 후 타임아웃 — 네트워크 지연 상한
         setTimeout(() => {
           audio.removeEventListener('canplaythrough', onReady)
-          audio.play().catch(() => {})
-          resolve(Date.now())
+          tryPlay()
         }, 500)
       }
     })
@@ -165,7 +172,7 @@ export function useAudio() {
     })
   }, [])
 
-  useEffect(() => {
+useEffect(() => {
     return () => {
       bgmRef.current?.pause()
       audioCtxRef.current?.close()

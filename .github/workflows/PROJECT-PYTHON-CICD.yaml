@@ -259,9 +259,8 @@ jobs:
             # .env 파일 서버에 생성
             ENV_DIR="/volume1/projects/pickerpicker/back"
             echo $PW | sudo -S mkdir -p "$ENV_DIR"
-            echo $PW | sudo -S bash -c "cat > $ENV_DIR/.env << 'ENVEOF'
-${{ secrets.BACKEND_ENV_FILE }}
-ENVEOF"
+            ENV_CONTENT="${{ secrets.BACKEND_ENV_FILE }}"
+            echo $PW | sudo -S bash -c "printf '%s\n' \"$ENV_CONTENT\" > $ENV_DIR/.env"
             echo "✅ .env 파일 생성: $ENV_DIR/.env"
 
             # 볼륨 마운트 옵션 구성
