@@ -101,20 +101,26 @@ async def hmac_signature_guard(request: Request, call_next):
         signature = request.headers.get("X-Signature", "")
         timestamp_str = request.headers.get("X-Timestamp", "")
 
+        # 401 응답에도 CORS 헤더 포함 — 미들웨어가 CORSMiddleware보다 먼저 실행되므로 직접 추가
+        _cors_headers = {
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+            "Access-Control-Allow-Credentials": "false",
+        }
+
         if not signature or not timestamp_str:
             logger.warning(f"서명 헤더 누락: {request.method} {request.url.path}")
-            return JSONResponse(status_code=401, content={"detail": "Missing signature headers"})
+            return JSONResponse(status_code=401, content={"detail": "Missing signature headers"}, headers=_cors_headers)
 
         try:
             timestamp = int(timestamp_str)
         except ValueError:
             logger.warning(f"타임스탬프 형식 오류: {timestamp_str}")
-            return JSONResponse(status_code=401, content={"detail": "Invalid timestamp"})
+            return JSONResponse(status_code=401, content={"detail": "Invalid timestamp"}, headers=_cors_headers)
 
         # 타임스탬프 만료 검증 (±5분)
         if abs(int(time.time() * 1000) - timestamp) > _SIGNATURE_EXPIRATION_MS:
             logger.warning(f"타임스탬프 만료: {request.method} {request.url.path}")
-            return JSONResponse(status_code=401, content={"detail": "Expired timestamp"})
+            return JSONResponse(status_code=401, content={"detail": "Expired timestamp"}, headers=_cors_headers)
 
         # HMAC-SHA256(timestamp, secretKey) 검증 — constant-time 비교로 timing attack 방지
         expected = hmac.new(
@@ -124,7 +130,7 @@ async def hmac_signature_guard(request: Request, call_next):
         ).hexdigest()
         if not hmac.compare_digest(expected, signature):
             logger.warning(f"서명 불일치: {request.method} {request.url.path}")
-            return JSONResponse(status_code=401, content={"detail": "Invalid signature"})
+            return JSONResponse(status_code=401, content={"detail": "Invalid signature"}, headers=_cors_headers)
 
     return await call_next(request)
 
