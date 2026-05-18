@@ -139,4 +139,4 @@ main push
 ---
 
 <!-- AUTO-VERSION-SECTION: DO NOT EDIT MANUALLY -->
-## 최신 버전 : v0.0.68 (2026-05-16)
+## 최신 버전 : v0.0.87 (2026-05-18)
