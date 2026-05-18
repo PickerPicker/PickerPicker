@@ -1,7 +1,31 @@
 # Changelog
 
-**현재 버전:** 0.0.90  
-**마지막 업데이트:** 2026-05-18T16:24:09Z  
+**현재 버전:** 0.0.91  
+**마지막 업데이트:** 2026-05-18T16:31:24Z  
+
+---
+
+## [0.0.91] - 2026-05-18
+
+**PR:** #103  
+
+**기타**
+- PickerPicker 버전 관리 : docs : v0.0.90 릴리즈 문서 업데이트 (PR #102)
+- PickerPicker 버전 관리 : docs : v0.0.90 릴리즈 문서 업데이트 (PR #101)
+- 신규 플레이어 튜토리얼 미노출 문제 및 사용자 기준 tutorial_seen 관리 : fix : CICD .env 생성 방식 cat EOF heredoc으로 복원 (따옴표 제거) https://github.com/PickerPicker/PickerPicker/issues/96
+- PickerPicker 버전 관리 : docs : v0.0.90 릴리즈 문서 업데이트 (PR #100)
+- 신규 플레이어 튜토리얼 미노출 문제 및 사용자 기준 tutorial_seen 관리 : fix : YAML heredoc 내 secrets expression 구문 오류 수정 https://github.com/PickerPicker/PickerPicker/issues/96
+- PickerPicker 버전 관리 : docs : v0.0.89 릴리즈 문서 업데이트 (PR #99)
+- PickerPicker 버전 관리 : docs : v0.0.88 릴리즈 문서 업데이트 (PR #98)
+- CORS 및 DB 연결 오류 수정 : fix : 백엔드 .env 볼륨마운트로 환경변수 주입 방식 통일, BACKEND_DATABASE_URL 중복 Secret 제거 https://github.com/PickerPicker/PickerPicker/issues/95
+- 신규 플레이어 튜토리얼 미노출 문제 및 사용자 기준 tutorial_seen 관리 : feat : players.tutorial_seen 컬럼 추가, PATCH API 신규, FE 서버 기준 튜토리얼 노출 전환 및 localStorage fallback https://github.com/PickerPicker/PickerPicker/issues/96
+- PickerPicker 버전 관리 : docs : v0.0.86 릴리즈 문서 업데이트 (PR #97)
+- Update README.md
+- 첫 방문 사용자 Welcome 모달 표시 (BGM 자동재생 정책 우회 + 키보드 조작법 안내) : feat : PC 첫 방문 시 Welcome 모달 표시 (세션당 1회), 모달 클릭 시 BGM 시작으로 브라우저 자동재생 정책 우회, 모바일은 기존 경고 모달 클릭 시 BGM 시작 https://github.com/PickerPicker/PickerPicker/issues/95
+- PickerPicker 버전 관리 : docs : v0.0.85 릴리즈 문서 업데이트 (PR #94)
+- GitHub Actions에서 env 파일 시놀로지 자동 업로드 워크플로 추가 : fix : statsService getMySessions authHeaders await 누락으로 인한 TS2322 빌드 에러 수정 https://github.com/PickerPicker/PickerPicker/issues/90
+- PickerPicker 버전 관리 : docs : v0.0.84 릴리즈 문서 업데이트 (PR #93)
+- 효과음 파일 앞 무음 구간 제거 : fix : sfx 4종 앞 무음 trim (25~48ms) https://github.com/PickerPicker/PickerPicker/issues/92
 
 ---
 
