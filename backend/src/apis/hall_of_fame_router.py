@@ -23,7 +23,7 @@ class HallOfFameEntry(BaseModel):
 
 
 class MottoRequest(BaseModel):
-    motto: str = Field(..., max_length=100)
+    motto: str = Field(..., max_length=15)
 
 
 @router.get("", response_model=list[HallOfFameEntry])

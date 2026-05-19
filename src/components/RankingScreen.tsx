@@ -130,7 +130,7 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
           className="text-3xl font-black tracking-widest mx-auto pr-16"
           style={{ color: '#e879f9', textShadow: '0 0 16px #a21caf, 0 2px 4px #000' }}
         >
-          {activeTab === 'ranking' ? 'RANKING' : 'HALL OF FAME'}
+          {activeTab === 'ranking' ? 'RANKING' : '명예의 전당'}
         </h1>
       </div>
 
