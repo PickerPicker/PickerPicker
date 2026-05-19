@@ -1,11 +1,30 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-19T04:38:21Z",
-    "currentVersion": "0.0.108",
+    "lastUpdated": "2026-05-19T08:39:06Z",
+    "currentVersion": "0.0.109",
     "projectType": "react",
-    "totalReleases": 68
+    "totalReleases": 69
   },
   "releases": [
+    {
+      "version": "0.0.109",
+      "project_type": "react",
+      "date": "2026-05-19",
+      "pr_number": 118,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 명예의 전당 화면 추가 — 역대 1위 기록을 픽셀아트 동상으로 감상\n  * 1위 달성 시 한마디 남기기 기능 추가\n  * 랭킹 화면에서 명예의 전당 탭으로 즉시 전환 가능\n  * 챔피언 재위 기간(N일째) 표시",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "명예의 전당 화면 추가 — 역대 1위 기록을 픽셀아트 동상으로 감상",
+            "1위 달성 시 한마디 남기기 기능 추가",
+            "랭킹 화면에서 명예의 전당 탭으로 즉시 전환 가능",
+            "챔피언 재위 기간(N일째) 표시"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.108",
       "project_type": "react",
