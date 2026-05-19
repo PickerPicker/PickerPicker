@@ -26,6 +26,19 @@ function AppInner() {
   const [afterTutorial, setAfterTutorial] = useState<AppScreen>('start')
   const audio = useAudioContext()
 
+  const [isOffline, setIsOffline] = useState(false)
+
+  useEffect(() => {
+    const handleOffline = () => setIsOffline(true)
+    const handleOnline = () => setIsOffline(false)
+    window.addEventListener('pickerpicker:offline', handleOffline)
+    window.addEventListener('online', handleOnline)
+    return () => {
+      window.removeEventListener('pickerpicker:offline', handleOffline)
+      window.removeEventListener('online', handleOnline)
+    }
+  }, [])
+
   // 모바일 감지 — 세션당 1회만 표시
   const [showMobileWarning, setShowMobileWarning] = useState<boolean>(() => {
     if (sessionStorage.getItem(SS_MOBILE_WARNED_KEY)) return false
@@ -202,7 +215,7 @@ function AppInner() {
         />
       )}
       {currentScreen === 'ranking' && (
-        <RankingScreen onBack={() => setCurrentScreen('start')} />
+        <RankingScreen nickname={nickname} onBack={() => setCurrentScreen('start')} />
       )}
       {currentScreen === 'stats' && (
         <StatsScreen

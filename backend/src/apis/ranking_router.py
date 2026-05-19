@@ -24,14 +24,15 @@ class RankingEntry(BaseModel):
 
 @router.get("", response_model=list[RankingEntry])
 async def get_ranking(
-    limit: int = Query(default=10, ge=1, le=100),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),
 ):
     """best_score 기준 상위 랭킹"""
-    players = await player_service.get_ranking(db, limit)
+    players = await player_service.get_ranking(db, limit, offset)
     return [
         RankingEntry(
-            rank=i + 1,
+            rank=offset + i + 1,
             nickname=p.nickname,
             best_score=p.best_score,
             best_stage=p.best_stage,
