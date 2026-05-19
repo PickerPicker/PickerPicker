@@ -229,6 +229,7 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
   }
 
   const handleRestart = () => {
+    setIsPaused(false)
     resultSavedRef.current = false
     statRef.current = INITIAL_STAT
     stageStartScoreRef.current = 0
@@ -410,7 +411,7 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
           isPaused={isPaused}
         />
       )}
-      {isPaused && (
+      {isPaused && phase !== 'result' && (
         <PauseModal
           onResume={() => setIsPaused(false)}
           onGiveUp={handleGiveUp}
