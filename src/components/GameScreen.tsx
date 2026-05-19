@@ -517,7 +517,7 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
           isPaused={isPaused}
         />
       )}
-      {isPaused && phase !== 'result' && (
+      {isPaused && (phase as string) !== 'result' && (
         <PauseModal
           onResume={() => setIsPaused(false)}
           onGiveUp={handleGiveUp}
