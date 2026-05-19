@@ -107,7 +107,6 @@ export function PlayStage({
       score += combo >= 5 ? 200 : 100
       gauge = Math.min(100, gauge + (combo >= 5 ? 2 : 1))
       perfectCount += 1
-      if (combo > maxCombo) maxCombo = combo  // 최대 콤보 갱신
     } else if (type === 'GOOD') {
       combo = 0
       score += 50
