@@ -1,6 +1,7 @@
 """src.apis.hall_of_fame_router
 명예의 전당 API — 역대 1위 조회 + 한마디 수정.
 """
+import math
 from datetime import datetime
 from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
@@ -33,7 +34,9 @@ async def get_hall_of_fame(db: AsyncSession = Depends(get_db)):
     result: list[HallOfFameEntry] = []
     for e in entries:
         end = e.ended_at or now
-        days = max(0, (end - e.started_at).days)
+        # 초 단위로 올림해 1시간만 재위해도 1일로 표시
+        elapsed_sec = (end - e.started_at).total_seconds()
+        days = max(1, math.ceil(elapsed_sec / 86400)) if elapsed_sec > 0 else 0
         result.append(HallOfFameEntry(
             nickname=e.nickname,
             score=e.score,
