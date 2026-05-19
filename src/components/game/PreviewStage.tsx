@@ -33,10 +33,12 @@ export function PreviewStage({ stageData, onPreviewEnd, isPaused = false }: Prev
 
   useEffect(() => {
     if (isPaused) {
+      // 일시정지: 남은 시간 계산해서 보존
       const elapsed = Date.now() - timerStartRef.current
       remainingRef.current = Math.max(0, remainingRef.current - elapsed)
       return
     }
+    // 재개 or 최초 시작: timerStart 갱신 후 setTimeout 실행
     timerStartRef.current = Date.now()
     const t = setTimeout(() => onPreviewEndRef.current(), remainingRef.current)
     return () => clearTimeout(t)
