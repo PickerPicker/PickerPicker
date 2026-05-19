@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { BarChart2 } from 'lucide-react'
 import { CloseButton } from './common/CloseButton'
 import { SoundButton } from './common/SoundButton'
+import statsBg from '../assets/stats-bg.png'
 import {
   getMyStats,
   getGlobalStats,
@@ -68,10 +70,21 @@ export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
   }
 
   return (
-    <div className="min-h-screen bg-base-100 px-4 py-6">
+    <div
+      className="min-h-screen px-4 py-6"
+      style={{
+        backgroundImage: `url(${statsBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <CloseButton onClick={onBack} />
       <div className="max-w-3xl mx-auto flex flex-col gap-4">
-        <h2 className="text-2xl font-bold text-center">📊 {my.nickname} 님 통계</h2>
+        <h2 className="text-2xl font-bold text-center flex items-center justify-center gap-2">
+          <BarChart2 className="text-primary" size={28} />
+          {my.nickname} 님 통계
+        </h2>
 
         {/* 기본 집계 */}
         <section className="card bg-base-200">
