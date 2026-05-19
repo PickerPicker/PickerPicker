@@ -145,7 +145,7 @@ function AppInner() {
     <>
       {isOffline && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-warning text-warning-content text-center text-xs py-1 font-bold tracking-wide">
-          오프라인 — 기록이 저장되지 않습니다
+          서버 연결 끊김 — 기록이 저장되지 않습니다
         </div>
       )}
       {currentScreen === 'start' && (
@@ -158,6 +158,7 @@ function AppInner() {
           }}
           onTutorial={handleTutorialOpen}
           hasPlayedBefore={hasPlayedBefore}
+          isOffline={isOffline}
           bgmVolume={audio.bgmVolume}
           sfxOn={audio.sfxOn}
           onBgmVolume={audio.setBgmVol}
