@@ -18,6 +18,7 @@ interface PlayStageProps {
   onMissSfx: () => void
   offset: number
   practiceMode?: boolean
+  isPaused?: boolean
 }
 
 export function PlayStage({
@@ -30,6 +31,7 @@ export function PlayStage({
   onMissSfx,
   offset,
   practiceMode = false,
+  isPaused = false,
 }: PlayStageProps) {
   const { bpm, inputSyllables, keyMapping, validSyllables } = stageData
   const beatMs = Math.round(60_000 / bpm)
@@ -45,8 +47,24 @@ export function PlayStage({
   const statRef = useRef(stat)
   const judgeCountRef = useRef(0)
   const gameOverRef = useRef(false)
+  const isPausedRef = useRef(false)
+  const pausedAtRef = useRef<number | null>(null)
+  const totalPausedRef = useRef(0)
 
   useEffect(() => { statRef.current = stat }, [stat])
+
+  useEffect(() => {
+    if (isPaused) {
+      isPausedRef.current = true
+      pausedAtRef.current = Date.now()
+    } else {
+      if (pausedAtRef.current !== null) {
+        totalPausedRef.current += Date.now() - pausedAtRef.current
+        pausedAtRef.current = null
+      }
+      isPausedRef.current = false
+    }
+  }, [isPaused])
 
   const onStatUpdateRef = useRef(onStatUpdate)
   const onGameOverRef = useRef(onGameOver)
@@ -121,15 +139,18 @@ export function PlayStage({
     setPendingIndex(0)
     setPerfectCombo(0)
     gameOverRef.current = false
+    totalPausedRef.current = 0
+    pausedAtRef.current = null
+    isPausedRef.current = false
   }, [stageData, beatMs])
 
   // 자동 MISS/통과 인터벌 (useLayoutEffect 이후 실행되므로 startTimeRef가 올바름)
   useEffect(() => {
     const interval = setInterval(() => {
-      if (gameOverRef.current) return
+      if (gameOverRef.current || isPausedRef.current) return
       const idx = pendingIndexRef.current
       if (idx >= inputSyllables.length) return
-      const arrivalTime = startTimeRef.current + idx * beatMs + offset
+      const arrivalTime = startTimeRef.current + idx * beatMs + offset + totalPausedRef.current
       const delta = Date.now() - arrivalTime
       if (delta > GOOD_WINDOW) {
         if (validSyllables.includes(inputSyllables[idx])) {
@@ -154,7 +175,7 @@ export function PlayStage({
     }
 
     const handler = (e: KeyboardEvent) => {
-      if (e.repeat || gameOverRef.current) return
+      if (e.repeat || gameOverRef.current || isPausedRef.current) return
       const km = keyMapping.find(k => codeMap[k.key] === e.code)
       if (!km) return
 
@@ -170,7 +191,7 @@ export function PlayStage({
         return
       }
 
-      const arrivalTime = startTimeRef.current + idx * beatMs + offset
+      const arrivalTime = startTimeRef.current + idx * beatMs + offset + totalPausedRef.current
       const delta = Math.abs(Date.now() - arrivalTime)
 
       if (km.syllable !== expectedSyllable) {
