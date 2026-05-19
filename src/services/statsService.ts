@@ -1,4 +1,4 @@
-import { authHeaders } from './authService'
+import { apiFetch } from './authService'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
@@ -42,17 +42,14 @@ export interface DailyEntry {
 }
 
 export async function getMyStats(nickname: string): Promise<MyStatsResponse | null> {
-  const res = await fetch(`${BASE_URL}/players/${encodeURIComponent(nickname)}/stats`, {
-    headers: await authHeaders(),
-  })
+  const res = await apiFetch(`${BASE_URL}/players/${encodeURIComponent(nickname)}/stats`)
   if (!res.ok) throw new Error('통계 조회 실패')
   return res.json()
 }
 
 export async function getMySessions(nickname: string, days = 30): Promise<DailyEntry[] | null> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE_URL}/players/${encodeURIComponent(nickname)}/sessions?days=${days}`,
-    { headers: await authHeaders() },
   )
   if (!res.ok) throw new Error('일별 시계열 조회 실패')
   const data = await res.json()
@@ -61,7 +58,7 @@ export async function getMySessions(nickname: string, days = 30): Promise<DailyE
 
 export async function getGlobalStats(): Promise<GlobalStatsResponse | null> {
   try {
-    const res = await fetch(`${BASE_URL}/stats/global`)
+    const res = await apiFetch(`${BASE_URL}/stats/global`)
     if (!res.ok) return null
     return res.json()
   } catch {
