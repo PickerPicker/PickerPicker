@@ -4,6 +4,7 @@ import { saveGameResult, getRanking } from '../services/playerService'
 import { GameHeader } from './game/GameHeader'
 import { PlayStage } from './game/PlayStage'
 import { PreviewStage } from './game/PreviewStage'
+import { PauseModal } from './game/PauseModal'
 import { SoundButton } from './common/SoundButton'
 import gameoverBg from '../assets/gameover-bg.png'
 
@@ -65,7 +66,6 @@ interface GameScreenProps {
 }
 
 export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset, onOffset, sfxOn, onToggleSfx }: GameScreenProps) {
-  void [onOffset, sfxOn, onToggleSfx]
   const [gameData, setGameData] = useState<GameData | null>(null)
   const [loading, setLoading] = useState(true)
   const [stageIndex, setStageIndex] = useState(0)
@@ -74,6 +74,7 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
   const [shuffledKeyMapping, setShuffledKeyMapping] = useState<KeyMapping[]>([])
   const [best, setBest] = useState<BestRecord>(loadBest)
   const [serverPlayCount, setServerPlayCount] = useState<number | null>(null)
+  const [isPaused, setIsPaused] = useState(false)
   const [isClear, setIsClear] = useState(false)
   const [globalTop, setGlobalTop] = useState<{ nickname: string; best_score: number; best_stage: number; best_combo: number } | null>(null)
   const [newRecords, setNewRecords] = useState<{ score: boolean; stage: boolean; combo: boolean }>({ score: false, stage: false, combo: false })
@@ -92,6 +93,17 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
       })
       .catch(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      if (phase === 'result') return
+      e.preventDefault()
+      setIsPaused(prev => !prev)
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [phase])
 
   useEffect(() => {
     if (gameData) {
@@ -211,7 +223,13 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
     setPhase('result')
   }
 
+  const handleGiveUp = () => {
+    setIsPaused(false)
+    handleGameOver()
+  }
+
   const handleRestart = () => {
+    setIsPaused(false)
     resultSavedRef.current = false
     statRef.current = INITIAL_STAT
     stageStartScoreRef.current = 0
@@ -374,7 +392,11 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
         score={stat.score}
       />
       {phase === 'preview' && (
-        <PreviewStage stageData={stageWithShuffle!} onPreviewEnd={handlePreviewEnd} />
+        <PreviewStage
+          stageData={stageWithShuffle!}
+          onPreviewEnd={handlePreviewEnd}
+          isPaused={isPaused}
+        />
       )}
       {phase === 'playing' && (
         <PlayStage
@@ -386,6 +408,17 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
           onHitSfx={onHitSfx}
           onMissSfx={onMissSfx}
           offset={offset}
+          isPaused={isPaused}
+        />
+      )}
+      {isPaused && phase !== 'result' && (
+        <PauseModal
+          onResume={() => setIsPaused(false)}
+          onGiveUp={handleGiveUp}
+          offset={offset}
+          onOffset={onOffset}
+          sfxOn={sfxOn}
+          onToggleSfx={onToggleSfx}
         />
       )}
     </div>

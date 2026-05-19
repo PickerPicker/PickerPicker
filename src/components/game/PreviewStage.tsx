@@ -7,6 +7,7 @@ const PREVIEW_DURATION_MS = 2000
 interface PreviewStageProps {
   stageData: StageData
   onPreviewEnd: () => void
+  isPaused?: boolean
 }
 
 function getSyllableLayout(count: number): { size: string; maxWidth: string; gap: string } {
@@ -15,18 +16,33 @@ function getSyllableLayout(count: number): { size: string; maxWidth: string; gap
   return { size: 'w-12 h-12 text-xl', maxWidth: 'max-w-5xl', gap: 'gap-1.5' }
 }
 
-export function PreviewStage({ stageData, onPreviewEnd }: PreviewStageProps) {
+export function PreviewStage({ stageData, onPreviewEnd, isPaused = false }: PreviewStageProps) {
   const { inputSyllables, keyMapping } = stageData
   const onPreviewEndRef = useRef(onPreviewEnd)
+  const remainingRef = useRef(PREVIEW_DURATION_MS)
+  const timerStartRef = useRef<number>(Date.now())
 
   useEffect(() => {
     onPreviewEndRef.current = onPreviewEnd
   }, [onPreviewEnd])
 
   useEffect(() => {
-    const t = setTimeout(() => onPreviewEndRef.current(), PREVIEW_DURATION_MS)
-    return () => clearTimeout(t)
+    remainingRef.current = PREVIEW_DURATION_MS
+    timerStartRef.current = Date.now()
   }, [stageData])
+
+  useEffect(() => {
+    if (isPaused) {
+      // 일시정지: 남은 시간 계산해서 보존
+      const elapsed = Date.now() - timerStartRef.current
+      remainingRef.current = Math.max(0, remainingRef.current - elapsed)
+      return
+    }
+    // 재개 or 최초 시작: timerStart 갱신 후 setTimeout 실행
+    timerStartRef.current = Date.now()
+    const t = setTimeout(() => onPreviewEndRef.current(), remainingRef.current)
+    return () => clearTimeout(t)
+  }, [isPaused, stageData])
 
   const { size, maxWidth, gap } = getSyllableLayout(inputSyllables.length)
 
