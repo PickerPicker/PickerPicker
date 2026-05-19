@@ -109,7 +109,7 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
 
   return (
     <div
-      className="flex flex-col items-center min-h-screen gap-6 p-8"
+      className="flex flex-col items-center h-screen gap-6 p-8"
       style={{
         backgroundImage: `url(${rankingBg})`,
         backgroundSize: 'cover',
@@ -141,11 +141,11 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
         </div>
       ) : (
         <div
-          className="w-full max-w-2xl rounded-xl flex flex-col"
+          className="w-full max-w-2xl rounded-xl flex flex-col flex-1 min-h-0"
           style={{ background: 'rgba(0, 0, 20, 0.72)', backdropFilter: 'blur(2px)' }}
         >
           {/* 스크롤 테이블 영역 */}
-          <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '60vh' }}>
+          <div className="overflow-x-auto overflow-y-auto flex-1 min-h-0">
             <table className="table w-full" style={{ '--tw-bg-opacity': '0' } as React.CSSProperties}>
               <thead>
                 <tr style={{ color: '#c084fc', background: 'rgba(0,0,20,0.9)', position: 'sticky', top: 0, zIndex: 1 }}>
