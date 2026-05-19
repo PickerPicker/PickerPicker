@@ -59,9 +59,13 @@ interface GameScreenProps {
   onMissSfx: () => void
   onGameBgm: (stageIndex: number) => void
   offset: number
+  onOffset: (v: number) => void
+  sfxOn: boolean
+  onToggleSfx: () => void
 }
 
-export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset }: GameScreenProps) {
+export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset, onOffset, sfxOn, onToggleSfx }: GameScreenProps) {
+  void [onOffset, sfxOn, onToggleSfx]
   const [gameData, setGameData] = useState<GameData | null>(null)
   const [loading, setLoading] = useState(true)
   const [stageIndex, setStageIndex] = useState(0)
@@ -346,14 +350,14 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
             다시 하기
           </SoundButton>
           {onStats && (
-            <SoundButton className="btn btn-lg w-full text-lg border border-white/60 text-white bg-white/10 hover:bg-white/20" onClick={onStats}>
+            <SoundButton className="btn btn-lg w-full text-lg bg-black/50 border border-white/20 text-white/90 hover:bg-black/60" onClick={onStats}>
               내 통계 보기
             </SoundButton>
           )}
-          <SoundButton className="btn btn-lg w-full text-lg border border-white/60 text-white bg-white/10 hover:bg-white/20" onClick={onRanking}>
+          <SoundButton className="btn btn-lg w-full text-lg bg-black/50 border border-white/20 text-white/90 hover:bg-black/60" onClick={onRanking}>
             랭킹 보기
           </SoundButton>
-          <SoundButton className="btn btn-lg w-full text-lg border border-white/60 text-white hover:bg-white/10" onClick={onHome}>
+          <SoundButton className="btn btn-lg w-full text-lg bg-black/50 border border-white/20 text-white/90 hover:bg-black/60" onClick={onHome}>
             홈으로 가기
           </SoundButton>
         </div>

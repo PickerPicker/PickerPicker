@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { SoundButton } from './common/SoundButton'
 import { checkNickname, createPlayer, verifyPin, getPlayer } from '../services/playerService'
 
-type Screen = 'home' | 'settings' | 'credits' | 'nickname' | 'pin-login' | 'pin-create' | 'pin-confirm'
+type Screen = 'home' | 'settings' | 'credits' | 'nickname' | 'pin-login' | 'pin-create' | 'pin-confirm' | 'offline'
 
 interface StartScreenProps {
   onRanking: () => void
@@ -20,6 +20,7 @@ interface StartScreenProps {
   nickname: string
   onLogout: () => void
   onLoginComplete: (nickname: string, tutorialSeen: boolean) => void
+  isOffline?: boolean
 }
 
 const CREDITS = [
@@ -344,7 +345,7 @@ function SettingsView({
   )
 }
 
-export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStats, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout, onLoginComplete }: StartScreenProps) {
+export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStats, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout, onLoginComplete, isOffline }: StartScreenProps) {
   const [screen, setScreen] = useState<Screen>('home')
   const [loginNickname, setLoginNickname] = useState('')
   const [pendingPin, setPendingPin] = useState('')
@@ -359,6 +360,10 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStat
   const handleStartClick = () => {
     if (nickname) {
       onStart()
+      return
+    }
+    if (isOffline) {
+      setScreen('offline')
       return
     }
     resetLogin()
@@ -527,6 +532,24 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStat
             }}
             error={pinError}
           />
+        )}
+
+        {screen === 'offline' && (
+          <div className="flex flex-col items-center gap-6 w-full">
+            <h2 className="text-xl font-black tracking-widest text-center text-error">
+              서버에 연결할 수 없습니다
+            </h2>
+            <p className="text-sm text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              인터넷 연결을 확인하고 다시 시도해 주세요.
+            </p>
+            <SoundButton
+              className="btn btn-sm w-full"
+              style={{ background: 'rgba(60,80,120,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+              onClick={() => setScreen('home')}
+            >
+              ← BACK
+            </SoundButton>
+          </div>
         )}
 
         {screen === 'settings' && (

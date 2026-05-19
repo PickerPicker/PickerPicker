@@ -64,7 +64,7 @@ export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-base-100">
         <CloseButton onClick={onBack} />
         <p className="text-error">통계를 불러올 수 없습니다.</p>
-        <SoundButton className="btn btn-outline" onClick={onBack}>돌아가기</SoundButton>
+        <SoundButton className="btn bg-black/50 border border-white/20 text-white/90 hover:bg-black/60" onClick={onBack}>돌아가기</SoundButton>
       </div>
     )
   }
@@ -190,7 +190,7 @@ export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
           </div>
         </section>
 
-        <SoundButton className="btn btn-outline w-full mt-2" onClick={onBack}>
+        <SoundButton className="btn w-full mt-2 bg-black/50 border border-white/20 text-white/90 hover:bg-black/60" onClick={onBack}>
           돌아가기
         </SoundButton>
       </div>
