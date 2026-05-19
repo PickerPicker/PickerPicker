@@ -1,11 +1,36 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-19T04:18:02Z",
-    "currentVersion": "0.0.103",
+    "lastUpdated": "2026-05-19T04:27:33Z",
+    "currentVersion": "0.0.104",
     "projectType": "react",
-    "totalReleases": 66
+    "totalReleases": 67
   },
   "releases": [
+    {
+      "version": "0.0.104",
+      "project_type": "react",
+      "date": "2026-05-19",
+      "pr_number": 115,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 랭킹 화면에서 스크롤하면 순위가 자동으로 더 로드됩니다\n  * 내 닉네임의 순위가 화면 밖에 있을 때 하단에 항상 표시됩니다\n  * 내 순위 행이 화면에 보이면 별도 고정 표시가 사라지고 인라인 강조로 전환됩니다\n\n* **개선**\n  * 랭킹 화면 높이가 화면 크기에 맞게 자동 조절됩니다\n  * 게임 오버 화면과 통계 화면의 버튼 스타일이 통일되어 가독성이 개선되었습니다",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "랭킹 화면에서 스크롤하면 순위가 자동으로 더 로드됩니다",
+            "내 닉네임의 순위가 화면 밖에 있을 때 하단에 항상 표시됩니다",
+            "내 순위 행이 화면에 보이면 별도 고정 표시가 사라지고 인라인 강조로 전환됩니다"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "랭킹 화면 높이가 화면 크기에 맞게 자동 조절됩니다",
+            "게임 오버 화면과 통계 화면의 버튼 스타일이 통일되어 가독성이 개선되었습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.103",
       "project_type": "react",
