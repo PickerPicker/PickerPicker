@@ -13,6 +13,24 @@ async function generateSignature(timestamp: string): Promise<string> {
   return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
+/**
+ * 모든 API 요청 공통 fetch 래퍼 — HMAC 서명 자동 적용.
+ * 네트워크 오류 시 'pickerpicker:offline' 이벤트 dispatch 후 throw.
+ */
+export async function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const headers = await authHeaders()
+  try {
+    const res = await fetch(url, {
+      ...init,
+      headers: { ...headers, ...(init.headers as Record<string, string> | undefined ?? {}) },
+    })
+    return res
+  } catch (err) {
+    window.dispatchEvent(new CustomEvent('pickerpicker:offline'))
+    throw err
+  }
+}
+
 const SS_TOKEN_KEY = 'pickerpicker_token'
 const SS_TOKEN_NICK_KEY = 'pickerpicker_token_nickname'
 const SS_TOKEN_EXP_KEY = 'pickerpicker_token_expires_at'
@@ -25,9 +43,8 @@ export interface LoginResult {
 /** PIN 검증 후 세션 토큰 발급. 실패 시 null */
 export async function login(nickname: string, pin: string): Promise<LoginResult | null> {
   try {
-    const res = await fetch(`${BASE_URL}/auth/login`, {
+    const res = await apiFetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nickname, pin }),
     })
     if (!res.ok) return null
@@ -45,10 +62,7 @@ export async function logout(): Promise<void> {
   const token = sessionStorage.getItem(SS_TOKEN_KEY)
   if (token) {
     try {
-      await fetch(`${BASE_URL}/auth/logout`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      await apiFetch(`${BASE_URL}/auth/logout`, { method: 'POST' })
     } catch { /* ignore */ }
   }
   sessionStorage.removeItem(SS_TOKEN_KEY)

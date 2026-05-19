@@ -67,10 +67,10 @@ async def mark_tutorial_seen(db: AsyncSession, nickname: str) -> Player:
     return player
 
 
-async def get_ranking(db: AsyncSession, limit: int = 10) -> list[Player]:
+async def get_ranking(db: AsyncSession, limit: int = 10, offset: int = 0) -> list[Player]:
     """best_score 기준 상위 랭킹"""
     result = await db.execute(
-        select(Player).order_by(Player.best_score.desc()).limit(limit)
+        select(Player).order_by(Player.best_score.desc()).limit(limit).offset(offset)
     )
     return list(result.scalars().all())
 
