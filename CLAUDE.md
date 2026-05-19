@@ -208,6 +208,49 @@ docker-compose up
 - DB는 시놀로지 NAS PostgreSQL 컨테이너 사용 (포트 5430)
 - 백엔드 컨테이너는 bridge 네트워크, DB 접근은 `suh-project.synology.me:5430` 외부 도메인으로 함 (`--network host` 사용 안 함)
 
+## API 인증 — HMAC-SHA256
+
+**모든 API 엔드포인트는 HMAC 서명 필수.** 신규 엔드포인트 추가 시 절대 `_PUBLIC_PATHS`에 넣지 않는다.
+
+### 공개 경로 (`_PUBLIC_PATHS`) 예외 기준
+
+`backend/src/main.py`의 `_PUBLIC_PATHS`는 **서버 자체 운영용**만 허용:
+
+```python
+_PUBLIC_PATHS = {"/health", "/docs", "/redoc", "/openapi.json"}
+```
+
+- `/health` — 헬스체크 (Docker/시놀로지 모니터링)
+- `/docs`, `/redoc`, `/openapi.json` — Swagger UI
+
+**게임 기능 엔드포인트는 모두 HMAC 대상** — `/ranking`, `/hall-of-fame`, `/players/*`, `/auth/*`, `/stats/*` 등 전부 포함.
+
+### FE 호출 방식
+
+`src/services/authService.ts`의 `apiFetch()` 사용 필수. 직접 `fetch()`/`axios` 금지.  
+`apiFetch`가 `X-Signature` + `X-Timestamp` 헤더를 자동 부착.
+
+### BE 로컬 테스트 시
+
+컨테이너 내부에서 `curl`/`wget`으로 직접 호출하면 HMAC 헤더 없어서 401 정상. 실제 오류가 아님.  
+API 동작 확인은 FE 또는 서명 헤더 직접 생성 후 테스트.
+
+### DB 스키마 변경 시 주의
+
+SQLAlchemy `create_all`은 기존 테이블 컬럼 추가 안 함. 컬럼 추가 시 반드시 수동 ALTER 필요:
+
+```bash
+# 시놀로지 백엔드 컨테이너 내부에서 asyncpg로 실행
+docker exec pickerpicker-back python3 -c "
+import asyncio, asyncpg
+async def run():
+    conn = await asyncpg.connect('postgresql://...')
+    await conn.execute('ALTER TABLE ... ADD COLUMN IF NOT EXISTS ...')
+    await conn.close()
+asyncio.run(run())
+"
+```
+
 ## GitHub Actions YAML 규칙
 
 - **`run:` 블록에서 `${{ secrets.* }}`를 heredoc(`<< 'EOF'` / `<< EOF`) 안에 직접 넣지 않는다** — YAML 파서 오류 발생
