@@ -251,8 +251,8 @@ export function HallOfFameTab({ nickname }: HallOfFameTabProps) {
             key={i}
             style={{
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              flexDirection: 'column',
+              gap: 4,
               padding: '8px 14px',
               background: 'rgba(255,255,255,0.03)',
               border: '1px solid rgba(168,85,247,0.1)',
@@ -261,26 +261,19 @@ export function HallOfFameTab({ nickname }: HallOfFameTabProps) {
               color: '#9ca3af',
             }}
           >
-            <span style={{ color: '#6b7280', fontSize: 11, minWidth: 56 }}>
-              {new Date(e.ended_at!).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })}
-            </span>
-            <span style={{ flex: 1, padding: '0 10px', color: '#e2e8f0' }}>{e.nickname}</span>
-            <span style={{ color: '#fbbf24', fontSize: 11, minWidth: 56, textAlign: 'right' }}>{e.score.toLocaleString()}</span>
-            <span style={{ color: '#6b7280', fontSize: 11, minWidth: 48, textAlign: 'right', marginLeft: 8 }}>{e.days}일</span>
-            <span
-              style={{
-                color: '#7c3aed',
-                fontSize: 11,
-                fontStyle: 'italic',
-                maxWidth: 140,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                marginLeft: 8,
-              }}
-            >
-              {e.motto ?? '—'}
-            </span>
+            {/* 날짜 · 닉네임 · 한마디 · 점수 · 재위일 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ color: '#9ca3af', fontSize: 11, flexShrink: 0, minWidth: 52, whiteSpace: 'nowrap' }}>
+                {new Date(e.ended_at!).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })}
+              </span>
+              <span style={{ color: '#f1f5f9', fontWeight: 600, flexShrink: 0 }}>{e.nickname}</span>
+              {e.motto
+                ? <span style={{ color: '#e879f9', fontSize: 11, fontStyle: 'italic', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center' }}>"{e.motto}"</span>
+                : <span style={{ flex: 1 }} />
+              }
+              <span style={{ color: '#fbbf24', fontSize: 12, flexShrink: 0 }}>{e.score.toLocaleString()}</span>
+              <span style={{ color: '#a78bfa', fontSize: 12, flexShrink: 0, marginLeft: 12, fontWeight: 600 }}>{e.days}일 재위</span>
+            </div>
           </div>
         ))}
         {history.length === 0 && (
