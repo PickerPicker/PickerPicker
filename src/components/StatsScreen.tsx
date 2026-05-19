@@ -9,32 +9,22 @@ import {
   type GlobalStatsResponse,
   type DailyEntry,
 } from '../services/statsService'
-import { login, getStoredToken, getStoredTokenNickname } from '../services/authService'
-import { verifyPin } from '../services/playerService'
 
 interface StatsScreenProps {
   nickname: string
   onBack: () => void
 }
 
-type Status = 'init' | 'need-login' | 'loading' | 'ready' | 'error'
+type Status = 'init' | 'loading' | 'ready' | 'error'
 
 export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
   const [status, setStatus] = useState<Status>('init')
-  const [pin, setPin] = useState('')
-  const [pinError, setPinError] = useState<string | null>(null)
   const [my, setMy] = useState<MyStatsResponse | null>(null)
   const [global, setGlobal] = useState<GlobalStatsResponse | null>(null)
   const [daily, setDaily] = useState<DailyEntry[]>([])
 
   useEffect(() => {
-    const token = getStoredToken()
-    const tokenNick = getStoredTokenNickname()
-    if (token && tokenNick === nickname) {
-      void loadAll()
-    } else {
-      setStatus('need-login')
-    }
+    void loadAll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nickname])
 
@@ -47,7 +37,7 @@ export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
         getMySessions(nickname, 30),
       ])
       if (!myRes) {
-        setStatus('need-login')
+        setStatus('error')
         return
       }
       setMy(myRes)
@@ -57,50 +47,6 @@ export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
     } catch {
       setStatus('error')
     }
-  }
-
-  async function handleLogin() {
-    setPinError(null)
-    if (!/^\d{4}$/.test(pin)) {
-      setPinError('4자리 숫자를 입력하세요')
-      return
-    }
-    const ok = await verifyPin(nickname, pin)
-    if (!ok) {
-      setPinError('PIN이 올바르지 않습니다')
-      return
-    }
-    const loginRes = await login(nickname, pin)
-    if (!loginRes) {
-      setPinError('로그인에 실패했습니다')
-      return
-    }
-    setPin('')
-    await loadAll()
-  }
-
-  if (status === 'need-login') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4 px-4 bg-base-100">
-        <CloseButton onClick={onBack} />
-        <h2 className="text-2xl font-bold">내 통계 보기</h2>
-        <p className="text-sm text-base-content/60">PIN을 입력해 본인 인증을 진행하세요.</p>
-        <input
-          type="password"
-          inputMode="numeric"
-          pattern="\d*"
-          maxLength={4}
-          value={pin}
-          onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-          className="input input-bordered w-40 text-center text-2xl tracking-widest"
-          autoFocus
-        />
-        {pinError && <span className="text-error text-sm">{pinError}</span>}
-        <SoundButton className="btn btn-primary w-40" onClick={handleLogin}>
-          확인
-        </SoundButton>
-      </div>
-    )
   }
 
   if (status === 'loading' || status === 'init') {

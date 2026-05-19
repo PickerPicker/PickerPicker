@@ -41,12 +41,10 @@ export interface DailyEntry {
   avg_score: number
 }
 
-/** 본인 통계. 401이면 null (재로그인 필요) */
 export async function getMyStats(nickname: string): Promise<MyStatsResponse | null> {
   const res = await fetch(`${BASE_URL}/players/${encodeURIComponent(nickname)}/stats`, {
     headers: await authHeaders(),
   })
-  if (res.status === 401 || res.status === 403) return null
   if (!res.ok) throw new Error('통계 조회 실패')
   return res.json()
 }
@@ -56,7 +54,6 @@ export async function getMySessions(nickname: string, days = 30): Promise<DailyE
     `${BASE_URL}/players/${encodeURIComponent(nickname)}/sessions?days=${days}`,
     { headers: await authHeaders() },
   )
-  if (res.status === 401 || res.status === 403) return null
   if (!res.ok) throw new Error('일별 시계열 조회 실패')
   const data = await res.json()
   return data.days as DailyEntry[]
