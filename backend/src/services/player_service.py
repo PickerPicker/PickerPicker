@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.player import Player
 from src.models.game_session import GameSession
 from src.models.player_stats_daily import PlayerStatsDaily
+from src.models.hall_of_fame import HallOfFame
 from src.core.exceptions import NotFoundError, ConflictError
 
 logger = logging.getLogger(__name__)
@@ -92,6 +93,10 @@ async def save_game_result(
     today: date = now.date()
     stage_scores = stage_scores or {}
 
+    # 전체 1위 점수 미리 조회 (챔피언 교체 판정용)
+    top_result = await db.execute(select(func.max(Player.best_score)))
+    current_top_score: int = top_result.scalar() or 0
+
     # 1) Player
     result = await db.execute(select(Player).where(Player.nickname == nickname))
     player = result.scalar_one_or_none()
@@ -99,10 +104,31 @@ async def save_game_result(
         player = Player(nickname=nickname)
         db.add(player)
 
+    # 챔피언 교체 판정: 새 점수가 전체 최고점 초과 + 본인 기존 최고점 초과
+    is_new_champion = score > current_top_score and score > player.best_score
+
     player.best_score = max(player.best_score, score)
     player.best_stage = max(player.best_stage, stage)
     player.best_combo = max(player.best_combo, combo)
     player.play_count += 1
+
+    # 1-b) 챔피언 교체 — hall_of_fame 갱신
+    if is_new_champion:
+        prev_champ_result = await db.execute(
+            select(HallOfFame).where(HallOfFame.ended_at.is_(None))
+        )
+        prev_champ = prev_champ_result.scalar_one_or_none()
+        if prev_champ:
+            prev_champ.ended_at = now
+
+        new_entry = HallOfFame(
+            nickname=nickname,
+            score=score,
+            started_at=now,
+            ended_at=None,
+        )
+        db.add(new_entry)
+        player.is_hall_of_famer = True
 
     # 2) GameSession 스냅샷
     session = GameSession(
@@ -139,4 +165,38 @@ async def save_game_result(
 
     await db.commit()
     await db.refresh(player)
+    # 라우터에서 is_new_champion 응답 필드로 전달 (ORM 인스턴스에 임시 속성 부착)
+    player._is_new_champion = is_new_champion  # type: ignore[attr-defined]
     return player
+
+
+async def get_hall_of_fame(db: AsyncSession) -> list[HallOfFame]:
+    """명예의 전당 목록. 현재 챔피언(ended_at IS NULL) 먼저, 이후 started_at 내림차순."""
+    result = await db.execute(
+        select(HallOfFame).order_by(
+            HallOfFame.ended_at.is_(None).desc(),
+            HallOfFame.started_at.desc(),
+        )
+    )
+    return list(result.scalars().all())
+
+
+async def update_motto(db: AsyncSession, nickname: str, motto: str) -> None:
+    """한마디 수정. is_hall_of_famer가 False이면 PermissionError."""
+    player = await get_player(db, nickname)
+    if not player.is_hall_of_famer:
+        raise PermissionError("1위 경험자만 한마디를 남길 수 있습니다")
+
+    # 해당 닉네임의 가장 최근 hall_of_fame 레코드 업데이트
+    result = await db.execute(
+        select(HallOfFame)
+        .where(HallOfFame.nickname == nickname)
+        .order_by(HallOfFame.started_at.desc())
+        .limit(1)
+    )
+    entry = result.scalar_one_or_none()
+    if entry:
+        entry.motto = motto
+
+    player.motto = motto
+    await db.commit()

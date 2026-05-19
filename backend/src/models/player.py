@@ -22,6 +22,9 @@ class Player(Base):
     play_count: Mapped[int] = mapped_column(Integer, default=0)
     # 튜토리얼 시청 여부 — 사용자 기준으로 관리 (브라우저 localStorage 대체)
     tutorial_seen: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # 명예의 전당 — 1위 경험 여부, 한마디
+    is_hall_of_famer: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    motto: Mapped[str | None] = mapped_column(String(100), nullable=True, default=None)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

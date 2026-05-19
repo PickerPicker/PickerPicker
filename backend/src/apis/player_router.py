@@ -29,6 +29,19 @@ class PlayerResponse(BaseModel):
         from_attributes = True
 
 
+class SaveResultResponse(BaseModel):
+    nickname: str
+    best_score: int
+    best_stage: int
+    best_combo: int
+    play_count: int
+    tutorial_seen: bool
+    is_new_champion: bool
+
+    class Config:
+        from_attributes = True
+
+
 class CreatePlayerRequest(BaseModel):
     nickname: str = Field(..., min_length=1, max_length=50)
     pin: str = Field(..., min_length=4, max_length=4, pattern=r"^\d{4}$")
@@ -98,9 +111,9 @@ async def mark_tutorial_seen(nickname: str, db: AsyncSession = Depends(get_db)):
     return PlayerResponse.model_validate(player)
 
 
-@router.post("/result", response_model=PlayerResponse)
+@router.post("/result", response_model=SaveResultResponse)
 async def save_result(body: SaveResultRequest, db: AsyncSession = Depends(get_db)):
-    """게임 결과 저장 — 최고 기록 갱신 + 세션 스냅샷 + 일별 집계 UPSERT"""
+    """게임 결과 저장 — 최고 기록 갱신 + 세션 스냅샷 + 일별 집계 UPSERT + 챔피언 교체"""
     # stage_scores 검증: 키는 "1"~str(MAX_STAGE), 값은 0~MAX_SCORE
     validated_stage_scores: dict[str, int] = {}
     if body.stage_scores:
@@ -118,4 +131,13 @@ async def save_result(body: SaveResultRequest, db: AsyncSession = Depends(get_db
     player = await player_service.save_game_result(
         db, body.nickname, body.score, body.stage, body.combo, validated_stage_scores
     )
-    return PlayerResponse.model_validate(player)
+    is_new_champion = getattr(player, "_is_new_champion", False)
+    return SaveResultResponse(
+        nickname=player.nickname,
+        best_score=player.best_score,
+        best_stage=player.best_stage,
+        best_combo=player.best_combo,
+        play_count=player.play_count,
+        tutorial_seen=player.tutorial_seen,
+        is_new_champion=is_new_champion,
+    )

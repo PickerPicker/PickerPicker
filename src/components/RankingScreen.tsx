@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { getRanking, type RankingEntry } from '../services/playerService'
 import rankingBg from '../assets/ranking-bg.png'
 import { SoundButton } from './common/SoundButton'
+import { HallOfFameTab } from './HallOfFameTab'
+
+type RankingTab = 'ranking' | 'hall'
 
 const PAGE_SIZE = 20
 
@@ -11,6 +14,7 @@ interface RankingScreenProps {
 }
 
 export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
+  const [activeTab, setActiveTab] = useState<RankingTab>('ranking')
   const [ranking, setRanking] = useState<RankingEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -126,12 +130,46 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
           className="text-3xl font-black tracking-widest mx-auto pr-16"
           style={{ color: '#e879f9', textShadow: '0 0 16px #a21caf, 0 2px 4px #000' }}
         >
-          RANKING
+          {activeTab === 'ranking' ? 'RANKING' : 'HALL OF FAME'}
         </h1>
       </div>
 
+      {/* 탭 */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 0,
+          border: '1px solid rgba(168,85,247,0.3)',
+          borderRadius: 8,
+          overflow: 'hidden',
+        }}
+      >
+        {(['ranking', 'hall'] as const).map(tab => (
+          <SoundButton
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              padding: '8px 28px',
+              fontSize: 13,
+              fontWeight: 'bold',
+              letterSpacing: 2,
+              cursor: 'pointer',
+              border: 'none',
+              color: activeTab === tab ? '#e879f9' : '#9ca3af',
+              background: activeTab === tab ? 'rgba(168,85,247,0.25)' : 'rgba(0,0,20,0.6)',
+              textShadow: activeTab === tab ? '0 0 10px #a21caf' : 'none',
+              transition: 'all 0.2s',
+            }}
+          >
+            {tab === 'ranking' ? 'RANKING' : 'HALL OF FAME'}
+          </SoundButton>
+        ))}
+      </div>
+
       {/* 본문 */}
-      {loading ? (
+      {activeTab === 'hall' ? (
+        <HallOfFameTab nickname={nickname} />
+      ) : loading ? (
         <div className="flex items-center justify-center flex-1">
           <span className="loading loading-spinner loading-lg text-primary" />
         </div>

@@ -5,5 +5,6 @@ from src.models.player import Player
 from src.models.game_session import GameSession
 from src.models.player_stats_daily import PlayerStatsDaily
 from src.models.player_session import PlayerSession
+from src.models.hall_of_fame import HallOfFame
 
-__all__ = ["Player", "GameSession", "PlayerStatsDaily", "PlayerSession"]
+__all__ = ["Player", "GameSession", "PlayerStatsDaily", "PlayerSession", "HallOfFame"]
