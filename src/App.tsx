@@ -218,6 +218,9 @@ function AppInner() {
           onMissSfx={audio.playMissSfx}
           onGameBgm={audio.playGameBgm}
           offset={offset}
+          onOffset={handleOffset}
+          sfxOn={audio.sfxOn}
+          onToggleSfx={audio.toggleSfx}
         />
       )}
       {currentScreen === 'ranking' && (
