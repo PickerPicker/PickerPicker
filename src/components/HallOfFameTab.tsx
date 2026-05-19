@@ -107,7 +107,7 @@ export function HallOfFameTab({ nickname }: HallOfFameTabProps) {
           marginBottom: 16,
         }}
       >
-        👑 1위 달성 후 {champion.days}일째
+        👑 {champion.days === 0 ? '오늘 달성!' : `1위 달성 후 ${champion.days}일째`}
       </div>
 
       {/* 스탯 뱃지 */}
@@ -121,7 +121,7 @@ export function HallOfFameTab({ nickname }: HallOfFameTabProps) {
         }}
       >
         <StatBadge gold label="점수" value={champion.score.toLocaleString()} />
-        <StatBadge label="재위" value={`${champion.days}일`} />
+        <StatBadge label="재위" value={champion.days === 0 ? '오늘' : `${champion.days}일`} />
       </div>
 
       {/* 한마디 */}
