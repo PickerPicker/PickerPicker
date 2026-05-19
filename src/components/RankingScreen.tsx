@@ -213,7 +213,7 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
                       <td style={{ background: 'transparent', ...rankBadgeStyle(entry.rank) }}>
                         {mine && '★ '}{entry.rank}위
                       </td>
-                      <td style={{ background: 'transparent' }}>{entry.nickname}</td>
+                      <td style={{ background: 'transparent', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.nickname}</td>
                       <td style={{ background: 'transparent' }}>{entry.best_score.toLocaleString()}</td>
                       <td style={{ background: 'transparent' }}>STAGE {entry.best_stage}</td>
                       <td style={{ background: 'transparent' }}>{entry.best_combo}콤보</td>
@@ -249,7 +249,7 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
                     <td style={{ background: 'transparent', color: '#e879f9', fontWeight: 'bold' }}>
                       ★ {myEntry.rank}위
                     </td>
-                    <td style={{ background: 'transparent' }}>{myEntry.nickname}</td>
+                    <td style={{ background: 'transparent', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{myEntry.nickname}</td>
                     <td style={{ background: 'transparent' }}>{myEntry.best_score.toLocaleString()}</td>
                     <td style={{ background: 'transparent' }}>STAGE {myEntry.best_stage}</td>
                     <td style={{ background: 'transparent' }}>{myEntry.best_combo}콤보</td>

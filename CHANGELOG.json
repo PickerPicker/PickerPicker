@@ -1,11 +1,28 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-19T11:04:34Z",
-    "currentVersion": "0.0.111",
+    "lastUpdated": "2026-05-19T11:11:33Z",
+    "currentVersion": "0.0.112",
     "projectType": "react",
-    "totalReleases": 71
+    "totalReleases": 72
   },
   "releases": [
+    {
+      "version": "0.0.112",
+      "project_type": "react",
+      "date": "2026-05-19",
+      "pr_number": 121,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **버그 수정**\n  * 명예의 전당 역대 기록에 재위 종료일과 점수 표시 추가\n  * 랭킹에서 긴 닉네임이 레이아웃을 깨는 문제 해결 (말줄임 처리)",
+      "parsed_changes": {
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "명예의 전당 역대 기록에 재위 종료일과 점수 표시 추가",
+            "랭킹에서 긴 닉네임이 레이아웃을 깨는 문제 해결 (말줄임 처리)"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.111",
       "project_type": "react",

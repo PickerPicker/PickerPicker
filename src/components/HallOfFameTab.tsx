@@ -261,9 +261,12 @@ export function HallOfFameTab({ nickname }: HallOfFameTabProps) {
               color: '#9ca3af',
             }}
           >
-            <span style={{ color: '#c084fc', fontWeight: 'bold', width: 24 }}>{i + 1}</span>
-            <span style={{ flex: 1, padding: '0 12px', color: '#e2e8f0' }}>{e.nickname}</span>
-            <span style={{ color: '#6b7280', fontSize: 11 }}>{e.days}일 재위</span>
+            <span style={{ color: '#6b7280', fontSize: 11, minWidth: 56 }}>
+              {new Date(e.ended_at!).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })}
+            </span>
+            <span style={{ flex: 1, padding: '0 10px', color: '#e2e8f0' }}>{e.nickname}</span>
+            <span style={{ color: '#fbbf24', fontSize: 11, minWidth: 56, textAlign: 'right' }}>{e.score.toLocaleString()}</span>
+            <span style={{ color: '#6b7280', fontSize: 11, minWidth: 48, textAlign: 'right', marginLeft: 8 }}>{e.days}일</span>
             <span
               style={{
                 color: '#7c3aed',
