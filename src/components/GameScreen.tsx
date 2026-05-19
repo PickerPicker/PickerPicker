@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { BestRecord, GameData, GamePhase, GameStat, KeyMapping, StageData } from '../types'
-import { saveGameResult, getRanking } from '../services/playerService'
+import { saveGameResult, getRanking, updateMotto } from '../services/playerService'
 import { GameHeader } from './game/GameHeader'
 import { PlayStage } from './game/PlayStage'
 import { PreviewStage } from './game/PreviewStage'
@@ -78,6 +78,9 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
   const [isClear, setIsClear] = useState(false)
   const [globalTop, setGlobalTop] = useState<{ nickname: string; best_score: number; best_stage: number; best_combo: number } | null>(null)
   const [newRecords, setNewRecords] = useState<{ score: boolean; stage: boolean; combo: boolean }>({ score: false, stage: false, combo: false })
+  const [isNewChampion, setIsNewChampion] = useState(false)
+  const [championMotto, setChampionMotto] = useState('')
+  const [championModalClosed, setChampionModalClosed] = useState(false)
   const resultSavedRef = useRef(false)  // 결과 화면에서 중복 저장 방지
   const statRef = useRef<GameStat>(INITIAL_STAT)  // PlayStage의 onStatUpdate 후 최신값 보관
   const stageStartScoreRef = useRef<number>(0)  // 현재 스테이지 진입 시점 누적 score
@@ -192,7 +195,10 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
       combo: finalStat.maxCombo,
       stage_scores: stageScoresRef.current,
     })
-      .then(record => setServerPlayCount(record.play_count))
+      .then(record => {
+        setServerPlayCount(record.play_count)
+        if (record.is_new_champion) setIsNewChampion(true)
+      })
       .catch(() => {})
 
     getRanking(1).then(ranking => {
@@ -238,6 +244,9 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
     setStat(INITIAL_STAT)
     setIsClear(false)
     setServerPlayCount(null)
+    setIsNewChampion(false)
+    setChampionMotto('')
+    setChampionModalClosed(false)
     setPhase('preview')
     // stageIndex가 이미 0(첫 스테이지 사망)이면 useEffect 미트리거 →
     // 매핑 재셔플 + BGM 모두 명시적으로 재실행
@@ -379,6 +388,103 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
             홈으로 가기
           </SoundButton>
         </div>
+
+        {/* 1위 달성 모달 — 명예의 전당 등록 */}
+        {isNewChampion && !championModalClosed && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.75)',
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 16,
+            }}
+          >
+            <div
+              style={{
+                background: 'rgba(0,0,20,0.95)',
+                border: '1px solid rgba(168,85,247,0.5)',
+                borderRadius: 16,
+                padding: 32,
+                maxWidth: 400,
+                width: '100%',
+                textAlign: 'center',
+                boxShadow: '0 0 40px rgba(168,85,247,0.4)',
+              }}
+            >
+              <div style={{ fontSize: 40, marginBottom: 8 }}>🏆</div>
+              <div
+                style={{
+                  fontSize: 20,
+                  fontWeight: 900,
+                  color: '#e879f9',
+                  textShadow: '0 0 12px #a21caf',
+                  marginBottom: 8,
+                  letterSpacing: 2,
+                }}
+              >
+                명예의 전당 등록!
+              </div>
+              <div style={{ fontSize: 13, color: '#c084fc', marginBottom: 20 }}>
+                전체 1위를 달성했습니다.<br />한마디를 남겨보세요.
+              </div>
+              <textarea
+                maxLength={100}
+                value={championMotto}
+                onChange={e => setChampionMotto(e.target.value)}
+                placeholder="한마디 (선택사항, 100자 이내)"
+                rows={2}
+                style={{
+                  width: '100%',
+                  background: 'rgba(0,0,20,0.5)',
+                  border: '1px solid rgba(168,85,247,0.4)',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  color: '#e2e8f0',
+                  fontSize: 13,
+                  resize: 'none',
+                  marginBottom: 16,
+                  fontFamily: 'inherit',
+                }}
+              />
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                <SoundButton
+                  onClick={async () => {
+                    if (championMotto.trim()) await updateMotto(championMotto.trim())
+                    setChampionModalClosed(true)
+                  }}
+                  style={{
+                    padding: '8px 24px',
+                    background: 'rgba(168,85,247,0.3)',
+                    border: '1px solid rgba(168,85,247,0.5)',
+                    borderRadius: 8,
+                    color: '#e879f9',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {championMotto.trim() ? '등록하기' : '확인'}
+                </SoundButton>
+                <SoundButton
+                  onClick={() => setChampionModalClosed(true)}
+                  style={{
+                    padding: '8px 20px',
+                    background: 'transparent',
+                    border: '1px solid rgba(168,85,247,0.2)',
+                    borderRadius: 8,
+                    color: '#9ca3af',
+                    cursor: 'pointer',
+                  }}
+                >
+                  나중에
+                </SoundButton>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )
   }

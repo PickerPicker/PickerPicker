@@ -9,6 +9,16 @@ export interface PlayerRecord {
   best_combo: number
   play_count: number
   tutorial_seen: boolean
+  is_new_champion?: boolean
+}
+
+export interface HallOfFameEntry {
+  nickname: string
+  score: number
+  started_at: string
+  ended_at: string | null
+  motto: string | null
+  days: number
 }
 
 export interface RankingEntry extends PlayerRecord {
@@ -93,6 +103,7 @@ export async function saveGameResult(params: {
       best_combo: Math.max(local.bestCombo ?? 0, params.combo),
       play_count: 0,
       tutorial_seen: true,
+      is_new_champion: false,
     }
   }
 }
@@ -119,5 +130,29 @@ export async function getRanking(limit = 20, offset = 0): Promise<RankingEntry[]
     return res.json()
   } catch {
     return []
+  }
+}
+
+/** 명예의 전당 목록 조회 */
+export async function getHallOfFame(): Promise<HallOfFameEntry[]> {
+  try {
+    const res = await apiFetch(`${BASE_URL}/hall-of-fame`)
+    if (!res.ok) return []
+    return res.json()
+  } catch {
+    return []
+  }
+}
+
+/** 한마디 수정 — Bearer 토큰 필수 (authService.ts에서 자동 첨부). 성공 시 true */
+export async function updateMotto(motto: string): Promise<boolean> {
+  try {
+    const res = await apiFetch(`${BASE_URL}/hall-of-fame/motto`, {
+      method: 'PATCH',
+      body: JSON.stringify({ motto }),
+    })
+    return res.ok || res.status === 204
+  } catch {
+    return false
   }
 }

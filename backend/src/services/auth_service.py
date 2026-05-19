@@ -4,7 +4,7 @@ PIN 검증 후 세션 토큰 발급/회수.
 import logging
 import secrets
 from datetime import datetime, timedelta
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.player_session import PlayerSession
 from src.services import player_service
@@ -36,3 +36,15 @@ async def logout(db: AsyncSession, token: str) -> None:
     """토큰 폐기. 존재하지 않아도 조용히 통과."""
     await db.execute(delete(PlayerSession).where(PlayerSession.token == token))
     await db.commit()
+
+
+async def verify_token(db: AsyncSession, token: str) -> str | None:
+    """토큰 유효성 검증. 유효하면 닉네임 반환, 아니면 None."""
+    result = await db.execute(
+        select(PlayerSession).where(
+            PlayerSession.token == token,
+            PlayerSession.expires_at > datetime.utcnow(),
+        )
+    )
+    session = result.scalar_one_or_none()
+    return session.nickname if session else None

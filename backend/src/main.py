@@ -20,6 +20,7 @@ from src.apis.ranking_router import router as ranking_router
 from src.apis.stage_router import router as stage_router
 from src.apis.auth_router import router as auth_router
 from src.apis.stats_router import router as stats_router
+from src.apis.hall_of_fame_router import router as hall_of_fame_router
 
 setup_logging(log_level="INFO")
 logger = logging.getLogger(__name__)
@@ -87,6 +88,7 @@ app.include_router(ranking_router)
 app.include_router(stage_router)
 app.include_router(auth_router)
 app.include_router(stats_router)
+app.include_router(hall_of_fame_router)
 
 
 @app.middleware("http")
