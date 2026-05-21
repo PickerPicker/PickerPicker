@@ -11,6 +11,7 @@ interface NoteTrackProps {
   beatMs: number
   pendingIndex: number
   lastJudgment?: { type: JudgmentType; id: number } | null
+  isPaused?: boolean
 }
 
 const JUDGMENT_GLOW: Record<JudgmentType, string> = {
@@ -24,6 +25,7 @@ export function NoteTrack({
   beatMs,
   pendingIndex,
   lastJudgment,
+  isPaused = false,
 }: NoteTrackProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [trackWidth, setTrackWidth] = useState(0)
@@ -86,6 +88,7 @@ export function NoteTrack({
               animation: `note-slide ${totalDuration}ms linear`,
               animationDelay: `${delay}ms`,
               animationFillMode: 'both',
+              animationPlayState: isPaused ? 'paused' : 'running',
               opacity: i === pendingIndex ? 1 : 0.4,
             }}
           >

@@ -219,6 +219,7 @@ export function PlayStage({
           beatMs={beatMs}
           pendingIndex={pendingIndex}
           lastJudgment={lastJudgment}
+          isPaused={isPaused}
         />
       </div>
       <KeyboardDisplay keyMapping={keyMapping} pressedKey={pressedKey} />

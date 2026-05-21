@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 type CountValue = 3 | 2 | 1 | 'GO!'
 const SEQUENCE: CountValue[] = [3, 2, 1, 'GO!']
-const STEP_MS = 500
+const STEP_MS = 250
 
 interface CountdownOverlayProps {
   onComplete: () => void

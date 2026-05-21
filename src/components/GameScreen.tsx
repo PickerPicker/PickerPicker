@@ -89,6 +89,7 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
   const statRef = useRef<GameStat>(INITIAL_STAT)  // PlayStage의 onStatUpdate 후 최신값 보관
   const stageStartScoreRef = useRef<number>(0)  // 현재 스테이지 진입 시점 누적 score
   const stageScoresRef = useRef<Record<string, number>>({})  // 스테이지별 획득 점수
+  const resumeTimeRef = useRef<number>(0)  // 카운트다운 완료 시각 — blur grace period 판단용
 
   useEffect(() => {
     fetch('/rhythm_stages_001_015.json')
@@ -111,11 +112,17 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
         setIsPaused(true)
         return
       }
-      setIsPaused(prev => !prev)
+      // unpause 시 카운트다운 경유 (Resume 버튼과 동일 흐름)
+      if (isPaused) {
+        setIsPaused(false)
+        setIsCountingDown(true)
+      } else {
+        setIsPaused(true)
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [phase, isCountingDown])
+  }, [phase, isCountingDown, isPaused])
 
   // 리사이즈/포커스아웃/탭전환 자동 pause (playing 단계에서만)
   useEffect(() => {
@@ -123,7 +130,11 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
     if (isPaused || isCountingDown) return
 
     let resizeTimer: ReturnType<typeof setTimeout> | null = null
-    const triggerPause = () => setIsPaused(true)
+    // 카운트다운 완료 직후 1초 내 blur/resize는 무시 — 포커스 전환 타이밍 오탐 방지
+    const triggerPause = () => {
+      if (Date.now() - resumeTimeRef.current < 1000) return
+      setIsPaused(true)
+    }
     const onResize = () => {
       if (resizeTimer) clearTimeout(resizeTimer)
       resizeTimer = setTimeout(triggerPause, 300)
@@ -569,7 +580,10 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
         />
       )}
       {isCountingDown && (phase as string) !== 'result' && (
-        <CountdownOverlay onComplete={() => setIsCountingDown(false)} />
+        <CountdownOverlay onComplete={() => {
+          resumeTimeRef.current = Date.now()
+          setIsCountingDown(false)
+        }} />
       )}
     </div>
   )
