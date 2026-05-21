@@ -26,8 +26,8 @@
 }
 
 @keyframes note-slide {
-  from { transform: translateX(2000px); }
-  to   { transform: translateX(-500px); }
+  from { transform: translateX(var(--note-start-x, 2000px)); }
+  to   { transform: translateX(var(--note-end-x, -500px)); }
 }
 
 @keyframes judgment-fade {
