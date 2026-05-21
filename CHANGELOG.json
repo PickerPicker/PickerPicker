@@ -1,11 +1,41 @@
 {
   "metadata": {
-    "lastUpdated": "2026-05-19T13:15:04Z",
-    "currentVersion": "0.0.113",
+    "lastUpdated": "2026-05-21T08:01:59Z",
+    "currentVersion": "0.0.114",
     "projectType": "react",
-    "totalReleases": 73
+    "totalReleases": 74
   },
   "releases": [
+    {
+      "version": "0.0.114",
+      "project_type": "react",
+      "date": "2026-05-21",
+      "pr_number": 125,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 게임 중 창 크기 변경/탭 전환/포커스 아웃 시 자동 일시정지\n  * 일시정지 재개 시 3 → 2 → 1 → GO! 카운트다운 후 시작\n\n* **버그 수정**\n  * 창 크기 변경 시 노트 블록이 화면에 뭉치던 시각 오류 해결\n  * 좁은 화면에서도 노트가 정상 위치에서 정상 박자로 등장\n\n* **문서**\n  * 노트 반응형 및 자동 일시정지 설계/구현 계획 문서 추가",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "게임 중 창 크기 변경/탭 전환/포커스 아웃 시 자동 일시정지",
+            "일시정지 재개 시 3 → 2 → 1 → GO! 카운트다운 후 시작"
+          ]
+        },
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "창 크기 변경 시 노트 블록이 화면에 뭉치던 시각 오류 해결",
+            "좁은 화면에서도 노트가 정상 위치에서 정상 박자로 등장"
+          ]
+        },
+        "문서": {
+          "title": "문서",
+          "items": [
+            "노트 반응형 및 자동 일시정지 설계/구현 계획 문서 추가"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.113",
       "project_type": "react",
