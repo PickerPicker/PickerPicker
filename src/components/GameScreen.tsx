@@ -64,9 +64,11 @@ interface GameScreenProps {
   onOffset: (v: number) => void
   sfxOn: boolean
   onToggleSfx: () => void
+  bgmVolume: number
+  onBgmVolume: (v: number) => void
 }
 
-export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset, onOffset, sfxOn, onToggleSfx }: GameScreenProps) {
+export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, onGameOverSfx, onHitSfx, onMissSfx, onGameBgm, offset, onOffset, sfxOn, onToggleSfx, bgmVolume, onBgmVolume }: GameScreenProps) {
   const [gameData, setGameData] = useState<GameData | null>(null)
   const [loading, setLoading] = useState(true)
   const [stageIndex, setStageIndex] = useState(0)
@@ -562,6 +564,8 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
           onOffset={onOffset}
           sfxOn={sfxOn}
           onToggleSfx={onToggleSfx}
+          bgmVolume={bgmVolume}
+          onBgmVolume={onBgmVolume}
         />
       )}
       {isCountingDown && (phase as string) !== 'result' && (

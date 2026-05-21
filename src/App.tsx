@@ -221,6 +221,8 @@ function AppInner() {
           onOffset={handleOffset}
           sfxOn={audio.sfxOn}
           onToggleSfx={audio.toggleSfx}
+          bgmVolume={audio.bgmVolume}
+          onBgmVolume={audio.setBgmVol}
         />
       )}
       {currentScreen === 'ranking' && (
