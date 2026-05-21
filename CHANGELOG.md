@@ -1,7 +1,16 @@
 # Changelog
 
-**현재 버전:** 0.0.114  
-**마지막 업데이트:** 2026-05-21T08:01:59Z  
+**현재 버전:** 0.0.115  
+**마지막 업데이트:** 2026-05-21T08:26:15Z  
+
+---
+
+## [0.0.115] - 2026-05-21
+
+**PR:** #127  
+
+**기타**
+- 게임 내 설정 UI 통일 + 카운트다운 속도 단축 : feat : PauseModal 설정 뷰를 SettingsModal 재사용으로 교체하여 홈 화면과 UI 통일, BGM 볼륨 prop 전달 추가, 카운트다운 STEP_MS 1000 to 500 단축 https://github.com/PickerPicker/PickerPicker/issues/126
 
 ---
 
