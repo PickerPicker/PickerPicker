@@ -5,6 +5,7 @@ import { GameHeader } from './game/GameHeader'
 import { PlayStage } from './game/PlayStage'
 import { PreviewStage } from './game/PreviewStage'
 import { PauseModal } from './game/PauseModal'
+import { CountdownOverlay } from './game/CountdownOverlay'
 import { SoundButton } from './common/SoundButton'
 import gameoverBg from '../assets/gameover-bg.png'
 
@@ -75,6 +76,7 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
   const [best, setBest] = useState<BestRecord>(loadBest)
   const [serverPlayCount, setServerPlayCount] = useState<number | null>(null)
   const [isPaused, setIsPaused] = useState(false)
+  const [isCountingDown, setIsCountingDown] = useState(false)
   const [isClear, setIsClear] = useState(false)
   const [globalTop, setGlobalTop] = useState<{ nickname: string; best_score: number; best_stage: number; best_combo: number } | null>(null)
   const [newRecords, setNewRecords] = useState<{ score: boolean; stage: boolean; combo: boolean }>({ score: false, stage: false, combo: false })
@@ -102,11 +104,41 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
       if (e.key !== 'Escape') return
       if (phase === 'result') return
       e.preventDefault()
+      if (isCountingDown) {
+        setIsCountingDown(false)
+        setIsPaused(true)
+        return
+      }
       setIsPaused(prev => !prev)
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [phase])
+  }, [phase, isCountingDown])
+
+  // 리사이즈/포커스아웃/탭전환 자동 pause (playing 단계에서만)
+  useEffect(() => {
+    if (phase !== 'playing') return
+    if (isPaused || isCountingDown) return
+
+    let resizeTimer: ReturnType<typeof setTimeout> | null = null
+    const triggerPause = () => setIsPaused(true)
+    const onResize = () => {
+      if (resizeTimer) clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(triggerPause, 300)
+    }
+    const onBlur = () => triggerPause()
+    const onVisibility = () => { if (document.hidden) triggerPause() }
+
+    window.addEventListener('resize', onResize)
+    window.addEventListener('blur', onBlur)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      if (resizeTimer) clearTimeout(resizeTimer)
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('blur', onBlur)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [phase, isPaused, isCountingDown])
 
   useEffect(() => {
     if (gameData) {
@@ -231,11 +263,13 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
 
   const handleGiveUp = () => {
     setIsPaused(false)
+    setIsCountingDown(false)
     handleGameOver()
   }
 
   const handleRestart = () => {
     setIsPaused(false)
+    setIsCountingDown(false)
     resultSavedRef.current = false
     statRef.current = INITIAL_STAT
     stageStartScoreRef.current = 0
@@ -514,18 +548,24 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
           onHitSfx={onHitSfx}
           onMissSfx={onMissSfx}
           offset={offset}
-          isPaused={isPaused}
+          isPaused={isPaused || isCountingDown}
         />
       )}
       {isPaused && (phase as string) !== 'result' && (
         <PauseModal
-          onResume={() => setIsPaused(false)}
+          onResume={() => {
+            setIsPaused(false)
+            setIsCountingDown(true)
+          }}
           onGiveUp={handleGiveUp}
           offset={offset}
           onOffset={onOffset}
           sfxOn={sfxOn}
           onToggleSfx={onToggleSfx}
         />
+      )}
+      {isCountingDown && (phase as string) !== 'result' && (
+        <CountdownOverlay onComplete={() => setIsCountingDown(false)} />
       )}
     </div>
   )
