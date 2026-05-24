@@ -102,7 +102,7 @@ export function TutorialStage({
     if (type === 'PERFECT' || type === 'GOOD') {
       progressRef.current += 1
       setProgress(progressRef.current)
-      if (progressRef.current >= step.target && !step.missMode) markCleared()
+      if (progressRef.current >= step.target) markCleared()
     }
 
     if (type === 'MISS' && step.gaugeLoss) {
@@ -178,15 +178,6 @@ export function TutorialStage({
 
       const km = step.keyMapping.find(k => k.key === key)
       if (!km) return
-
-      // STEP 3 (missMode): D 누름 = MISS 시연
-      if (step.missMode && key === 'd') {
-        applyJudgment('MISS', null)
-        progressRef.current += 1
-        setProgress(progressRef.current)
-        if (progressRef.current >= step.target) markCleared()
-        return
-      }
 
       // 가까운 노트 찾기
       const now = performance.now()
