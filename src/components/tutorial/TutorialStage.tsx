@@ -202,6 +202,13 @@ export function TutorialStage({
       })
       if (!best) return
 
+      // STEP 4: invalid 노트 접근 중 키 입력 시 MISS (gaugeLoss로 패널티 STEP 구분)
+      const bestKm = step.keyMapping.find(m => m.syllable === (best as SpawnedNote).syllable)
+      if (step.gaugeLoss && bestKm?.type === 'invalid') {
+        applyJudgment('MISS', best)
+        return
+      }
+
       const noteSyllable = (best as SpawnedNote).syllable
       if (km.type !== 'valid' || km.syllable !== noteSyllable) {
         applyJudgment('MISS', best)
