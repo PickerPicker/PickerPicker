@@ -241,7 +241,17 @@ export function TutorialStage({
           }}
         />
         {notes.map(n => (
-          <NoteView key={n.id} note={n} travelMs={travelMs} trackWidth={trackWidth} hintActive={step.hintKeys.length > 0} />
+          <NoteView
+            key={n.id}
+            note={n}
+            travelMs={travelMs}
+            trackWidth={trackWidth}
+            hintActive={step.hintKeys.length > 0}
+            isInvalid={
+              !!step.warnInvalidNotes &&
+              step.keyMapping.find(m => m.syllable === n.syllable)?.type === 'invalid'
+            }
+          />
         ))}
       </div>
 
@@ -303,11 +313,12 @@ function computeNoteX(t: number, trackWidth: number): number {
   return startX - (startX - JUDGMENT_X) * t
 }
 
-function NoteView({ note, travelMs, trackWidth, hintActive }: {
+function NoteView({ note, travelMs, trackWidth, hintActive, isInvalid }: {
   note: SpawnedNote
   travelMs: number
   trackWidth: number
   hintActive: boolean
+  isInvalid: boolean
 }) {
   const [x, setX] = useState(() => computeNoteX(0, trackWidth))
   const [opacity, setOpacity] = useState(1)
@@ -331,9 +342,11 @@ function NoteView({ note, travelMs, trackWidth, hintActive }: {
 
   const borderColor =
     note.hitType === 'PERFECT' ? '#00ffaa' :
-    note.hitType === 'GOOD' ? '#ffd700' :
-    note.hitType === 'MISS' ? '#ff5577' :
-    hintActive ? '#00b4ff' : 'rgba(255,255,255,0.5)'
+    note.hitType === 'GOOD'    ? '#ffd700' :
+    note.hitType === 'MISS'    ? '#ff5577' :
+    isInvalid                  ? '#ff7744' :
+    hintActive                 ? '#00b4ff' :
+    'rgba(255,255,255,0.5)'
 
   return (
     <div
@@ -342,7 +355,11 @@ function NoteView({ note, travelMs, trackWidth, hintActive }: {
         left: x,
         borderColor,
         background: 'rgba(0,180,255,0.22)',
-        boxShadow: note.hit ? 'none' : '0 0 22px rgba(0,180,255,0.55)',
+        boxShadow: note.hit
+          ? 'none'
+          : isInvalid
+            ? '0 0 16px rgba(255,119,68,0.45)'
+            : '0 0 22px rgba(0,180,255,0.55)',
         opacity,
         transition: 'opacity 0.2s, border-color 0.15s',
       }}
