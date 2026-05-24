@@ -249,7 +249,7 @@ export function TutorialStage({
             hintActive={step.hintKeys.length > 0}
             isInvalid={
               !!step.warnInvalidNotes &&
-              step.keyMapping.find(m => m.syllable === n.syllable)?.type === 'invalid'
+              !step.keyMapping.some(m => m.syllable === n.syllable && m.type === 'valid')
             }
           />
         ))}
