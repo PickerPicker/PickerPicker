@@ -190,10 +190,40 @@ export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
           </div>
         </section>
 
+        {my.words && my.words.played > 0 && (
+          <section className="card bg-base-200">
+            <div className="card-body py-4 px-4 gap-2">
+              <h3 className="card-title text-base">단어별 분석 ({my.words.played}개 단어 경험)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <WordTop title="🔥 많이 만난 TOP5" rows={my.words.most_played} />
+                <WordTop title="😈 가장 어려웠던 TOP5" rows={my.words.hardest} />
+                <WordTop title="✨ 가장 잘하는 TOP5" rows={my.words.easiest} />
+              </div>
+            </div>
+          </section>
+        )}
+
         <SoundButton className="btn w-full mt-2 bg-black/50 border border-white/20 text-white/90 hover:bg-black/60" onClick={onBack}>
           돌아가기
         </SoundButton>
       </div>
+    </div>
+  )
+}
+
+function WordTop({ title, rows }: { title: string; rows: { id: number; word: string; difficulty_level: number; exposure_count: number; accuracy: number }[] }) {
+  return (
+    <div>
+      <h4 className="font-bold text-sm mb-1">{title}</h4>
+      <ul className="text-xs space-y-1">
+        {rows.length === 0 && <li className="text-base-content/50">데이터 부족</li>}
+        {rows.map(r => (
+          <li key={r.id} className="flex justify-between bg-base-100 rounded px-2 py-1">
+            <span><b>{r.word}</b> <span className="badge badge-xs">L{r.difficulty_level}</span></span>
+            <span className="text-base-content/70">{r.exposure_count}회 / {(r.accuracy * 100).toFixed(0)}%</span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

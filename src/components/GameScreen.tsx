@@ -10,6 +10,7 @@ import { PauseModal } from './game/PauseModal'
 import { CountdownOverlay } from './game/CountdownOverlay'
 import { SoundButton } from './common/SoundButton'
 import gameoverBg from '../assets/gameover-bg.png'
+import { GameOverWordCards } from './GameOverWordCards'
 
 const LS_KEY = 'pickerpicker_best'
 
@@ -397,9 +398,16 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
     const accuracy = calcAccuracy(stat)
     const reachedStage = gameData.stages[stageIndex]?.stage ?? stageIndex + 1
 
+    const wordsLookup = Object.fromEntries(
+      (gameData.stages as Array<StageData & { id?: number }>).map(w => [
+        w.id ?? -1,
+        { word: w.word, difficulty_level: (w as { difficultyLevel?: number }).difficultyLevel ?? 1 },
+      ])
+    )
+
     return (
       <div
-        className="flex flex-col items-center justify-center h-screen gap-3 px-4 py-4 overflow-hidden"
+        className="flex flex-col lg:flex-row items-stretch justify-center min-h-screen gap-3 px-4 py-4 overflow-auto"
         style={{
           backgroundImage: `url(${gameoverBg})`,
           backgroundSize: 'cover',
@@ -407,6 +415,7 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
           backgroundRepeat: 'no-repeat',
         }}
       >
+        <div className="flex flex-col items-center gap-3 flex-1 max-w-md mx-auto lg:mx-0">
         {/* 타이틀 */}
         <h2 className={`text-4xl font-black tracking-wider shrink-0 ${isClear ? 'text-success' : 'text-error'}`}>
           {isClear ? 'ALL CLEAR' : 'GAME OVER'}
@@ -524,6 +533,13 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
           <SoundButton className="btn btn-lg w-full text-lg bg-black/50 border border-white/20 text-white/90 hover:bg-black/60" onClick={onHome}>
             홈으로 가기
           </SoundButton>
+        </div>
+        </div>
+
+        {/* 우측 — 이번 판 단어 카드 */}
+        <div className="flex flex-col gap-2 flex-1 max-w-md mx-auto lg:mx-0">
+          <h3 className="text-lg font-bold text-white">이번 판 단어</h3>
+          <GameOverWordCards results={stageResultsRef.current} wordsLookup={wordsLookup} />
         </div>
 
         {/* 1위 달성 모달 — 명예의 전당 등록 */}

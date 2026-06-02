@@ -10,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.player import Player
 from src.models.game_session import GameSession
 from src.models.player_stats_daily import PlayerStatsDaily
+from src.models.word import Word
+from src.models.word_stats import WordStats
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ async def get_player_stats(db: AsyncSession, nickname: str) -> dict:
             "percentile": {},
             "stage_best": [],
             "habit": {"by_hour": [], "session_gap_minutes": {}},
+            "words": {"played": 0, "most_played": [], "hardest": [], "easiest": []},
         }
 
     today = date.today()
@@ -185,6 +188,57 @@ async def get_player_stats(db: AsyncSession, nickname: str) -> dict:
                 "median": round(median_gap, 1),
             },
         },
+        "words": await player_word_stats(db, player.id),
+    }
+
+
+async def player_word_stats(db: AsyncSession, player_id: int) -> dict:
+    """본인 단어별 분석 — 많이 만난/어려운/잘하는 TOP5."""
+    perfect = WordStats.perfect_count
+    good = WordStats.good_count
+    miss = WordStats.miss_count
+    total_judg = perfect + good + miss
+    accuracy_expr = (perfect + good * 0.5) / func.nullif(total_judg, 0)
+
+    base = (
+        select(
+            Word.id, Word.word, Word.difficulty_level,
+            WordStats.exposure_count,
+            accuracy_expr.label("accuracy"),
+        )
+        .join(WordStats, WordStats.word_id == Word.id)
+        .where(WordStats.player_id == player_id)
+    )
+
+    most_played = (await db.execute(base.order_by(WordStats.exposure_count.desc()).limit(5))).all()
+    hardest = (await db.execute(
+        base.where(WordStats.exposure_count >= 3).order_by(accuracy_expr.asc()).limit(5)
+    )).all()
+    easiest = (await db.execute(
+        base.where(WordStats.exposure_count >= 3).order_by(accuracy_expr.desc()).limit(5)
+    )).all()
+
+    total_played = await db.scalar(
+        select(func.count()).select_from(WordStats).where(WordStats.player_id == player_id)
+    ) or 0
+
+    def fmt(rows):
+        return [
+            {
+                "id": r.id,
+                "word": r.word,
+                "difficulty_level": r.difficulty_level,
+                "exposure_count": int(r.exposure_count),
+                "accuracy": float(r.accuracy or 0),
+            }
+            for r in rows
+        ]
+
+    return {
+        "played": int(total_played),
+        "most_played": fmt(most_played),
+        "hardest": fmt(hardest),
+        "easiest": fmt(easiest),
     }
 
 
