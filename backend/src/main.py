@@ -13,8 +13,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from src.core.logging import setup_logging
 from src.core.config import settings
-from src.core.database import engine
+from src.core.database import engine, AsyncSessionLocal
 from src.core.cleanup import cleanup_loop
+from src.core.seed import seed_words, seed_admin
 import src.models  # 모든 모델 import (Alembic autogenerate 메타데이터 등록용)
 from src.apis.player_router import router as player_router
 from src.apis.ranking_router import router as ranking_router
@@ -46,8 +47,13 @@ async def lifespan(app: FastAPI):
         async with engine.begin() as conn:
             await conn.execute(sa.text("SELECT 1"))
         logger.info("DB 연결 확인 완료")
+
+        # 자동 시드 (words + admins) — 멱등
+        async with AsyncSessionLocal() as session:
+            await seed_words(session)
+            await seed_admin(session)
     except Exception as e:
-        logger.warning(f"DB 초기 연결 실패 (서버는 계속 실행): {e}")
+        logger.warning(f"DB 초기 연결/시드 실패 (서버는 계속 실행): {e}")
 
     try:
         cleanup_task = asyncio.create_task(cleanup_loop())
