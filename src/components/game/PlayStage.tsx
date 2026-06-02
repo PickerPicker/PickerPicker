@@ -131,6 +131,30 @@ export function PlayStage({
     advancePending()
   }, [advancePending, practiceMode])
 
+  const applyEarlyMiss = useCallback(() => {
+    if (gameOverRef.current) return
+
+    onMissSfxRef.current()
+    judgeCountRef.current += 1
+    setLastJudgment({ type: 'MISS', id: judgeCountRef.current })
+
+    const current = statRef.current
+    const newGauge = Math.max(0, current.gauge - 15)
+    const newStat: GameStat = {
+      ...current,
+      gauge: newGauge,
+      perfectCombo: 0,
+    }
+    statRef.current = newStat
+    setPerfectCombo(0)
+    onStatUpdateRef.current(newStat)
+
+    if (!practiceMode && newGauge <= 0) {
+      gameOverRef.current = true
+      onGameOverRef.current()
+    }
+  }, [practiceMode])
+
   // useLayoutEffect: DOM 업데이트 직후 paint 전에 실행 → 애니메이션 시작 시각과 일치
   useLayoutEffect(() => {
     startTimeRef.current = Date.now() + NOTE_TRAVEL_BEATS * beatMs
@@ -191,22 +215,24 @@ export function PlayStage({
       }
 
       const arrivalTime = startTimeRef.current + idx * beatMs + offset + totalPausedRef.current
-      const delta = Math.abs(Date.now() - arrivalTime)
+      const signedDelta = Date.now() - arrivalTime
+      const absDelta = Math.abs(signedDelta)
 
       if (km.syllable !== expectedSyllable) {
         applyJudgment('MISS')
-      } else if (delta <= PERFECT_WINDOW) {
+      } else if (absDelta <= PERFECT_WINDOW) {
         applyJudgment('PERFECT')
-      } else if (delta <= GOOD_WINDOW) {
+      } else if (absDelta <= GOOD_WINDOW) {
         applyJudgment('GOOD')
-      } else {
-        applyJudgment('MISS')
+      } else if (signedDelta < 0) {
+        applyEarlyMiss()
       }
+      // signedDelta > 0 (arrived already, outside GOOD_WINDOW): ignore. interval will auto-MISS.
     }
 
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [stageData, keyMapping, inputSyllables, beatMs, applyJudgment, offset])
+  }, [stageData, keyMapping, inputSyllables, beatMs, applyJudgment, applyEarlyMiss, offset])
 
   return (
     <div className="flex flex-col flex-1 min-h-0">

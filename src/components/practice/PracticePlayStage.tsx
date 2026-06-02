@@ -101,6 +101,21 @@ export function PracticePlayStage({
     advancePending()
   }, [advancePending])
 
+  const applyEarlyMiss = useCallback(() => {
+    onMissSfxRef.current()
+    judgeCountRef.current += 1
+    setLastJudgment({ type: 'MISS', id: judgeCountRef.current })
+
+    const current = statRef.current
+    const newStat: GameStat = {
+      ...current,
+      perfectCombo: 0,
+    }
+    statRef.current = newStat
+    setPerfectCombo(0)
+    onStatUpdateRef.current(newStat)
+  }, [])
+
   useLayoutEffect(() => {
     startTimeRef.current = Date.now() + NOTE_TRAVEL_BEATS * beatMs
     pendingIndexRef.current = 0
@@ -152,22 +167,24 @@ export function PracticePlayStage({
       }
 
       const arrivalTime = startTimeRef.current + idx * beatMs + offset
-      const delta = Math.abs(Date.now() - arrivalTime)
+      const signedDelta = Date.now() - arrivalTime
+      const absDelta = Math.abs(signedDelta)
 
       if (km.syllable !== expectedSyllable) {
         applyJudgment('MISS')
-      } else if (delta <= PERFECT_WINDOW) {
+      } else if (absDelta <= PERFECT_WINDOW) {
         applyJudgment('PERFECT')
-      } else if (delta <= GOOD_WINDOW) {
+      } else if (absDelta <= GOOD_WINDOW) {
         applyJudgment('GOOD')
-      } else {
-        applyJudgment('MISS')
+      } else if (signedDelta < 0) {
+        applyEarlyMiss()
       }
+      // signedDelta > 0 (arrived already, outside GOOD_WINDOW): ignore. interval will auto-MISS.
     }
 
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [stageData, keyMapping, inputSyllables, beatMs, applyJudgment, offset])
+  }, [stageData, keyMapping, inputSyllables, beatMs, applyJudgment, applyEarlyMiss, offset])
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
