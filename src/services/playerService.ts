@@ -12,6 +12,15 @@ export interface PlayerRecord {
   is_new_champion?: boolean
 }
 
+export interface StageResultItem {
+  word_id: number
+  stage_index: number
+  perfect_count: number
+  good_count: number
+  miss_count: number
+  stage_score: number
+}
+
 export interface HallOfFameEntry {
   nickname: string
   score: number
@@ -85,6 +94,7 @@ export async function saveGameResult(params: {
   stage: number
   combo: number
   stage_scores?: Record<string, number>
+  stage_results?: StageResultItem[]
 }): Promise<PlayerRecord> {
   try {
     const res = await apiFetch(`${BASE_URL}/players/result`, {
