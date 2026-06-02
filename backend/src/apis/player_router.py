@@ -65,6 +65,16 @@ MAX_STAGE = 100
 MAX_COMBO = 9_999
 
 
+class StageResultItem(BaseModel):
+    """단어 단위 stage raw 결과 (word_stats 집계 + session_word_results raw INSERT용)"""
+    word_id: int = Field(..., ge=1)
+    stage_index: int = Field(..., ge=1, le=MAX_STAGE)
+    perfect_count: int = Field(..., ge=0)
+    good_count: int = Field(..., ge=0)
+    miss_count: int = Field(..., ge=0)
+    stage_score: int = Field(..., ge=0, le=MAX_SCORE)
+
+
 class SaveResultRequest(BaseModel):
     nickname: str
     score: int = Field(..., ge=0, le=MAX_SCORE)
@@ -72,6 +82,8 @@ class SaveResultRequest(BaseModel):
     combo: int = Field(..., ge=0, le=MAX_COMBO)
     # 스테이지별 점수: {"1": 1200, "2": 950, ...}. 누락 시 빈 dict.
     stage_scores: dict[str, int] | None = None
+    # 단어/stage별 raw 결과. 누락 시 빈 리스트 (기존 호출 호환).
+    stage_results: list[StageResultItem] = Field(default_factory=list)
 
 
 # ── 엔드포인트 ───────────────────────────────────────────────────
@@ -129,7 +141,8 @@ async def save_result(body: SaveResultRequest, db: AsyncSession = Depends(get_db
             validated_stage_scores[str(stage_num)] = v
 
     player = await player_service.save_game_result(
-        db, body.nickname, body.score, body.stage, body.combo, validated_stage_scores
+        db, body.nickname, body.score, body.stage, body.combo, validated_stage_scores,
+        stage_results=body.stage_results,
     )
     is_new_champion = getattr(player, "_is_new_champion", False)
     return SaveResultResponse(

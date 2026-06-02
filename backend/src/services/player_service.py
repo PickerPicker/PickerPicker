@@ -12,6 +12,7 @@ from src.models.game_session import GameSession
 from src.models.player_stats_daily import PlayerStatsDaily
 from src.models.hall_of_fame import HallOfFame
 from src.core.exceptions import NotFoundError, ConflictError
+from src.services.word_stats_service import record_stage_result
 
 logger = logging.getLogger(__name__)
 
@@ -83,11 +84,15 @@ async def save_game_result(
     stage: int,
     combo: int,
     stage_scores: dict | None = None,
+    stage_results: list | None = None,
 ) -> Player:
     """게임 결과 저장. 단일 트랜잭션:
     1) Player upsert (없으면 생성, 최고값/play_count 갱신)
-    2) game_sessions INSERT (snapshot)
-    3) player_stats_daily UPSERT (일별 집계)
+    2) hall_of_fame 갱신 (챔피언 교체 시)
+    3) game_sessions INSERT (snapshot)
+    4) session_word_results INSERT × N (stage_results 있을 때)
+    5) word_stats UPSERT × N (stage_results 있을 때)
+    6) player_stats_daily UPSERT (일별 집계)
     """
     now = datetime.utcnow()
     today: date = now.date()
@@ -103,6 +108,7 @@ async def save_game_result(
     if not player:
         player = Player(nickname=nickname)
         db.add(player)
+        await db.flush()  # player.id 발급 (신규 생성 시)
 
     # 챔피언 교체 판정: 새 점수가 전체 최고점 초과 + 본인 기존 최고점 초과
     is_new_champion = score > current_top_score and score > player.best_score
@@ -140,6 +146,22 @@ async def save_game_result(
         played_at=now,
     )
     db.add(session)
+    await db.flush()  # session.id 발급 (FK 참조용)
+
+    # 2-b) stage_results — raw INSERT + word_stats UPSERT (있을 때)
+    if stage_results:
+        for sr in stage_results:
+            await record_stage_result(
+                db,
+                session_id=session.id,
+                player_id=player.id,
+                word_id=sr.word_id,
+                stage_index=sr.stage_index,
+                perfect=sr.perfect_count,
+                good=sr.good_count,
+                miss=sr.miss_count,
+                stage_score=sr.stage_score,
+            )
 
     # 3) PlayerStatsDaily UPSERT
     stmt = pg_insert(PlayerStatsDaily).values(
