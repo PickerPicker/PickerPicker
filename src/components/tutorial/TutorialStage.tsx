@@ -102,7 +102,7 @@ export function TutorialStage({
     if (type === 'PERFECT' || type === 'GOOD') {
       progressRef.current += 1
       setProgress(progressRef.current)
-      if (progressRef.current >= step.target && !step.missMode) markCleared()
+      if (progressRef.current >= step.target) markCleared()
     }
 
     if (type === 'MISS' && step.gaugeLoss) {
@@ -179,15 +179,6 @@ export function TutorialStage({
       const km = step.keyMapping.find(k => k.key === key)
       if (!km) return
 
-      // STEP 3 (missMode): D 누름 = MISS 시연
-      if (step.missMode && key === 'd') {
-        applyJudgment('MISS', null)
-        progressRef.current += 1
-        setProgress(progressRef.current)
-        if (progressRef.current >= step.target) markCleared()
-        return
-      }
-
       // 가까운 노트 찾기
       const now = performance.now()
       let best: SpawnedNote | null = null
@@ -201,6 +192,13 @@ export function TutorialStage({
         }
       })
       if (!best) return
+
+      // STEP 4: invalid 노트 접근 중 키 입력 시 MISS (gaugeLoss로 패널티 STEP 구분)
+      const bestKm = step.keyMapping.find(m => m.syllable === (best as SpawnedNote).syllable)
+      if (step.gaugeLoss && bestKm?.type === 'invalid') {
+        applyJudgment('MISS', best)
+        return
+      }
 
       const noteSyllable = (best as SpawnedNote).syllable
       if (km.type !== 'valid' || km.syllable !== noteSyllable) {
@@ -241,7 +239,17 @@ export function TutorialStage({
           }}
         />
         {notes.map(n => (
-          <NoteView key={n.id} note={n} travelMs={travelMs} trackWidth={trackWidth} hintActive={step.hintKeys.length > 0} />
+          <NoteView
+            key={n.id}
+            note={n}
+            travelMs={travelMs}
+            trackWidth={trackWidth}
+            hintActive={step.hintKeys.length > 0}
+            isInvalid={
+              !!step.warnInvalidNotes &&
+              !step.keyMapping.some(m => m.syllable === n.syllable && m.type === 'valid')
+            }
+          />
         ))}
       </div>
 
@@ -303,11 +311,12 @@ function computeNoteX(t: number, trackWidth: number): number {
   return startX - (startX - JUDGMENT_X) * t
 }
 
-function NoteView({ note, travelMs, trackWidth, hintActive }: {
+function NoteView({ note, travelMs, trackWidth, hintActive, isInvalid }: {
   note: SpawnedNote
   travelMs: number
   trackWidth: number
   hintActive: boolean
+  isInvalid: boolean
 }) {
   const [x, setX] = useState(() => computeNoteX(0, trackWidth))
   const [opacity, setOpacity] = useState(1)
@@ -331,9 +340,11 @@ function NoteView({ note, travelMs, trackWidth, hintActive }: {
 
   const borderColor =
     note.hitType === 'PERFECT' ? '#00ffaa' :
-    note.hitType === 'GOOD' ? '#ffd700' :
-    note.hitType === 'MISS' ? '#ff5577' :
-    hintActive ? '#00b4ff' : 'rgba(255,255,255,0.5)'
+    note.hitType === 'GOOD'    ? '#ffd700' :
+    note.hitType === 'MISS'    ? '#ff5577' :
+    isInvalid                  ? '#ff7744' :
+    hintActive                 ? '#00b4ff' :
+    'rgba(255,255,255,0.5)'
 
   return (
     <div
@@ -342,7 +353,11 @@ function NoteView({ note, travelMs, trackWidth, hintActive }: {
         left: x,
         borderColor,
         background: 'rgba(0,180,255,0.22)',
-        boxShadow: note.hit ? 'none' : '0 0 22px rgba(0,180,255,0.55)',
+        boxShadow: note.hit
+          ? 'none'
+          : isInvalid
+            ? '0 0 16px rgba(255,119,68,0.45)'
+            : '0 0 22px rgba(0,180,255,0.55)',
         opacity,
         transition: 'opacity 0.2s, border-color 0.15s',
       }}

@@ -1,7 +1,7 @@
 import type { KeyMapping } from '../../types'
 
 export interface TutorialStep {
-  id: 1 | 2 | 3 | 4
+  id: 1 | 2 | 3 | 4 | 5
   label: string
   message: string
   hintKeys: string[]
@@ -12,6 +12,7 @@ export interface TutorialStep {
   target: number
   gaugeLoss: boolean
   missMode: boolean
+  warnInvalidNotes?: boolean
   isReady?: boolean
   countdownSec?: number
 }
@@ -29,14 +30,14 @@ const PAD_INVALID: KeyMapping[] = [
 export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 1,
-    label: 'STEP 1 / 4',
-    message: 'A 키로 "커" 노트가 판정선에 닿을 때 누르세요',
+    label: 'STEP 1 / 5',
+    message: 'A 키 = "피" 입니다. "피" 노트가 오면 A를 누르세요',
     hintKeys: ['a'],
-    word: '커',
-    validSyllables: ['커'],
-    noteLoop: ['커'],
+    word: '피커',
+    validSyllables: ['피'],
+    noteLoop: ['피'],
     keyMapping: [
-      { key: 'a', syllable: '커', type: 'valid' },
+      { key: 'a', syllable: '피', type: 'valid' },
       ...PAD_INVALID,
     ],
     target: 4,
@@ -45,15 +46,15 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     id: 2,
-    label: 'STEP 2 / 4',
-    message: 'A / S 키로 "커" "피" 교대로 누르세요',
+    label: 'STEP 2 / 5',
+    message: 'A = "피", S = "커". 교대로 누르세요',
     hintKeys: ['a', 's'],
-    word: '커피',
-    validSyllables: ['커', '피'],
-    noteLoop: ['커', '피'],
+    word: '피커',
+    validSyllables: ['피', '커'],
+    noteLoop: ['피', '커'],
     keyMapping: [
-      { key: 'a', syllable: '커', type: 'valid' },
-      { key: 's', syllable: '피', type: 'valid' },
+      { key: 'a', syllable: '피', type: 'valid' },
+      { key: 's', syllable: '커', type: 'valid' },
       { key: 'd', syllable: '-', type: 'invalid' },
       { key: 'f', syllable: '-', type: 'invalid' },
       { key: 'j', syllable: '-', type: 'invalid' },
@@ -67,29 +68,53 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     id: 3,
-    label: 'STEP 3 / 4',
-    message: '틀린 키 = MISS! 게이지가 줄어듭니다. 일부러 D 키를 3번 눌러보세요',
-    hintKeys: ['d'],
-    word: '커',
-    validSyllables: ['커'],
-    noteLoop: [],
+    label: 'STEP 3 / 5',
+    message: '"비", "코" 같은 노트는 내 꺼가 아닙니다. 누르지 말고 흘려보내세요',
+    hintKeys: ['a', 's'],
+    word: '피커',
+    validSyllables: ['피', '커'],
+    noteLoop: ['피', '커', '비', '피', '커', '코'],
     keyMapping: [
-      { key: 'a', syllable: '커', type: 'valid' },
-      { key: 's', syllable: '-', type: 'invalid' },
-      { key: 'd', syllable: '코', type: 'invalid' },
-      { key: 'f', syllable: '-', type: 'invalid' },
+      { key: 'a', syllable: '피', type: 'valid' },
+      { key: 's', syllable: '커', type: 'valid' },
+      { key: 'd', syllable: '비', type: 'invalid' },
+      { key: 'f', syllable: '코', type: 'invalid' },
       { key: 'j', syllable: '-', type: 'invalid' },
       { key: 'k', syllable: '-', type: 'invalid' },
       { key: 'l', syllable: '-', type: 'invalid' },
       { key: ';', syllable: '-', type: 'invalid' },
     ],
-    target: 3,
-    gaugeLoss: true,
-    missMode: true,
+    target: 4,
+    gaugeLoss: false,
+    missMode: false,
+    warnInvalidNotes: true,
   },
   {
     id: 4,
-    label: 'STEP 4 / 4',
+    label: 'STEP 4 / 5',
+    message: '실전! "비", "코", "퍼" 노트를 누르면 MISS. 침착하게 흘려보내세요',
+    hintKeys: ['a', 's'],
+    word: '피커',
+    validSyllables: ['피', '커'],
+    noteLoop: ['피', '커', '비', '피', '커', '코', '피', '퍼'],
+    keyMapping: [
+      { key: 'a', syllable: '피', type: 'valid' },
+      { key: 's', syllable: '커', type: 'valid' },
+      { key: 'd', syllable: '비', type: 'invalid' },
+      { key: 'f', syllable: '코', type: 'invalid' },
+      { key: 'j', syllable: '-', type: 'invalid' },
+      { key: 'k', syllable: '퍼', type: 'invalid' },
+      { key: 'l', syllable: '-', type: 'invalid' },
+      { key: ';', syllable: '-', type: 'invalid' },
+    ],
+    target: 6,
+    gaugeLoss: true,
+    missMode: false,
+    warnInvalidNotes: true,
+  },
+  {
+    id: 5,
+    label: 'STEP 5 / 5',
     message: 'READY!',
     hintKeys: [],
     word: '',
