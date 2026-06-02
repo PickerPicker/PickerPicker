@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { BestRecord, GameData, GamePhase, GameStat, KeyMapping, StageData } from '../types'
 import { saveGameResult, getRanking, updateMotto } from '../services/playerService'
+import type { StageResultItem } from '../services/playerService'
+import { apiFetch } from '../services/authService'
 import { GameHeader } from './game/GameHeader'
 import { PlayStage } from './game/PlayStage'
 import { PreviewStage } from './game/PreviewStage'
@@ -19,6 +21,36 @@ const INITIAL_STAT: GameStat = {
   perfectCount: 0,
   goodCount: 0,
   missCount: 0,
+}
+
+interface BackendStage {
+  id: number
+  stage?: number
+  word: string
+  difficulty_level: number
+  bpm: number
+  input_length: number
+  valid_syllables: string[]
+  invalid_syllables: string[]
+  input_syllables: string[]
+  key_mapping: { key: string; syllable: string; type: 'valid' | 'invalid' }[]
+  fixed_stage: number | null
+  is_active?: boolean
+}
+
+function beStageToStageData(be: BackendStage, idx: number): StageData & { id: number } {
+  return {
+    id: be.id,
+    stage: be.fixed_stage ?? idx + 1,
+    word: be.word,
+    difficultyLevel: be.difficulty_level,
+    bpm: be.bpm,
+    inputLength: be.input_length,
+    validSyllables: be.valid_syllables,
+    invalidSyllables: be.invalid_syllables,
+    inputSyllables: be.input_syllables,
+    keyMapping: be.key_mapping.map(km => ({ key: km.key, syllable: km.syllable, type: km.type })),
+  } as StageData & { id: number }
 }
 
 function shuffleKeyMapping(keyMapping: KeyMapping[]): KeyMapping[] {
@@ -89,17 +121,49 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
   const statRef = useRef<GameStat>(INITIAL_STAT)  // PlayStage의 onStatUpdate 후 최신값 보관
   const stageStartScoreRef = useRef<number>(0)  // 현재 스테이지 진입 시점 누적 score
   const stageScoresRef = useRef<Record<string, number>>({})  // 스테이지별 획득 점수
+  const stageResultsRef = useRef<StageResultItem[]>([])  // stage_results 누적 (word_id 포함)
   const resumeTimeRef = useRef<number>(0)  // 카운트다운 완료 시각 — blur grace period 판단용
 
   useEffect(() => {
-    fetch('/rhythm_stages_001_015.json')
-      .then(r => r.json())
-      .then((data: GameData) => {
-        setGameData(data)
-        setShuffledKeyMapping(shuffleKeyMapping(data.stages[0].keyMapping))
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    apiFetch(`${BASE_URL}/games/start`, { method: 'POST' })
+      .then(async r => {
+        if (!r.ok) {
+          if (r.status === 422) {
+            const detail = await r.text()
+            if (detail.includes('insufficient_word_pool')) {
+              alert('단어 풀이 부족합니다. 관리자에게 단어 등록을 요청하세요.')
+              onHome()
+              return
+            }
+          }
+          throw new Error(`게임 시작 실패: ${r.status}`)
+        }
+        const data = await r.json() as { stages: BackendStage[] }
+        const gd: GameData = {
+          gameTitle: '',
+          version: '',
+          keyLayout: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'],
+          rules: {
+            totalStages: 15,
+            difficultyGroupSize: 3,
+            baseBpm: 90,
+            bpmIncreasePerDifficulty: 15,
+            baseInputLength: 16,
+            inputLengthIncreasePerDifficulty: 8,
+            validSyllableRatioMin: 0.7,
+          },
+          stages: data.stages.map(beStageToStageData),
+        }
+        setGameData(gd)
+        setShuffledKeyMapping(shuffleKeyMapping(gd.stages[0].keyMapping))
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(err => {
+        console.error('게임 시작 실패', err)
+        setLoading(false)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -239,6 +303,7 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
       stage: reachedStage,
       combo: finalStat.maxCombo,
       stage_scores: stageScoresRef.current,
+      stage_results: stageResultsRef.current,
     })
       .then(record => {
         setServerPlayCount(record.play_count)
@@ -253,10 +318,21 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
 
   const handleStageComplete = () => {
     // 클리어한 스테이지의 획득 점수 누적
-    const cleared = gameData.stages[stageIndex]
+    const cleared = gameData.stages[stageIndex] as StageData & { id?: number }
     const gain = Math.max(0, statRef.current.score - stageStartScoreRef.current)
     if (cleared) {
       stageScoresRef.current[String(cleared.stage)] = gain
+      if (cleared.id) {
+        // MVP: 본 스테이지 판정 카운트는 0으로 보냄. 향후 stage별 정확 추적 필요
+        stageResultsRef.current.push({
+          word_id: cleared.id,
+          stage_index: cleared.stage,
+          perfect_count: 0,
+          good_count: 0,
+          miss_count: 0,
+          stage_score: gain,
+        })
+      }
     }
 
     const nextIndex = stageIndex + 1
@@ -270,6 +346,19 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
   }
 
   const handleGameOver = () => {
+    // 도달 스테이지의 stage_result도 누적 (게임 오버 직전 스테이지)
+    const currentStageInfo = gameData.stages[stageIndex] as StageData & { id?: number }
+    if (currentStageInfo?.id) {
+      const gain = Math.max(0, statRef.current.score - stageStartScoreRef.current)
+      stageResultsRef.current.push({
+        word_id: currentStageInfo.id,
+        stage_index: currentStageInfo.stage,
+        perfect_count: 0,
+        good_count: 0,
+        miss_count: 0,
+        stage_score: gain,
+      })
+    }
     finishGame(statRef.current, false, stageIndex)
     setPhase('result')
   }
@@ -287,6 +376,7 @@ export function GameScreen({ nickname, onHome, onRanking, onStats, onClearSfx, o
     statRef.current = INITIAL_STAT
     stageStartScoreRef.current = 0
     stageScoresRef.current = {}
+    stageResultsRef.current = []
     setStageIndex(0)
     setStat(INITIAL_STAT)
     setIsClear(false)
