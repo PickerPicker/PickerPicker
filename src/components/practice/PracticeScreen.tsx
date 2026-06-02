@@ -1,8 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { GameData, GamePhase, GameStat, KeyMapping, StageData } from '../../types'
+import { apiFetch } from '../../services/authService'
 import { PreviewStage } from '../game/PreviewStage'
 import { PracticeHeader } from './PracticeHeader'
 import { PracticePlayStage } from './PracticePlayStage'
+
+interface BackendStage {
+  id: number
+  word: string
+  difficulty_level: number
+  bpm: number
+  input_length: number
+  valid_syllables: string[]
+  invalid_syllables: string[]
+  input_syllables: string[]
+  key_mapping: { key: string; syllable: string; type: 'valid' | 'invalid' }[]
+  fixed_stage: number | null
+  is_active?: boolean
+}
+
+function beStageToStageData(be: BackendStage, idx: number): StageData {
+  return {
+    stage: be.fixed_stage ?? idx + 1,
+    word: be.word,
+    difficultyLevel: be.difficulty_level,
+    bpm: be.bpm,
+    inputLength: be.input_length,
+    validSyllables: be.valid_syllables,
+    invalidSyllables: be.invalid_syllables,
+    inputSyllables: be.input_syllables,
+    keyMapping: be.key_mapping.map(km => ({ key: km.key, syllable: km.syllable, type: km.type })),
+  } as StageData
+}
 
 const INITIAL_STAT: GameStat = {
   score: 0,
@@ -67,14 +96,41 @@ export function PracticeScreen({
   const statRef = useRef<GameStat>(INITIAL_STAT)
 
   useEffect(() => {
-    fetch('/rhythm_stages_001_015.json')
-      .then(r => r.json())
-      .then((data: GameData) => {
-        setGameData(data)
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    apiFetch(`${BASE_URL}/games/start`, { method: 'POST' })
+      .then(async r => {
+        if (!r.ok) {
+          if (r.status === 422) {
+            alert('단어 풀이 부족합니다. 관리자에게 단어 등록을 요청하세요.')
+            onHome()
+            return
+          }
+          throw new Error(`게임 시작 실패: ${r.status}`)
+        }
+        const data = await r.json() as { stages: BackendStage[] }
+        const gd: GameData = {
+          gameTitle: '',
+          version: '',
+          keyLayout: ['a','s','d','f','j','k','l',';'],
+          rules: {
+            totalStages: 15,
+            difficultyGroupSize: 3,
+            baseBpm: 90,
+            bpmIncreasePerDifficulty: 15,
+            baseInputLength: 16,
+            inputLengthIncreasePerDifficulty: 8,
+            validSyllableRatioMin: 0.7,
+          },
+          stages: data.stages.map(beStageToStageData),
+        }
+        setGameData(gd)
         setLoading(false)
       })
-      .catch(() => setLoading(false))
-  }, [])
+      .catch(err => {
+        console.error('연습 모드 시작 실패', err)
+        setLoading(false)
+      })
+  }, [onHome])
 
   const levelStages = useMemo<StageData[]>(() => {
     if (!gameData || selectedLevel === null) return []
