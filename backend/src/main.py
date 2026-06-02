@@ -19,7 +19,6 @@ from src.core.seed import seed_words, seed_admin
 import src.models  # 모든 모델 import (Alembic autogenerate 메타데이터 등록용)
 from src.apis.player_router import router as player_router
 from src.apis.ranking_router import router as ranking_router
-from src.apis.stage_router import router as stage_router
 from src.apis.auth_router import router as auth_router
 from src.apis.stats_router import router as stats_router
 from src.apis.hall_of_fame_router import router as hall_of_fame_router
@@ -97,7 +96,6 @@ app.add_middleware(
 # 라우터 등록
 app.include_router(player_router)
 app.include_router(ranking_router)
-app.include_router(stage_router)
 app.include_router(auth_router)
 app.include_router(stats_router)
 app.include_router(hall_of_fame_router)
