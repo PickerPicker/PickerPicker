@@ -1,11 +1,28 @@
 {
   "metadata": {
-    "lastUpdated": "2026-06-02T00:05:53Z",
-    "currentVersion": "0.0.117",
+    "lastUpdated": "2026-06-02T01:12:08Z",
+    "currentVersion": "0.0.118",
     "projectType": "react",
-    "totalReleases": 77
+    "totalReleases": 78
   },
   "releases": [
+    {
+      "version": "0.0.118",
+      "project_type": "react",
+      "date": "2026-06-02",
+      "pr_number": 132,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **버그 수정**\n  * 노트가 판정선에 도달하기 전 빠르게 키를 눌렀을 때 다음 노트로 잘못 넘어가던 문제 해결\n  * 빠르게 누른 노트를 다시 칠 수 있도록 개선",
+      "parsed_changes": {
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "노트가 판정선에 도달하기 전 빠르게 키를 눌렀을 때 다음 노트로 잘못 넘어가던 문제 해결",
+            "빠르게 누른 노트를 다시 칠 수 있도록 개선"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.117",
       "project_type": "react",
