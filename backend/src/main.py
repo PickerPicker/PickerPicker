@@ -7,20 +7,23 @@ import hmac
 import time
 import logging
 from contextlib import asynccontextmanager
+import sqlalchemy as sa
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from src.core.logging import setup_logging
 from src.core.config import settings
-from src.core.database import engine, Base
+from src.core.database import engine, AsyncSessionLocal
 from src.core.cleanup import cleanup_loop
-import src.models  # 모든 모델 import (create_all 인식용)
+from src.core.seed import seed_words, seed_admin
+import src.models  # 모든 모델 import (Alembic autogenerate 메타데이터 등록용)
 from src.apis.player_router import router as player_router
 from src.apis.ranking_router import router as ranking_router
-from src.apis.stage_router import router as stage_router
 from src.apis.auth_router import router as auth_router
 from src.apis.stats_router import router as stats_router
 from src.apis.hall_of_fame_router import router as hall_of_fame_router
+from src.apis.admin_router import router as admin_router
+from src.apis.games_router import router as games_router
 
 setup_logging(log_level="INFO")
 logger = logging.getLogger(__name__)
@@ -34,16 +37,24 @@ _SIGNATURE_EXPIRATION_MS = 300_000
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """앱 시작 시 DB 테이블 자동 생성 + 클린업 백그라운드, 종료 시 엔진 정리"""
+    """앱 시작 시 DB 연결 확인 + 클린업 백그라운드, 종료 시 엔진 정리.
+
+    DB 스키마 관리는 Alembic이 담당한다 (Docker entrypoint의 run_migrations.sh).
+    """
     logger.info("=== PickerPicker 백엔드 시작 ===")
 
     cleanup_task: asyncio.Task | None = None
     try:
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logger.info("DB 테이블 준비 완료")
+            await conn.execute(sa.text("SELECT 1"))
+        logger.info("DB 연결 확인 완료")
+
+        # 자동 시드 (words + admins) — 멱등
+        async with AsyncSessionLocal() as session:
+            await seed_words(session)
+            await seed_admin(session)
     except Exception as e:
-        logger.warning(f"DB 초기 연결 실패 (서버는 계속 실행): {e}")
+        logger.warning(f"DB 초기 연결/시드 실패 (서버는 계속 실행): {e}")
 
     try:
         cleanup_task = asyncio.create_task(cleanup_loop())
@@ -85,10 +96,11 @@ app.add_middleware(
 # 라우터 등록
 app.include_router(player_router)
 app.include_router(ranking_router)
-app.include_router(stage_router)
 app.include_router(auth_router)
 app.include_router(stats_router)
 app.include_router(hall_of_fame_router)
+app.include_router(admin_router)
+app.include_router(games_router)
 
 
 @app.middleware("http")

@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "dev"  # dev | prod
     SECRET_KEY: str = ""  # HMAC-SHA256 서명 검증용 시크릿 키 (비어있으면 검증 비활성화)
 
+    # Admin 자동 시드 (선택) — 두 값 모두 비어있지 않을 때만 첫 기동 시 admin 생성
+    INITIAL_ADMIN_USERNAME: str = ""
+    INITIAL_ADMIN_PASSWORD: str = ""
+
     # env_file은 로컬 개발용 — 없어도 시스템 환경변수에서 읽음
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

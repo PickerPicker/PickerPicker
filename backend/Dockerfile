@@ -22,6 +22,10 @@ RUN uv pip install --system --no-cache \
     python-dotenv
 
 COPY src/ ./src/
+COPY alembic.ini ./alembic.ini
+COPY alembic/ ./alembic/
+COPY scripts/run_migrations.sh /run_migrations.sh
+RUN chmod +x /run_migrations.sh
 
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -35,4 +39,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/bin/sh", "-c", "/run_migrations.sh && exec uvicorn src.main:app --host 0.0.0.0 --port 8000"]

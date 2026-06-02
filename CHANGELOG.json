@@ -1,11 +1,50 @@
 {
   "metadata": {
-    "lastUpdated": "2026-06-02T01:12:08Z",
-    "currentVersion": "0.0.118",
+    "lastUpdated": "2026-06-02T08:53:30Z",
+    "currentVersion": "0.0.119",
     "projectType": "react",
-    "totalReleases": 78
+    "totalReleases": 79
   },
   "releases": [
+    {
+      "version": "0.0.119",
+      "project_type": "react",
+      "date": "2026-06-02",
+      "pr_number": 136,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **기타**\n\n  * 동적 단어 풀 + Admin 콘솔 : feat : P5 - 본인 단어별 통계 + GameOver 가로 2단 + StatsScreen 단어 섹션 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : PracticeScreen /games/start 사용 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : GameScreen /games/start 사용 + stage_results 누적 전송 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : saveGameResult에 stage_results 인자 추가 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : refactor : 정적 /stages 엔드포인트 제거 (DB 추첨으로 대체) https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : /players/result 확장 — stage_results raw+집계 동시 저장 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : App.tsx /admin 라우트 분기 추가 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : WordStatsPage + AdminListPage https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : WordFormPage (JSON 붙여넣기 + 미리보기) https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : AdminDashboard + WordListPage https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : AdminLoginScreen 컴포넌트 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : adminApi 서비스 + admin 타입 정의 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : /admin/* 라우터 + /games/start + /practice/start 추가 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : word_stats UPSERT + session_word_results raw INSERT 서비스 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : word CRUD 서비스 + pydantic 검증 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : admin 인증 서비스 + Bearer dependency https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : pick_stages 단어 추첨 서비스 (고정+난이도 그룹) https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : words/admins 자동 시드 로직 (idempotent) https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : alembic 0003 — 단어/admin/통계 5개 테이블 추가 https://github.com/PickerPicker/PickerPicker/issues/133\n  * 동적 단어 풀 + Admin 콘솔 : feat : 5개 신규 ORM 모델 추가 (Word/Admin/AdminSession/WordStats/SessionWordResult) https://github.com/PickerPicker/PickerPicker/issues/133\n  * DB 마이그레이션 도구 Alembic 도입 : feat : entrypoint에서 alembic upgrade head 자동 실행, main.py create_all 제거 https://github.com/PickerPicker/PickerPicker/issues/134\n  * DB 마이그레이션 도구 Alembic 도입 : refactor : 기존 테이블 id BigInteger 통일 (players, hall_of_fame) https://github.com/PickerPicker/PickerPicker/issues/134\n  * DB 마이그레이션 도구 Alembic 도입 : chore : 0001 baseline revision 추가 https://github.com/PickerPicker/PickerPicker/issues/134\n  * DB 마이그레이션 도구 Alembic 도입 : chore : alembic init 및 env.py 비동기 마이그레이션 지원 https://github.com/PickerPicker/PickerPicker/issues/134\n\n> 💡 더 정확한 릴리스 노트를 원한다면 Claude Code에서 `/github` 스킬로 PR 릴리스 노트를 업데이트할 수 있습니다.",
+      "parsed_changes": {
+        "기타": {
+          "title": "기타",
+          "items": [
+            "동적 단어 풀 + Admin 콘솔 : feat : P5 - 본인 단어별 통계 + GameOver 가로 2단 + StatsScreen 단어 섹션 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : PracticeScreen /games/start 사용 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : GameScreen /games/start 사용 + stage_results 누적 전송 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : saveGameResult에 stage_results 인자 추가 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : refactor : 정적 /stages 엔드포인트 제거 (DB 추첨으로 대체) https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : /players/result 확장 — stage_results raw+집계 동시 저장 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : App.tsx /admin 라우트 분기 추가 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : WordStatsPage + AdminListPage https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : WordFormPage (JSON 붙여넣기 + 미리보기) https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : AdminDashboard + WordListPage https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : AdminLoginScreen 컴포넌트 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : adminApi 서비스 + admin 타입 정의 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : /admin/* 라우터 + /games/start + /practice/start 추가 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : word_stats UPSERT + session_word_results raw INSERT 서비스 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : word CRUD 서비스 + pydantic 검증 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : admin 인증 서비스 + Bearer dependency https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : pick_stages 단어 추첨 서비스 (고정+난이도 그룹) https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : words/admins 자동 시드 로직 (idempotent) https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : alembic 0003 — 단어/admin/통계 5개 테이블 추가 https://github.com/PickerPicker/PickerPicker/issues/133",
+            "동적 단어 풀 + Admin 콘솔 : feat : 5개 신규 ORM 모델 추가 (Word/Admin/AdminSession/WordStats/SessionWordResult) https://github.com/PickerPicker/PickerPicker/issues/133",
+            "DB 마이그레이션 도구 Alembic 도입 : feat : entrypoint에서 alembic upgrade head 자동 실행, main.py create_all 제거 https://github.com/PickerPicker/PickerPicker/issues/134",
+            "DB 마이그레이션 도구 Alembic 도입 : refactor : 기존 테이블 id BigInteger 통일 (players, hall_of_fame) https://github.com/PickerPicker/PickerPicker/issues/134",
+            "DB 마이그레이션 도구 Alembic 도입 : chore : 0001 baseline revision 추가 https://github.com/PickerPicker/PickerPicker/issues/134",
+            "DB 마이그레이션 도구 Alembic 도입 : chore : alembic init 및 env.py 비동기 마이그레이션 지원 https://github.com/PickerPicker/PickerPicker/issues/134"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.118",
       "project_type": "react",

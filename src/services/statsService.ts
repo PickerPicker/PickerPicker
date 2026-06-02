@@ -2,6 +2,14 @@ import { apiFetch } from './authService'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
+export interface WordSummary {
+  id: number
+  word: string
+  difficulty_level: number
+  exposure_count: number
+  accuracy: number
+}
+
 export interface MyStatsResponse {
   nickname: string
   totals: { play_count: number; best_score: number; best_stage: number; best_combo: number }
@@ -23,6 +31,12 @@ export interface MyStatsResponse {
   habit: {
     by_hour: { hour: number; count: number }[]
     session_gap_minutes: { avg: number; median: number }
+  }
+  words?: {
+    played: number
+    most_played: WordSummary[]
+    hardest: WordSummary[]
+    easiest: WordSummary[]
   }
 }
 
