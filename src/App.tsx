@@ -10,6 +10,8 @@ import { StatsScreen } from './components/StatsScreen'
 import { AudioProvider, useAudioContext } from './contexts/AudioContext'
 import { MobileWarningModal } from './components/common/MobileWarningModal'
 import { WelcomeModal } from './components/common/WelcomeModal'
+import { AdminLoginScreen } from './components/admin/AdminLoginScreen'
+import { AdminDashboard } from './components/admin/AdminDashboard'
 import { getPlayer, markTutorialSeen } from './services/playerService'
 
 /** App.tsx 한정 화면 union — types/Screen 확장 없이 'practice', 'stats' 추가 */
@@ -22,6 +24,12 @@ const LS_BEST_KEY = 'pickerpicker_best'
 const LS_TUTORIAL_KEY = 'pickerpicker_tutorial_seen'
 
 function AppInner() {
+  const isAdminRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
+  const [adminAuthed, setAdminAuthed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return isAdminRoute && Boolean(sessionStorage.getItem('pickerpicker_admin_token'))
+  })
+
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('start')
   const [afterTutorial, setAfterTutorial] = useState<AppScreen>('start')
   const audio = useAudioContext()
@@ -143,104 +151,121 @@ function AppInner() {
 
   return (
     <>
-      {isOffline && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-warning text-warning-content text-center text-xs py-1 font-bold tracking-wide">
-          서버 연결 끊김 — 기록이 저장되지 않습니다
-        </div>
-      )}
-      {currentScreen === 'start' && (
-        <StartScreen
-          onRanking={() => setCurrentScreen('ranking')}
-          onStart={handleStart}
-          onPractice={() => {
-            audio.ensureAudioCtx()
-            setCurrentScreen('practice')
-          }}
-          onTutorial={handleTutorialOpen}
-          hasPlayedBefore={hasPlayedBefore}
-          isOffline={isOffline}
-          bgmVolume={audio.bgmVolume}
-          sfxOn={audio.sfxOn}
-          onBgmVolume={audio.setBgmVol}
-          onToggleSfx={audio.toggleSfx}
-          offset={offset}
-          onOffset={handleOffset}
-          nickname={nickname}
-          onLogout={handleLogout}
-          onLoginComplete={handleLoginComplete}
-          onStats={() => setCurrentScreen('stats')}
-        />
-      )}
-      {currentScreen === 'tutorial' && (
-        <TutorialScreen
-          onComplete={handleTutorialComplete}
-          onExit={() => {
-            localStorage.setItem(LS_TUTORIAL_KEY, 'true')
-            setCurrentScreen(afterTutorial === 'game' ? 'game' : 'start')
-          }}
-          showReadyCountdown={afterTutorial === 'game'}
-          onHitSfx={audio.playHitSfx}
-          onMissSfx={audio.playMissSfx}
-        />
-      )}
-      {currentScreen === 'practice' && (
-        <PracticeScreen
-          onHome={() => {
-            audio.stopBgm()
-            setCurrentScreen('start')
-          }}
-          onHitSfx={audio.playHitSfx}
-          onMissSfx={audio.playMissSfx}
-          onGameBgm={audio.playGameBgm}
-          onStopBgm={audio.stopBgm}
-          offset={offset}
-        />
-      )}
-      {currentScreen === 'game' && (
-        <GameScreen
-          nickname={nickname}
-          isNewPlayer={false}
-          onHome={() => {
-            audio.stopBgm()
-            setCurrentScreen('start')
-          }}
-          onRanking={() => {
-            audio.stopBgm()
-            setCurrentScreen('ranking')
-          }}
-          onStats={() => {
-            audio.stopBgm()
-            setCurrentScreen('stats')
-          }}
-          onClearSfx={audio.playClearSfx}
-          onGameOverSfx={audio.playGameOverSfx}
-          onHitSfx={audio.playHitSfx}
-          onMissSfx={audio.playMissSfx}
-          onGameBgm={audio.playGameBgm}
-          offset={offset}
-          onOffset={handleOffset}
-          sfxOn={audio.sfxOn}
-          onToggleSfx={audio.toggleSfx}
-          bgmVolume={audio.bgmVolume}
-          onBgmVolume={audio.setBgmVol}
-        />
-      )}
-      {currentScreen === 'ranking' && (
-        <RankingScreen nickname={nickname} onBack={() => setCurrentScreen('start')} />
-      )}
-      {currentScreen === 'stats' && (
-        <StatsScreen
-          nickname={nickname}
-          onBack={() => setCurrentScreen('start')}
-        />
-      )}
+      {isAdminRoute ? (
+        adminAuthed ? (
+          <AdminDashboard onLogout={() => {
+            setAdminAuthed(false)
+            // 로그아웃 후 /admin/login은 자동으로 LoginScreen 표시
+            window.history.replaceState(null, '', '/admin')
+          }} />
+        ) : (
+          <AdminLoginScreen
+            onLoginSuccess={() => setAdminAuthed(true)}
+            onCancel={() => { window.location.href = '/' }}
+          />
+        )
+      ) : (
+        <>
+          {isOffline && (
+            <div className="fixed top-0 left-0 right-0 z-50 bg-warning text-warning-content text-center text-xs py-1 font-bold tracking-wide">
+              서버 연결 끊김 — 기록이 저장되지 않습니다
+            </div>
+          )}
+          {currentScreen === 'start' && (
+            <StartScreen
+              onRanking={() => setCurrentScreen('ranking')}
+              onStart={handleStart}
+              onPractice={() => {
+                audio.ensureAudioCtx()
+                setCurrentScreen('practice')
+              }}
+              onTutorial={handleTutorialOpen}
+              hasPlayedBefore={hasPlayedBefore}
+              isOffline={isOffline}
+              bgmVolume={audio.bgmVolume}
+              sfxOn={audio.sfxOn}
+              onBgmVolume={audio.setBgmVol}
+              onToggleSfx={audio.toggleSfx}
+              offset={offset}
+              onOffset={handleOffset}
+              nickname={nickname}
+              onLogout={handleLogout}
+              onLoginComplete={handleLoginComplete}
+              onStats={() => setCurrentScreen('stats')}
+            />
+          )}
+          {currentScreen === 'tutorial' && (
+            <TutorialScreen
+              onComplete={handleTutorialComplete}
+              onExit={() => {
+                localStorage.setItem(LS_TUTORIAL_KEY, 'true')
+                setCurrentScreen(afterTutorial === 'game' ? 'game' : 'start')
+              }}
+              showReadyCountdown={afterTutorial === 'game'}
+              onHitSfx={audio.playHitSfx}
+              onMissSfx={audio.playMissSfx}
+            />
+          )}
+          {currentScreen === 'practice' && (
+            <PracticeScreen
+              onHome={() => {
+                audio.stopBgm()
+                setCurrentScreen('start')
+              }}
+              onHitSfx={audio.playHitSfx}
+              onMissSfx={audio.playMissSfx}
+              onGameBgm={audio.playGameBgm}
+              onStopBgm={audio.stopBgm}
+              offset={offset}
+            />
+          )}
+          {currentScreen === 'game' && (
+            <GameScreen
+              nickname={nickname}
+              isNewPlayer={false}
+              onHome={() => {
+                audio.stopBgm()
+                setCurrentScreen('start')
+              }}
+              onRanking={() => {
+                audio.stopBgm()
+                setCurrentScreen('ranking')
+              }}
+              onStats={() => {
+                audio.stopBgm()
+                setCurrentScreen('stats')
+              }}
+              onClearSfx={audio.playClearSfx}
+              onGameOverSfx={audio.playGameOverSfx}
+              onHitSfx={audio.playHitSfx}
+              onMissSfx={audio.playMissSfx}
+              onGameBgm={audio.playGameBgm}
+              offset={offset}
+              onOffset={handleOffset}
+              sfxOn={audio.sfxOn}
+              onToggleSfx={audio.toggleSfx}
+              bgmVolume={audio.bgmVolume}
+              onBgmVolume={audio.setBgmVol}
+            />
+          )}
+          {currentScreen === 'ranking' && (
+            <RankingScreen nickname={nickname} onBack={() => setCurrentScreen('start')} />
+          )}
+          {currentScreen === 'stats' && (
+            <StatsScreen
+              nickname={nickname}
+              onBack={() => setCurrentScreen('start')}
+            />
+          )}
 
-      {showWelcome && (
-        <WelcomeModal onClose={handleWelcomeClose} />
-      )}
+          {showWelcome && (
+            <WelcomeModal onClose={handleWelcomeClose} />
+          )}
 
-      {!showWelcome && showMobileWarning && (
-        <MobileWarningModal onClose={handleMobileWarningClose} />
+          {!showWelcome && showMobileWarning && (
+            <MobileWarningModal onClose={handleMobileWarningClose} />
+          )}
+        </>
       )}
     </>
   )
