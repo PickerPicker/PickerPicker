@@ -10,16 +10,9 @@ RUN pip install --no-cache-dir uv
 # 의존성 먼저 복사 (캐시 레이어 활용)
 COPY pyproject.toml ./
 
-# 의존성 설치
-RUN uv pip install --system --no-cache \
-    fastapi \
-    "uvicorn[standard]" \
-    pydantic \
-    pydantic-settings \
-    asyncpg \
-    "sqlalchemy[asyncio]" \
-    alembic \
-    python-dotenv
+# 의존성 설치 — pyproject.toml을 단일 진실 소스로 사용한다.
+# (기존: 패키지명 하드코딩 → pyproject에 bcrypt 추가돼도 누락되던 문제 해결)
+RUN uv pip install --system --no-cache -r pyproject.toml
 
 COPY src/ ./src/
 COPY alembic.ini ./alembic.ini
