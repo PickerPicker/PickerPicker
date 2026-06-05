@@ -18,7 +18,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # pydantic Settings에서 DATABASE_URL 동적 주입
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# configparser는 %를 interpolation 문법(%(key)s)으로 해석하므로,
+# URL 인코딩된 비밀번호(예: @ → %40)가 포함되면 set_main_option이 폭발한다.
+# %%로 이스케이프하면 configparser가 리터럴 %로 복원 → SQLAlchemy 엔진이 정상 파싱.
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
 
 target_metadata = Base.metadata
 
