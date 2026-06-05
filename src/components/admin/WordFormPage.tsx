@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Word, KeyMappingItem } from '../../types/admin'
 import { createWord, updateWord } from '../../services/adminApi'
+import { buildWordPrompt } from '../../constants/wordPrompt'
 
 interface Props {
   word?: Word
@@ -38,6 +39,22 @@ export function WordFormPage({ word, onDone, onCancel }: Props) {
   const [parseError, setParseError] = useState('')
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  // AI 프롬프트 모달 상태
+  const [promptOpen, setPromptOpen] = useState(false)
+  const [promptWord, setPromptWord] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(buildWordPrompt(promptWord))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // clipboard 권한 거부 등 — 사용자가 직접 드래그 복사할 수 있게 무시
+      setCopied(false)
+    }
+  }
 
   const handleJsonChange = (text: string) => {
     setJson(text)
@@ -80,7 +97,16 @@ export function WordFormPage({ word, onDone, onCancel }: Props) {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
-          <label className="label"><span className="label-text">JSON 붙여넣기</span></label>
+          <label className="label flex items-center">
+            <span className="label-text">JSON 붙여넣기</span>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline ml-auto"
+              onClick={() => { setPromptOpen(true); setCopied(false) }}
+            >
+              🤖 AI 프롬프트
+            </button>
+          </label>
           <textarea
             className="textarea textarea-bordered w-full h-96 font-mono text-xs"
             value={json}
@@ -120,6 +146,43 @@ export function WordFormPage({ word, onDone, onCancel }: Props) {
           {submitting ? '...' : (word ? '수정 저장' : '등록')}
         </button>
       </div>
+
+      {/* AI 프롬프트 모달 — 단어를 입력하면 프롬프트 끝에 끼워 넣어 복사 */}
+      {promptOpen && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-3xl">
+            <div className="flex items-center mb-3">
+              <h3 className="font-bold text-lg">🤖 AI 단어 JSON 생성 프롬프트</h3>
+              <button className="btn btn-sm btn-circle btn-ghost ml-auto" onClick={() => setPromptOpen(false)}>✕</button>
+            </div>
+            <p className="text-sm text-base-content/70 mb-3">
+              아래 프롬프트를 복사해 AI(ChatGPT/Claude 등)에게 주면 단어 JSON을 만들어줍니다.
+              만들 단어를 입력하면 프롬프트에 자동으로 반영됩니다.
+            </p>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                className="input input-bordered flex-1"
+                placeholder="만들 단어 입력 (예: 사과)"
+                value={promptWord}
+                onChange={e => setPromptWord(e.target.value)}
+              />
+              <button className="btn btn-primary" onClick={handleCopyPrompt}>
+                {copied ? '✓ 복사됨!' : '📋 프롬프트 복사'}
+              </button>
+            </div>
+            <textarea
+              className="textarea textarea-bordered w-full h-80 font-mono text-xs"
+              readOnly
+              value={buildWordPrompt(promptWord)}
+            />
+            <div className="modal-action">
+              <button className="btn btn-ghost" onClick={() => setPromptOpen(false)}>닫기</button>
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => setPromptOpen(false)} />
+        </div>
+      )}
     </div>
   )
 }
