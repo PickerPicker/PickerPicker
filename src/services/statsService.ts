@@ -70,14 +70,32 @@ export async function getMySessions(nickname: string, days = 30): Promise<DailyE
   return data.days as DailyEntry[]
 }
 
-/** 랭킹에서 다른 사람의 요약 통계. 비공개면 is_public=false. */
+/** 랭킹에서 다른 사람의 공개 통계. 비공개면 is_public=false. (민감정보 habit/약점단어는 미포함) */
 export interface PublicStatsResponse {
   is_public: boolean
   nickname: string
   motto?: string | null
   totals?: { play_count: number; best_score: number; best_stage: number; best_combo: number }
-  averages?: { avg_score: number }
-  percentile?: { rank_top_pct: number }
+  averages?: {
+    avg_score: number
+    median_score?: number
+    min_score?: number
+    avg_stage?: number
+    avg_combo?: number
+  }
+  trend?: {
+    last_7_days_avg_score: number
+    last_30_days_avg_score: number
+    last_7_days_play_count: number
+    last_30_days_play_count: number
+  }
+  percentile?: { rank_top_pct: number; score?: number }
+  stage_best?: { stage: number; best_score: number; reach_count: number }[]
+  words?: {
+    played: number
+    most_played: WordSummary[]
+    easiest: WordSummary[]
+  }
 }
 
 /** 공개 요약 통계 조회 (HMAC만 필요). 실패 시 null */

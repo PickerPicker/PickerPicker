@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Lock } from 'lucide-react'
 import { SoundButton } from './common/SoundButton'
-import { getPublicStats, type PublicStatsResponse } from '../services/statsService'
+import { getPublicStats, type PublicStatsResponse, type WordSummary } from '../services/statsService'
 
 interface PublicStatsModalProps {
   nickname: string
@@ -42,7 +42,7 @@ export function PublicStatsModal({ nickname, myNickname, onClose }: PublicStatsM
       onClick={onClose}
     >
       <div
-        className="rounded-xl shadow-2xl w-80 max-w-[90vw]"
+        className="rounded-xl shadow-2xl w-96 max-w-[92vw] max-h-[88vh] overflow-y-auto"
         style={{ background: 'rgba(0, 0, 20, 0.92)', border: '1px solid rgba(168,85,247,0.4)' }}
         onClick={e => e.stopPropagation()}
       >
@@ -107,7 +107,7 @@ export function PublicStatsModal({ nickname, myNickname, onClose }: PublicStatsM
                 </p>
               )}
 
-              {/* 요약 그리드 */}
+              {/* 기본 요약 */}
               <div className="grid grid-cols-2 gap-2">
                 <StatCell label="최고 점수" value={(data.totals?.best_score ?? 0).toLocaleString()} />
                 <StatCell label="최고 스테이지" value={`STAGE ${data.totals?.best_stage ?? 0}`} />
@@ -116,6 +116,74 @@ export function PublicStatsModal({ nickname, myNickname, onClose }: PublicStatsM
                 <StatCell label="평균 점수" value={(data.averages?.avg_score ?? 0).toLocaleString()} />
                 <StatCell label="상위" value={`${data.percentile?.rank_top_pct ?? 0}%`} />
               </div>
+
+              {/* 세부 평균 지표 */}
+              {data.averages && (data.averages.median_score != null || data.averages.avg_stage != null) && (
+                <Section title="세부 기록">
+                  <div className="grid grid-cols-2 gap-2">
+                    {data.averages.median_score != null && (
+                      <StatCell label="중앙값 점수" value={data.averages.median_score.toLocaleString()} />
+                    )}
+                    {data.averages.min_score != null && (
+                      <StatCell label="최저 점수" value={data.averages.min_score.toLocaleString()} />
+                    )}
+                    {data.averages.avg_stage != null && (
+                      <StatCell label="평균 스테이지" value={String(data.averages.avg_stage)} />
+                    )}
+                    {data.averages.avg_combo != null && (
+                      <StatCell label="평균 콤보" value={String(data.averages.avg_combo)} />
+                    )}
+                  </div>
+                </Section>
+              )}
+
+              {/* 최근 활동 추세 */}
+              {data.trend && (
+                <Section title="최근 활동">
+                  <div className="grid grid-cols-2 gap-2">
+                    <StatCell label="7일 평균 점수" value={(data.trend.last_7_days_avg_score ?? 0).toLocaleString()} />
+                    <StatCell label="30일 평균 점수" value={(data.trend.last_30_days_avg_score ?? 0).toLocaleString()} />
+                    <StatCell label="7일 플레이" value={`${data.trend.last_7_days_play_count ?? 0}회`} />
+                    <StatCell label="30일 플레이" value={`${data.trend.last_30_days_play_count ?? 0}회`} />
+                  </div>
+                </Section>
+              )}
+
+              {/* 스테이지별 최고점 */}
+              {data.stage_best && data.stage_best.length > 0 && (
+                <Section title="스테이지별 최고점">
+                  <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(168,85,247,0.2)' }}>
+                    <table className="table table-xs w-full" style={{ '--tw-bg-opacity': '0' } as React.CSSProperties}>
+                      <thead>
+                        <tr style={{ color: '#c084fc' }}>
+                          <th style={{ background: 'transparent' }}>스테이지</th>
+                          <th style={{ background: 'transparent' }}>최고점</th>
+                          <th style={{ background: 'transparent' }}>도달</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.stage_best.map(s => (
+                          <tr key={s.stage} style={{ color: '#e2e8f0' }}>
+                            <td style={{ background: 'transparent' }}>STAGE {s.stage}</td>
+                            <td style={{ background: 'transparent' }}>{s.best_score.toLocaleString()}</td>
+                            <td style={{ background: 'transparent' }}>{s.reach_count}회</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Section>
+              )}
+
+              {/* 단어 강점 (약점 hardest는 공개 안 함) */}
+              {data.words && data.words.played > 0 && (
+                <Section title={`단어 분석 (${data.words.played}개 경험)`}>
+                  <div className="flex flex-col gap-3">
+                    <WordList title="✨ 가장 잘하는 TOP5" rows={data.words.easiest} />
+                    <WordList title="🔥 많이 만난 TOP5" rows={data.words.most_played} />
+                  </div>
+                </Section>
+              )}
             </>
           )}
         </div>
@@ -132,6 +200,42 @@ function StatCell({ label, value }: { label: string; value: string }) {
     >
       <span className="text-xs" style={{ color: '#9ca3af' }}>{label}</span>
       <span className="font-bold" style={{ color: '#f0abfc' }}>{value}</span>
+    </div>
+  )
+}
+
+/** 섹션 구분 — 제목 + 구분선 */
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-2 pt-2" style={{ borderTop: '1px solid rgba(168,85,247,0.2)' }}>
+      <h3 className="text-xs font-bold tracking-wide" style={{ color: '#c084fc' }}>{title}</h3>
+      {children}
+    </div>
+  )
+}
+
+/** 단어 TOP 리스트 — 정확도/노출횟수 표시 */
+function WordList({ title, rows }: { title: string; rows: WordSummary[] }) {
+  return (
+    <div>
+      <h4 className="text-xs font-bold mb-1" style={{ color: '#e2e8f0' }}>{title}</h4>
+      <ul className="text-xs flex flex-col gap-1">
+        {rows.length === 0 && <li style={{ color: '#6b7280' }}>데이터 부족</li>}
+        {rows.map(r => (
+          <li
+            key={r.id}
+            className="flex justify-between rounded px-2 py-1"
+            style={{ background: 'rgba(168,85,247,0.08)' }}
+          >
+            <span style={{ color: '#f0abfc' }}>
+              <b>{r.word}</b> <span className="opacity-60">L{r.difficulty_level}</span>
+            </span>
+            <span style={{ color: '#9ca3af' }}>
+              {r.exposure_count}회 / {(r.accuracy * 100).toFixed(0)}%
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
