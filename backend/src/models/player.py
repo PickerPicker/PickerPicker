@@ -25,6 +25,8 @@ class Player(Base):
     # 명예의 전당 — 1위 경험 여부, 한마디
     is_hall_of_famer: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     motto: Mapped[str | None] = mapped_column(String(100), nullable=True, default=None)
+    # 통계 공개 여부 — 랭킹에서 다른 사람이 내 요약 통계를 볼 수 있는지. 기본 공개.
+    is_stats_public: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

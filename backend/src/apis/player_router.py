@@ -1,11 +1,12 @@
 """src.apis.player_router
 플레이어 REST API
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
 from src.services import player_service
+from src.services.auth_service import verify_token
 
 router = APIRouter(prefix="/players", tags=["players"])
 
@@ -24,6 +25,7 @@ class PlayerResponse(BaseModel):
     best_combo: int
     play_count: int
     tutorial_seen: bool
+    is_stats_public: bool
 
     class Config:
         from_attributes = True
@@ -54,6 +56,10 @@ class VerifyPinRequest(BaseModel):
 
 class VerifyPinResponse(BaseModel):
     success: bool
+
+
+class StatsVisibilityRequest(BaseModel):
+    is_public: bool
 
 
 # 비정상/치팅 값 차단을 위한 상한. 향후 스테이지/스코어링 확장 여유 포함.
@@ -107,6 +113,30 @@ async def verify_pin(body: VerifyPinRequest, db: AsyncSession = Depends(get_db))
     """PIN 검증 — 기존 플레이어 로그인"""
     success = await player_service.verify_pin(db, body.nickname, body.pin)
     return VerifyPinResponse(success=success)
+
+
+@router.patch("/me/stats-visibility", response_model=PlayerResponse)
+async def set_stats_visibility(
+    body: StatsVisibilityRequest,
+    authorization: str | None = Header(default=None),
+    db: AsyncSession = Depends(get_db),
+):
+    """본인 통계 공개/비공개 전환 — Bearer 토큰 필수.
+
+    /{nickname} 라우트보다 위에 둬야 'me'가 닉네임으로 오인되지 않는다.
+    """
+    if not authorization:
+        raise HTTPException(status_code=401, detail="인증이 필요합니다")
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Bearer 토큰 형식이 올바르지 않습니다")
+
+    nickname = await verify_token(db, parts[1])
+    if not nickname:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다")
+
+    player = await player_service.set_stats_visibility(db, nickname, body.is_public)
+    return PlayerResponse.model_validate(player)
 
 
 @router.get("/{nickname}", response_model=PlayerResponse)

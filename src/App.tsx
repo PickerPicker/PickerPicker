@@ -13,6 +13,7 @@ import { WelcomeModal } from './components/common/WelcomeModal'
 import { AdminLoginScreen } from './components/admin/AdminLoginScreen'
 import { AdminDashboard } from './components/admin/AdminDashboard'
 import { getPlayer, markTutorialSeen } from './services/playerService'
+import { setStatsVisibility } from './services/statsService'
 
 /** App.tsx 한정 화면 union — types/Screen 확장 없이 'practice', 'stats' 추가 */
 type AppScreen = Screen | 'practice' | 'stats'
@@ -100,6 +101,30 @@ function AppInner() {
 
   // localStorage에서 닉네임 복원 — 있으면 자동 로그인 상태
   const [nickname, setNickname] = useState<string>(() => localStorage.getItem(LS_NICKNAME_KEY) ?? '')
+
+  // 통계 공개 여부 — 서버값(getPlayer.is_stats_public)을 진실 소스로. 기본 공개(true).
+  const [isStatsPublic, setIsStatsPublic] = useState(true)
+
+  // 로그인 상태면 서버에서 통계 공개 여부 초기화
+  useEffect(() => {
+    if (!nickname) return
+    getPlayer(nickname)
+      .then(player => {
+        if (player && typeof player.is_stats_public === 'boolean') {
+          setIsStatsPublic(player.is_stats_public)
+        }
+      })
+      .catch(() => {})
+  }, [nickname])
+
+  // 통계 공개 토글 — 낙관적 업데이트, 서버 실패 시 롤백
+  const handleToggleStatsPublic = () => {
+    const next = !isStatsPublic
+    setIsStatsPublic(next)
+    setStatsVisibility(next).then(ok => {
+      if (!ok) setIsStatsPublic(!next) // 실패 시 롤백
+    })
+  }
 
   // tutorialSeen: 서버값 우선, API 실패 시 localStorage fallback
   const goToGameOrTutorial = (next: AppScreen, tutorialSeen?: boolean) => {
@@ -192,6 +217,8 @@ function AppInner() {
               onLogout={handleLogout}
               onLoginComplete={handleLoginComplete}
               onStats={() => setCurrentScreen('stats')}
+              isStatsPublic={isStatsPublic}
+              onToggleStatsPublic={handleToggleStatsPublic}
             />
           )}
           {currentScreen === 'tutorial' && (

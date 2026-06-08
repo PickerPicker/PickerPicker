@@ -1,11 +1,28 @@
 {
   "metadata": {
-    "lastUpdated": "2026-06-08T12:19:01Z",
-    "currentVersion": "0.0.123",
+    "lastUpdated": "2026-06-08T12:36:58Z",
+    "currentVersion": "0.0.124",
     "projectType": "react",
-    "totalReleases": 83
+    "totalReleases": 84
   },
   "releases": [
+    {
+      "version": "0.0.124",
+      "project_type": "react",
+      "date": "2026-06-08",
+      "pr_number": 144,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 랭킹에서 다른 플레이어를 눌러 기록을 볼 수 있어요\n  * 설정에서 내 통계 공개·비공개를 선택할 수 있어요",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "랭킹에서 다른 플레이어를 눌러 기록을 볼 수 있어요",
+            "설정에서 내 통계 공개·비공개를 선택할 수 있어요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.123",
       "project_type": "react",

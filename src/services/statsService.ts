@@ -70,6 +70,40 @@ export async function getMySessions(nickname: string, days = 30): Promise<DailyE
   return data.days as DailyEntry[]
 }
 
+/** 랭킹에서 다른 사람의 요약 통계. 비공개면 is_public=false. */
+export interface PublicStatsResponse {
+  is_public: boolean
+  nickname: string
+  motto?: string | null
+  totals?: { play_count: number; best_score: number; best_stage: number; best_combo: number }
+  averages?: { avg_score: number }
+  percentile?: { rank_top_pct: number }
+}
+
+/** 공개 요약 통계 조회 (HMAC만 필요). 실패 시 null */
+export async function getPublicStats(nickname: string): Promise<PublicStatsResponse | null> {
+  try {
+    const res = await apiFetch(`${BASE_URL}/players/${encodeURIComponent(nickname)}/public-stats`)
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
+}
+
+/** 본인 통계 공개/비공개 전환 — Bearer 토큰 필수 (authService가 자동 첨부). 성공 시 true */
+export async function setStatsVisibility(isPublic: boolean): Promise<boolean> {
+  try {
+    const res = await apiFetch(`${BASE_URL}/players/me/stats-visibility`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_public: isPublic }),
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
 export async function getGlobalStats(): Promise<GlobalStatsResponse | null> {
   try {
     const res = await apiFetch(`${BASE_URL}/stats/global`)

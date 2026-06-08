@@ -203,6 +203,23 @@ async def get_hall_of_fame(db: AsyncSession) -> list[HallOfFame]:
     return list(result.scalars().all())
 
 
+async def set_stats_visibility(db: AsyncSession, nickname: str, is_public: bool) -> Player:
+    """통계 공개/비공개 전환. 닉네임 없으면 NotFoundError."""
+    player = await get_player(db, nickname)
+    player.is_stats_public = is_public
+    await db.commit()
+    await db.refresh(player)
+    return player
+
+
+async def is_stats_public(db: AsyncSession, nickname: str) -> bool | None:
+    """통계 공개 여부 조회. 플레이어 없으면 None."""
+    result = await db.execute(
+        select(Player.is_stats_public).where(Player.nickname == nickname)
+    )
+    return result.scalar_one_or_none()
+
+
 async def update_motto(db: AsyncSession, nickname: str, motto: str) -> None:
     """한마디 수정. is_hall_of_famer가 False이면 PermissionError."""
     player = await get_player(db, nickname)
