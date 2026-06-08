@@ -23,9 +23,11 @@ async def public_stats(
     nickname: str,
     db: AsyncSession = Depends(get_db),
 ):
-    """랭킹에서 다른 사람이 보는 요약 통계.
+    """랭킹에서 다른 사람이 보는 공개 통계.
 
-    민감 정보(습관/세션 간격/단어별 약점/스테이지별 성과)는 절대 포함하지 않는다.
+    민감 정보는 절대 포함하지 않는다:
+      - habit (시간대별 습관 / 세션 간격) → 언제 노는지 노출되므로 제외
+      - words.hardest (약점 단어) → 약점 노출되므로 제외 (강점/취향만 공개)
     비공개 플레이어는 {is_public: false}만 반환.
     """
     visible = await player_service.is_stats_public(db, nickname)
@@ -37,14 +39,26 @@ async def public_stats(
 
     full = await stats_service.get_player_stats(db, nickname)
     player = await player_service.get_player(db, nickname)
-    # 요약 필드만 추려 반환 — full에서 민감 키는 의도적으로 제외
+
+    # words에서 약점(hardest)만 제거하고 강점/취향은 공개
+    words = full.get("words") or {}
+    public_words = {
+        "played": words.get("played", 0),
+        "most_played": words.get("most_played", []),
+        "easiest": words.get("easiest", []),
+    }
+
     return {
         "is_public": True,
         "nickname": full["nickname"],
         "motto": player.motto,
         "totals": full["totals"],
-        "averages": {"avg_score": (full.get("averages") or {}).get("avg_score", 0)},
-        "percentile": {"rank_top_pct": (full.get("percentile") or {}).get("rank_top_pct", 0)},
+        # 평균/추세/백분위는 실력 지표라 전체 공개. habit만 의도적으로 제외.
+        "averages": full.get("averages") or {},
+        "trend": full.get("trend") or {},
+        "percentile": full.get("percentile") or {},
+        "stage_best": full.get("stage_best") or [],
+        "words": public_words,
     }
 
 
