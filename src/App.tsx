@@ -119,9 +119,10 @@ function AppInner() {
 
   // 통계 공개 토글 — 낙관적 업데이트, 서버 실패 시 롤백
   const handleToggleStatsPublic = () => {
+    if (!nickname) return
     const next = !isStatsPublic
     setIsStatsPublic(next)
-    setStatsVisibility(next).then(ok => {
+    setStatsVisibility(nickname, next).then(ok => {
       if (!ok) setIsStatsPublic(!next) // 실패 시 롤백
     })
   }
