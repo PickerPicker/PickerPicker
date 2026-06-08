@@ -10,13 +10,17 @@ export function GameOverWordCards({ results, wordsLookup }: Props) {
     return <p className="text-base-content/50 text-sm">기록된 단어가 없습니다.</p>
   }
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[60vh] overflow-y-auto">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[40vh] overflow-y-auto pr-1">
       {results.map((r, i) => {
         const word = wordsLookup[r.word_id]
         const total = r.perfect_count + r.good_count + r.miss_count
         const myAcc = total > 0 ? (r.perfect_count + r.good_count * 0.5) / total : 0
         return (
-          <div key={i} className="card bg-base-100 shadow p-2 text-xs">
+          <div
+            key={i}
+            className="rounded-lg p-2 text-xs backdrop-blur text-white/90"
+            style={{ background: 'rgba(8,12,28,0.5)', border: '1px solid rgba(255,255,255,0.12)' }}
+          >
             <div className="flex justify-between items-center">
               <span className="font-bold text-base">{word?.word ?? '?'}</span>
               <span className="badge badge-xs">Lv {word?.difficulty_level ?? '?'}</span>

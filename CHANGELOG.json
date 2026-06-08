@@ -1,11 +1,29 @@
 {
   "metadata": {
-    "lastUpdated": "2026-06-05T12:36:49Z",
-    "currentVersion": "0.0.122",
+    "lastUpdated": "2026-06-08T12:19:01Z",
+    "currentVersion": "0.0.123",
     "projectType": "react",
-    "totalReleases": 82
+    "totalReleases": 83
   },
   "releases": [
+    {
+      "version": "0.0.123",
+      "project_type": "react",
+      "date": "2026-06-08",
+      "pr_number": 142,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 게임 종료 화면을 새롭게 단장했습니다\n  * 화면 크기와 상관없이 결과가 보기 좋게 정렬됩니다\n  * 점수·스테이지·콤보를 한눈에 크게 확인할 수 있습니다",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "게임 종료 화면을 새롭게 단장했습니다",
+            "화면 크기와 상관없이 결과가 보기 좋게 정렬됩니다",
+            "점수·스테이지·콤보를 한눈에 크게 확인할 수 있습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.122",
       "project_type": "react",
