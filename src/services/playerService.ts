@@ -10,6 +10,7 @@ export interface PlayerRecord {
   play_count: number
   tutorial_seen: boolean
   is_new_champion?: boolean
+  is_stats_public?: boolean
 }
 
 export interface StageResultItem {

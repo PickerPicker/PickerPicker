@@ -21,6 +21,8 @@ interface StartScreenProps {
   onLogout: () => void
   onLoginComplete: (nickname: string, tutorialSeen: boolean) => void
   isOffline?: boolean
+  isStatsPublic?: boolean
+  onToggleStatsPublic?: () => void
 }
 
 const CREDITS = [
@@ -238,7 +240,7 @@ function PinView({
 }
 
 function SettingsView({
-  bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, onBack,
+  bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, onBack, statsToggle,
 }: {
   bgmVolume: number
   sfxOn: boolean
@@ -247,6 +249,8 @@ function SettingsView({
   onToggleSfx: () => void
   onOffset: (v: number) => void
   onBack: () => void
+  // 로그인 상태일 때만 전달 — 통계 공개/비공개 토글
+  statsToggle?: { isPublic: boolean; onToggle: () => void }
 }) {
   const offsetLabel = offset === 0 ? '0ms' : offset > 0 ? `+${offset}ms` : `${offset}ms`
 
@@ -292,6 +296,29 @@ function SettingsView({
           onChange={onToggleSfx}
         />
       </div>
+
+      {/* 통계 공개 — 로그인 상태일 때만 표시 */}
+      {statsToggle && (
+        <div
+          className="flex flex-col gap-1 px-4 py-3 rounded-lg"
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+        >
+          <div className="flex items-center justify-between">
+            <span className="font-bold tracking-widest text-sm" style={{ color: 'rgba(0,180,255,0.8)' }}>[STATS]</span>
+            <input
+              type="checkbox"
+              className="toggle toggle-primary"
+              checked={statsToggle.isPublic}
+              onChange={statsToggle.onToggle}
+            />
+          </div>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            {statsToggle.isPublic
+              ? '랭킹에서 다른 사람이 내 통계를 볼 수 있어요'
+              : '끔 — 다른 사람이 내 통계를 볼 수 없어요'}
+          </p>
+        </div>
+      )}
 
       {/* 판정 오프셋 */}
       <div className="flex flex-col gap-2">
@@ -345,7 +372,7 @@ function SettingsView({
   )
 }
 
-export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStats, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout, onLoginComplete, isOffline }: StartScreenProps) {
+export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStats, hasPlayedBefore, bgmVolume, sfxOn, offset, onBgmVolume, onToggleSfx, onOffset, nickname, onLogout, onLoginComplete, isOffline, isStatsPublic, onToggleStatsPublic }: StartScreenProps) {
   const [screen, setScreen] = useState<Screen>('home')
   const [loginNickname, setLoginNickname] = useState('')
   const [pendingPin, setPendingPin] = useState('')
@@ -561,6 +588,11 @@ export function StartScreen({ onRanking, onStart, onPractice, onTutorial, onStat
             onToggleSfx={onToggleSfx}
             onOffset={onOffset}
             onBack={() => setScreen('home')}
+            statsToggle={
+              nickname && onToggleStatsPublic
+                ? { isPublic: isStatsPublic ?? true, onToggle: onToggleStatsPublic }
+                : undefined
+            }
           />
         )}
 

@@ -3,6 +3,7 @@ import { getRanking, type RankingEntry } from '../services/playerService'
 import rankingBg from '../assets/ranking-bg.png'
 import { SoundButton } from './common/SoundButton'
 import { HallOfFameTab } from './HallOfFameTab'
+import { PublicStatsModal } from './PublicStatsModal'
 
 type RankingTab = 'ranking' | 'hall'
 
@@ -21,6 +22,8 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
   const [hasMore, setHasMore] = useState(true)
   const [showSticky, setShowSticky] = useState(false)
   const [myEntry, setMyEntry] = useState<RankingEntry | null>(null)
+  // 랭킹 행 클릭 시 공개 통계 모달에 띄울 닉네임
+  const [selectedNickname, setSelectedNickname] = useState<string | null>(null)
 
   const offsetRef = useRef(0)
   const myRowRef = useRef<HTMLTableRowElement | null>(null)
@@ -202,12 +205,14 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
                     <tr
                       key={entry.rank}
                       ref={mine ? myRowRef : undefined}
+                      onClick={() => setSelectedNickname(entry.nickname)}
                       style={{
                         background: mine ? 'rgba(168,85,247,0.18)' : 'transparent',
                         borderColor: mine ? 'rgba(168,85,247,0.4)' : 'rgba(192, 132, 252, 0.15)',
                         borderLeft: mine ? '3px solid #e879f9' : undefined,
                         color: mine ? '#f0abfc' : '#e2e8f0',
                         fontWeight: mine ? 600 : undefined,
+                        cursor: 'pointer',
                       }}
                     >
                       <td style={{ background: 'transparent', ...rankBadgeStyle(entry.rank) }}>
@@ -245,7 +250,10 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
             <div style={{ borderTop: '2px solid rgba(168,85,247,0.5)' }}>
               <table className="table w-full" style={{ '--tw-bg-opacity': '0' } as React.CSSProperties}>
                 <tbody>
-                  <tr style={{ background: 'rgba(168,85,247,0.15)', color: '#f0abfc', fontWeight: 600 }}>
+                  <tr
+                    onClick={() => setSelectedNickname(myEntry.nickname)}
+                    style={{ background: 'rgba(168,85,247,0.15)', color: '#f0abfc', fontWeight: 600, cursor: 'pointer' }}
+                  >
                     <td style={{ background: 'transparent', color: '#e879f9', fontWeight: 'bold' }}>
                       ★ {myEntry.rank}위
                     </td>
@@ -275,6 +283,15 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
             </div>
           )}
         </div>
+      )}
+
+      {/* 랭킹 행 클릭 → 공개 통계 모달 */}
+      {selectedNickname && (
+        <PublicStatsModal
+          nickname={selectedNickname}
+          myNickname={nickname || undefined}
+          onClose={() => setSelectedNickname(null)}
+        />
       )}
     </div>
   )
