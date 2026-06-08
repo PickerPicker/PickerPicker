@@ -109,10 +109,10 @@ export async function getPublicStats(nickname: string): Promise<PublicStatsRespo
   }
 }
 
-/** 본인 통계 공개/비공개 전환 — Bearer 토큰 필수 (authService가 자동 첨부). 성공 시 true */
-export async function setStatsVisibility(isPublic: boolean): Promise<boolean> {
+/** 통계 공개/비공개 전환 — 닉네임 기준 (HMAC 서명, authService 자동 첨부). 성공 시 true */
+export async function setStatsVisibility(nickname: string, isPublic: boolean): Promise<boolean> {
   try {
-    const res = await apiFetch(`${BASE_URL}/players/me/stats-visibility`, {
+    const res = await apiFetch(`${BASE_URL}/players/${encodeURIComponent(nickname)}/stats-visibility`, {
       method: 'PATCH',
       body: JSON.stringify({ is_public: isPublic }),
     })

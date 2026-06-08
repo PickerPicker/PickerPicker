@@ -1,12 +1,11 @@
 """src.apis.player_router
 플레이어 REST API
 """
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
 from src.services import player_service
-from src.services.auth_service import verify_token
 
 router = APIRouter(prefix="/players", tags=["players"])
 
@@ -115,34 +114,25 @@ async def verify_pin(body: VerifyPinRequest, db: AsyncSession = Depends(get_db))
     return VerifyPinResponse(success=success)
 
 
-@router.patch("/me/stats-visibility", response_model=PlayerResponse)
-async def set_stats_visibility(
-    body: StatsVisibilityRequest,
-    authorization: str | None = Header(default=None),
-    db: AsyncSession = Depends(get_db),
-):
-    """본인 통계 공개/비공개 전환 — Bearer 토큰 필수.
-
-    /{nickname} 라우트보다 위에 둬야 'me'가 닉네임으로 오인되지 않는다.
-    """
-    if not authorization:
-        raise HTTPException(status_code=401, detail="인증이 필요합니다")
-    parts = authorization.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(status_code=401, detail="Bearer 토큰 형식이 올바르지 않습니다")
-
-    nickname = await verify_token(db, parts[1])
-    if not nickname:
-        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다")
-
-    player = await player_service.set_stats_visibility(db, nickname, body.is_public)
-    return PlayerResponse.model_validate(player)
-
-
 @router.get("/{nickname}", response_model=PlayerResponse)
 async def get_player(nickname: str, db: AsyncSession = Depends(get_db)):
     """닉네임으로 플레이어 조회 (역대 최고 기록 포함)"""
     player = await player_service.get_player(db, nickname)
+    return PlayerResponse.model_validate(player)
+
+
+@router.patch("/{nickname}/stats-visibility", response_model=PlayerResponse)
+async def set_stats_visibility(
+    nickname: str,
+    body: StatsVisibilityRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """통계 공개/비공개 전환 — 닉네임 기준 (HMAC 서명으로 보호).
+
+    이 앱은 세션 토큰을 발급하지 않고 닉네임을 신원으로 쓴다 (tutorial-seen과 동일 패턴).
+    통계 공개 여부는 민감 정보가 아니므로 HMAC만으로 충분하다.
+    """
+    player = await player_service.set_stats_visibility(db, nickname, body.is_public)
     return PlayerResponse.model_validate(player)
 
 
