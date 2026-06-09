@@ -39,16 +39,21 @@ export function PracticeHeader({ levelTitle, stepIndex, word, score, combo = 0, 
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-2 w-40">
-          <span className="text-lg font-mono text-base-content/80">
-            Score: {score.toString().padStart(6, '0')}
+        <div className="flex flex-col items-end gap-0.5 w-40">
+          <span className="text-xs font-semibold tracking-widest text-base-content/40">
+            SCORE
+          </span>
+          <span className="text-3xl font-bold font-mono leading-none text-primary tabular-nums">
+            {score.toLocaleString('en-US')}
           </span>
           {combo > 0 && (
-            <span className="text-xs font-bold text-warning font-mono">
+            <span className="text-xs font-bold text-warning font-mono mt-1">
               {combo} COMBO
             </span>
           )}
-          <CloseButton onClick={onExit} label="메뉴" />
+          <div className="mt-1">
+            <CloseButton onClick={onExit} label="메뉴" />
+          </div>
         </div>
       </div>
     </div>
