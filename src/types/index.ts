@@ -40,7 +40,7 @@ export interface GameStat {
   score: number
   gauge: number
   perfectCombo: number
-  maxCombo: number        // 게임 중 달성한 최대 PERFECT 콤보
+  maxCombo: number // 게임 중 달성한 최대 PERFECT 콤보
   perfectCount: number
   goodCount: number
   missCount: number

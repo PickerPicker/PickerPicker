@@ -7,10 +7,16 @@ async function generateSignature(timestamp: string): Promise<string> {
   const keyData = encoder.encode(SECRET_KEY)
   const msgData = encoder.encode(timestamp)
   const cryptoKey = await crypto.subtle.importKey(
-    'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
   )
   const sig = await crypto.subtle.sign('HMAC', cryptoKey, msgData)
-  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
+  return Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 /**
@@ -22,7 +28,7 @@ export async function apiFetch(url: string, init: RequestInit = {}): Promise<Res
   try {
     const res = await fetch(url, {
       ...init,
-      headers: { ...headers, ...(init.headers as Record<string, string> | undefined ?? {}) },
+      headers: { ...headers, ...((init.headers as Record<string, string> | undefined) ?? {}) },
     })
     return res
   } catch (err) {
@@ -63,7 +69,9 @@ export async function logout(): Promise<void> {
   if (token) {
     try {
       await apiFetch(`${BASE_URL}/auth/logout`, { method: 'POST' })
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
   sessionStorage.removeItem(SS_TOKEN_KEY)
   sessionStorage.removeItem(SS_TOKEN_NICK_KEY)

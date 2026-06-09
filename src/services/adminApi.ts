@@ -10,10 +10,16 @@ const SS_ADMIN_TOKEN_EXP_KEY = 'pickerpicker_admin_token_expires_at'
 async function hmacSignature(timestamp: string): Promise<string> {
   const encoder = new TextEncoder()
   const cryptoKey = await crypto.subtle.importKey(
-    'raw', encoder.encode(SECRET_KEY), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    'raw',
+    encoder.encode(SECRET_KEY),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
   )
   const sig = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(timestamp))
-  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
+  return Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 function getAdminToken(): string | null {
@@ -48,7 +54,10 @@ async function adminHeaders(): Promise<Record<string, string>> {
 
 export async function adminFetch(url: string, init: RequestInit = {}): Promise<Response> {
   const headers = await adminHeaders()
-  return fetch(url, { ...init, headers: { ...headers, ...(init.headers as Record<string, string> | undefined ?? {}) } })
+  return fetch(url, {
+    ...init,
+    headers: { ...headers, ...((init.headers as Record<string, string> | undefined) ?? {}) },
+  })
 }
 
 export async function adminLogin(username: string, password: string): Promise<boolean> {
@@ -67,7 +76,9 @@ export async function adminLogin(username: string, password: string): Promise<bo
 export async function adminLogout(): Promise<void> {
   const tok = getAdminToken()
   if (tok) {
-    try { await adminFetch(`${BASE_URL}/admin/auth/logout`, { method: 'POST' }) } catch {}
+    try {
+      await adminFetch(`${BASE_URL}/admin/auth/logout`, { method: 'POST' })
+    } catch {}
   }
   sessionStorage.removeItem(SS_ADMIN_TOKEN_KEY)
   sessionStorage.removeItem(SS_ADMIN_TOKEN_USER_KEY)
@@ -78,7 +89,10 @@ export function isAdminLoggedIn(): boolean {
   return getAdminToken() !== null
 }
 
-export async function listWords(params?: { difficulty?: number; is_active?: boolean }): Promise<Word[]> {
+export async function listWords(params?: {
+  difficulty?: number
+  is_active?: boolean
+}): Promise<Word[]> {
   const q = new URLSearchParams()
   if (params?.difficulty !== undefined) q.set('difficulty', String(params.difficulty))
   if (params?.is_active !== undefined) q.set('is_active', String(params.is_active))
@@ -95,7 +109,8 @@ export async function getWord(id: number): Promise<Word> {
 
 export async function createWord(payload: Omit<Word, 'id' | 'is_active'>): Promise<Word> {
   const r = await adminFetch(`${BASE_URL}/admin/words`, {
-    method: 'POST', body: JSON.stringify(payload),
+    method: 'POST',
+    body: JSON.stringify(payload),
   })
   if (!r.ok) {
     const detail = await r.text()
@@ -104,9 +119,13 @@ export async function createWord(payload: Omit<Word, 'id' | 'is_active'>): Promi
   return r.json()
 }
 
-export async function updateWord(id: number, payload: Omit<Word, 'id' | 'is_active'>): Promise<Word> {
+export async function updateWord(
+  id: number,
+  payload: Omit<Word, 'id' | 'is_active'>,
+): Promise<Word> {
   const r = await adminFetch(`${BASE_URL}/admin/words/${id}`, {
-    method: 'PUT', body: JSON.stringify(payload),
+    method: 'PUT',
+    body: JSON.stringify(payload),
   })
   if (!r.ok) throw new Error(`update_word_failed: ${r.status}`)
   return r.json()
@@ -125,7 +144,8 @@ export async function listAdmins(): Promise<AdminUser[]> {
 
 export async function createAdmin(username: string, password: string): Promise<AdminUser> {
   const r = await adminFetch(`${BASE_URL}/admin/admins`, {
-    method: 'POST', body: JSON.stringify({ username, password }),
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
   })
   if (!r.ok) {
     const detail = await r.text()
@@ -134,7 +154,9 @@ export async function createAdmin(username: string, password: string): Promise<A
   return r.json()
 }
 
-export async function globalWordStats(sort: 'exposure_desc' | 'accuracy_asc' | 'accuracy_desc' = 'exposure_desc'): Promise<WordGlobalStat[]> {
+export async function globalWordStats(
+  sort: 'exposure_desc' | 'accuracy_asc' | 'accuracy_desc' = 'exposure_desc',
+): Promise<WordGlobalStat[]> {
   const r = await adminFetch(`${BASE_URL}/admin/stats/words?sort=${sort}&limit=50`)
   if (!r.ok) throw new Error(`stats_words_failed: ${r.status}`)
   return r.json()

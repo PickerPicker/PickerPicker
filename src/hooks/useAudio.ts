@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 const STAGE_BGM: Record<number, string> = {
-  1: '/audio/bgm_stage3.mp3',  // 92 BPM
-  2: '/audio/bgm_stage5.mp3',  // 113 BPM
-  3: '/audio/bgm_stage1.mp3',  // 123 BPM
-  4: '/audio/bgm_stage4.mp3',  // 152 BPM
-  5: '/audio/bgm_stage2.mp3',  // 161 BPM
+  1: '/audio/bgm_stage3.mp3', // 92 BPM
+  2: '/audio/bgm_stage5.mp3', // 113 BPM
+  3: '/audio/bgm_stage1.mp3', // 123 BPM
+  4: '/audio/bgm_stage4.mp3', // 152 BPM
+  5: '/audio/bgm_stage2.mp3', // 161 BPM
 }
 
 // MP3 인코더가 항상 추가하는 프리갭 — AudioBufferSourceNode.start() offset으로 건너뜀
@@ -34,13 +34,17 @@ export function useAudio() {
   const audioCtxRef = useRef<AudioContext | null>(null)
   const sfxBuffers = useRef<Map<string, AudioBuffer>>(new Map())
 
-  const [bgmVolume, setBgmVolume] = useState(() => loadNum('audio_bgm_vol', 60))  // 0~100
+  const [bgmVolume, setBgmVolume] = useState(() => loadNum('audio_bgm_vol', 60)) // 0~100
   const [sfxOn, setSfxOn] = useState(() => localStorage.getItem('audio_sfx') !== 'off')
 
   const bgmVolumeRef = useRef(bgmVolume)
   const sfxOnRef = useRef(sfxOn)
-  useEffect(() => { bgmVolumeRef.current = bgmVolume }, [bgmVolume])
-  useEffect(() => { sfxOnRef.current = sfxOn }, [sfxOn])
+  useEffect(() => {
+    bgmVolumeRef.current = bgmVolume
+  }, [bgmVolume])
+  useEffect(() => {
+    sfxOnRef.current = sfxOn
+  }, [sfxOn])
 
   // 첫 사용자 인터랙션 후 AudioContext 초기화 + SFX 프리디코딩
   const ensureAudioCtx = useCallback(async () => {
@@ -57,7 +61,7 @@ export function useAudio() {
         } catch {
           // 로드 실패 무시 — new Audio() fallback이 처리
         }
-      })
+      }),
     )
     return ctx
   }, [])
@@ -91,7 +95,9 @@ export function useAudio() {
       const tryPlay = () => {
         audio.play().catch(() => {
           // autoplay 차단 시 첫 인터랙션에 재시도
-          const resume = () => { audio.play().catch(() => {}) }
+          const resume = () => {
+            audio.play().catch(() => {})
+          }
           document.addEventListener('click', resume, { once: true })
           document.addEventListener('keydown', resume, { once: true })
           document.addEventListener('touchstart', resume, { once: true })
@@ -117,54 +123,60 @@ export function useAudio() {
   }, [])
 
   // 디코딩된 AudioBuffer로 즉각 재생, 버퍼 미준비 시 new Audio() fallback
-  const playSfx = useCallback(async (src: string) => {
-    if (!sfxOnRef.current) return
+  const playSfx = useCallback(
+    async (src: string) => {
+      if (!sfxOnRef.current) return
 
-    const ctx = await ensureAudioCtx()
-    const buf = sfxBuffers.current.get(src)
+      const ctx = await ensureAudioCtx()
+      const buf = sfxBuffers.current.get(src)
 
-    if (buf && ctx.state !== 'closed') {
-      if (ctx.state === 'suspended') await ctx.resume()
-      const source = ctx.createBufferSource()
-      source.buffer = buf
-      const gain = ctx.createGain()
-      gain.gain.value = 0.8
-      source.connect(gain)
-      gain.connect(ctx.destination)
-      // MP3 프리갭(~26ms) 오프셋으로 건너뛰어 즉각 재생
-      source.start(0, MP3_PREGAP_SEC)
-    } else {
-      const audio = new Audio(src)
-      audio.volume = 0.8
-      audio.play().catch(() => {})
-    }
-  }, [ensureAudioCtx])
+      if (buf && ctx.state !== 'closed') {
+        if (ctx.state === 'suspended') await ctx.resume()
+        const source = ctx.createBufferSource()
+        source.buffer = buf
+        const gain = ctx.createGain()
+        gain.gain.value = 0.8
+        source.connect(gain)
+        gain.connect(ctx.destination)
+        // MP3 프리갭(~26ms) 오프셋으로 건너뛰어 즉각 재생
+        source.start(0, MP3_PREGAP_SEC)
+      } else {
+        const audio = new Audio(src)
+        audio.volume = 0.8
+        audio.play().catch(() => {})
+      }
+    },
+    [ensureAudioCtx],
+  )
 
   // BGM 볼륨 변경 — 재생 중인 오디오에 즉시 반영
-  const setBgmVol = useCallback((vol: number) => {
-    bgmVolumeRef.current = vol
-    setBgmVolume(vol)
-    localStorage.setItem('audio_bgm_vol', String(vol))
+  const setBgmVol = useCallback(
+    (vol: number) => {
+      bgmVolumeRef.current = vol
+      setBgmVolume(vol)
+      localStorage.setItem('audio_bgm_vol', String(vol))
 
-    if (vol === 0) {
-      // 볼륨 0 = 사실상 뮤트, BGM 정지
-      bgmRef.current?.pause()
-    } else if (bgmRef.current) {
-      bgmRef.current.volume = vol / 100
-      // 일시정지 상태였으면 재개
-      if (bgmRef.current.paused && currentBgmSrc.current) {
-        bgmRef.current.play().catch(() => {})
+      if (vol === 0) {
+        // 볼륨 0 = 사실상 뮤트, BGM 정지
+        bgmRef.current?.pause()
+      } else if (bgmRef.current) {
+        bgmRef.current.volume = vol / 100
+        // 일시정지 상태였으면 재개
+        if (bgmRef.current.paused && currentBgmSrc.current) {
+          bgmRef.current.play().catch(() => {})
+        }
+      } else if (currentBgmSrc.current) {
+        // BGM 인스턴스 없으면 재생
+        const src = currentBgmSrc.current
+        currentBgmSrc.current = ''
+        playBgm(src)
       }
-    } else if (currentBgmSrc.current) {
-      // BGM 인스턴스 없으면 재생
-      const src = currentBgmSrc.current
-      currentBgmSrc.current = ''
-      playBgm(src)
-    }
-  }, [playBgm])
+    },
+    [playBgm],
+  )
 
   const toggleSfx = useCallback(() => {
-    setSfxOn(prev => {
+    setSfxOn((prev) => {
       const next = !prev
       localStorage.setItem('audio_sfx', next ? 'on' : 'off')
       sfxOnRef.current = next
@@ -172,7 +184,7 @@ export function useAudio() {
     })
   }, [])
 
-useEffect(() => {
+  useEffect(() => {
     return () => {
       bgmRef.current?.pause()
       audioCtxRef.current?.close()
@@ -191,8 +203,14 @@ useEffect(() => {
       const level = getDifficultyLevel(stageIndex)
       return playBgm(STAGE_BGM[level] ?? STAGE_BGM[5])
     },
-    playClearSfx: () => { stopBgm(); playSfx('/audio/sfx_clear.mp3') },
-    playGameOverSfx: () => { stopBgm(); playSfx('/audio/sfx_gameover.mp3') },
+    playClearSfx: () => {
+      stopBgm()
+      playSfx('/audio/sfx_clear.mp3')
+    },
+    playGameOverSfx: () => {
+      stopBgm()
+      playSfx('/audio/sfx_gameover.mp3')
+    },
     playHitSfx: () => playSfx('/audio/sfx_note_hit.mp3'),
     playMissSfx: () => playSfx('/audio/sfx_note_miss.mp3'),
     playButtonSfx: () => playSfx('/audio/sfx_button.mp3'),
