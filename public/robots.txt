@@ -1,0 +1,6 @@
+# PickerPicker robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin
+
+Sitemap: https://pickerpicker.suhsaechan.kr/sitemap.xml
