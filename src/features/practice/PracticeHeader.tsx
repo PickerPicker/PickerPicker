@@ -1,4 +1,5 @@
 import { CloseButton } from '../../components/common/CloseButton'
+import { useScoreEffects } from '../game/useScoreEffects'
 
 interface PracticeHeaderProps {
   levelTitle: string
@@ -17,6 +18,8 @@ export function PracticeHeader({
   combo = 0,
   onExit,
 }: PracticeHeaderProps) {
+  const { scoreKey, comboKey, feverEnterKey, isFever, comboScale } = useScoreEffects(score, combo)
+
   return (
     <div className="flex flex-col bg-base-200 border-b border-base-300 shrink-0">
       <div className="flex items-center justify-between px-6 pt-4 pb-4">
@@ -44,13 +47,40 @@ export function PracticeHeader({
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-0.5 w-40">
-          <span className="text-xs font-semibold tracking-widest text-base-content/40">SCORE</span>
-          <span className="text-3xl font-bold font-mono leading-none text-primary tabular-nums">
+        <div
+          key={feverEnterKey}
+          className={`flex flex-col items-end gap-0.5 w-40 rounded-lg px-2 ${
+            feverEnterKey > 0 ? 'animate-fever-flash' : ''
+          }`}
+        >
+          <div className="flex items-center gap-1.5">
+            {isFever && (
+              <span className="animate-fever-badge text-xs font-black tracking-wider text-warning">
+                🔥 FEVER
+              </span>
+            )}
+            <span className="text-xs font-semibold tracking-widest text-base-content/40">
+              SCORE
+            </span>
+          </div>
+          <span
+            key={scoreKey}
+            className={`animate-score-bump text-3xl font-bold font-mono leading-none origin-right tabular-nums ${
+              isFever ? 'animate-fever-shift' : 'text-primary'
+            }`}
+          >
             {score.toLocaleString('en-US')}
           </span>
           {combo > 0 && (
-            <span className="text-xs font-bold text-warning font-mono mt-1">{combo} COMBO</span>
+            <span
+              key={comboKey}
+              className={`text-xs font-bold text-warning font-mono mt-1 origin-right ${
+                comboKey > 0 ? 'animate-combo-pop' : ''
+              }`}
+              style={{ transform: `scale(${comboScale})` }}
+            >
+              {combo} COMBO
+            </span>
           )}
           <div className="mt-1">
             <CloseButton onClick={onExit} label="메뉴" />
