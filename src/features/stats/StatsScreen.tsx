@@ -25,11 +25,6 @@ export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
   const [global, setGlobal] = useState<GlobalStatsResponse | null>(null)
   const [daily, setDaily] = useState<DailyEntry[]>([])
 
-  useEffect(() => {
-    void loadAll()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nickname])
-
   async function loadAll() {
     setStatus('loading')
     try {
@@ -50,6 +45,12 @@ export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
       setStatus('error')
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- nickname 변경 시 통계를 비동기 재로드; loadAll 내부의 setStatus('loading')는 로딩 UI 표시용 상태 동기화
+    void loadAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nickname])
 
   if (status === 'loading' || status === 'init') {
     return (

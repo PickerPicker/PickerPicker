@@ -17,6 +17,7 @@ export function JudgmentDisplay({ judgment, perfectCombo }: JudgmentDisplayProps
 
   useEffect(() => {
     if (!judgment) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 새 판정(judgment.id 변경) 발생 시 판정 텍스트를 즉시 표시하고 600ms 후 사라지게 하는 애니메이션 타이밍 로직. 동기 setState가 의도된 동작이므로 변경 금지
     setVisible(true)
     const t = setTimeout(() => setVisible(false), 600)
     return () => clearTimeout(t)

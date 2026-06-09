@@ -1,8 +1,8 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "daisyui";
 
 @plugin "daisyui/theme" {
-  name: "pickerpicker";
+  name: 'pickerpicker';
   default: true;
   color-scheme: dark;
 
@@ -26,17 +26,116 @@
 }
 
 @keyframes note-slide {
-  from { transform: translateX(var(--note-start-x, 2000px)); }
-  to   { transform: translateX(var(--note-end-x, -500px)); }
+  from {
+    transform: translateX(var(--note-start-x, 2000px));
+  }
+  to {
+    transform: translateX(var(--note-end-x, -500px));
+  }
 }
 
 @keyframes judgment-fade {
-  0%   { opacity: 1; transform: scale(1.2); }
-  70%  { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0.9); }
+  0% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
 }
 
 @keyframes preview-pulse {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.15); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* 점수가 오를 때 숫자가 톡 튀었다 복귀 */
+@keyframes score-bump {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 콤보 숫자 강조 펄스 (마일스톤 돌파 시) */
+@keyframes combo-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.45);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* FEVER 진입 순간 점수 영역 번쩍 */
+@keyframes fever-flash {
+  0% {
+    background-color: oklch(85% 0.19 95 / 0);
+  }
+  30% {
+    background-color: oklch(85% 0.19 95 / 0.35);
+  }
+  100% {
+    background-color: oklch(85% 0.19 95 / 0);
+  }
+}
+
+/* FEVER 중 점수 색 그라데이션 흐름 (금색↔주황) */
+@keyframes fever-shift {
+  0%,
+  100% {
+    color: oklch(85% 0.19 95);
+    text-shadow: 0 0 12px oklch(85% 0.19 95 / 0.7);
+  }
+  50% {
+    color: oklch(78% 0.21 60);
+    text-shadow: 0 0 18px oklch(80% 0.2 70 / 0.9);
+  }
+}
+
+/* FEVER 배지 깜빡임 */
+@keyframes fever-badge {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+.animate-score-bump {
+  animation: score-bump 0.28s ease-out;
+}
+.animate-combo-pop {
+  animation: combo-pop 0.3s ease-out;
+}
+.animate-fever-flash {
+  animation: fever-flash 0.6s ease-out;
+}
+.animate-fever-shift {
+  animation: fever-shift 1.1s ease-in-out infinite;
+}
+.animate-fever-badge {
+  animation: fever-badge 0.8s ease-in-out infinite;
 }

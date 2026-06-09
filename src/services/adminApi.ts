@@ -78,7 +78,9 @@ export async function adminLogout(): Promise<void> {
   if (tok) {
     try {
       await adminFetch(`${BASE_URL}/admin/auth/logout`, { method: 'POST' })
-    } catch {}
+    } catch {
+      // 서버 로그아웃 실패해도 로컬 토큰은 아래에서 정리한다
+    }
   }
   sessionStorage.removeItem(SS_ADMIN_TOKEN_KEY)
   sessionStorage.removeItem(SS_ADMIN_TOKEN_USER_KEY)

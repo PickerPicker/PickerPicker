@@ -60,6 +60,7 @@ export function NoteTrack({
   const [activeJudgment, setActiveJudgment] = useState<JudgmentType | null>(null)
   useEffect(() => {
     if (!lastJudgment) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 새 판정(lastJudgment.id 변경) 발생 시 판정선 글로우를 즉시 켜고 GLOW_DURATION 후 끄는 애니메이션 타이밍 로직. 동기 setState가 의도된 동작이므로 변경 금지
     setActiveJudgment(lastJudgment.type)
     const t = setTimeout(() => setActiveJudgment(null), GLOW_DURATION)
     return () => clearTimeout(t)

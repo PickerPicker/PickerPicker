@@ -20,6 +20,7 @@ export function PreviewStage({ stageData, onPreviewEnd, isPaused = false }: Prev
   const { inputSyllables, keyMapping } = stageData
   const onPreviewEndRef = useRef(onPreviewEnd)
   const remainingRef = useRef(PREVIEW_DURATION_MS)
+  // eslint-disable-next-line react-hooks/purity -- 프리뷰 타이머 시작 기준 시각; useRef 일회성 초기값이라 렌더 순수성에 영향 없음
   const timerStartRef = useRef<number>(Date.now())
 
   useEffect(() => {

@@ -156,6 +156,7 @@ export function PracticeScreen({
   useEffect(() => {
     if (pPhase !== 'play') return
     if (!currentStageRaw) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- play 단계 진입/스테이지 변경 시 해당 스테이지 키매핑을 셔플해 리셋하는 파생 상태 동기화
     setShuffledKeyMapping(shuffleKeyMapping(currentStageRaw.keyMapping))
     const globalIdx = (selectedLevel! - 1) * 3 + localStageIdx
     onGameBgm(globalIdx)
