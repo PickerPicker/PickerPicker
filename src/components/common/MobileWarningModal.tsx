@@ -20,11 +20,35 @@ export function MobileWarningModal({ onClose }: MobileWarningModalProps) {
       >
         {/* 아이콘 */}
         <div style={{ filter: 'drop-shadow(0 0 16px rgba(0,180,255,0.7))' }}>
-          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="3" width="20" height="14" rx="2" stroke="#00b4ff" strokeWidth="1.5" fill="rgba(0,180,255,0.08)"/>
-            <path d="M8 21h8" stroke="#00b4ff" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M12 17v4" stroke="#00b4ff" strokeWidth="1.5" strokeLinecap="round"/>
-            <rect x="5" y="6" width="14" height="8" rx="1" fill="rgba(0,180,255,0.12)" stroke="rgba(0,180,255,0.3)" strokeWidth="0.5"/>
+          <svg
+            width="52"
+            height="52"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="2"
+              y="3"
+              width="20"
+              height="14"
+              rx="2"
+              stroke="#00b4ff"
+              strokeWidth="1.5"
+              fill="rgba(0,180,255,0.08)"
+            />
+            <path d="M8 21h8" stroke="#00b4ff" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M12 17v4" stroke="#00b4ff" strokeWidth="1.5" strokeLinecap="round" />
+            <rect
+              x="5"
+              y="6"
+              width="14"
+              height="8"
+              rx="1"
+              fill="rgba(0,180,255,0.12)"
+              stroke="rgba(0,180,255,0.3)"
+              strokeWidth="0.5"
+            />
           </svg>
         </div>
 
@@ -54,10 +78,7 @@ export function MobileWarningModal({ onClose }: MobileWarningModalProps) {
         </div>
 
         {/* 구분선 */}
-        <div
-          className="w-full h-px"
-          style={{ background: 'rgba(255,255,255,0.08)' }}
-        />
+        <div className="w-full h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
 
         {/* 계속하기 버튼 */}
         <SoundButton

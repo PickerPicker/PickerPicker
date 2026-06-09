@@ -112,10 +112,13 @@ export async function getPublicStats(nickname: string): Promise<PublicStatsRespo
 /** 통계 공개/비공개 전환 — 닉네임 기준 (HMAC 서명, authService 자동 첨부). 성공 시 true */
 export async function setStatsVisibility(nickname: string, isPublic: boolean): Promise<boolean> {
   try {
-    const res = await apiFetch(`${BASE_URL}/players/${encodeURIComponent(nickname)}/stats-visibility`, {
-      method: 'PATCH',
-      body: JSON.stringify({ is_public: isPublic }),
-    })
+    const res = await apiFetch(
+      `${BASE_URL}/players/${encodeURIComponent(nickname)}/stats-visibility`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ is_public: isPublic }),
+      },
+    )
     return res.ok
   } catch {
     return false

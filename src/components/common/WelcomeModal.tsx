@@ -18,7 +18,7 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
           border: '1px solid rgba(0,180,255,0.25)',
           boxShadow: '0 0 60px rgba(0,180,255,0.12)',
         }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* 타이틀 */}
         <div className="flex flex-col items-center gap-1">
@@ -41,7 +41,7 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
             [ 게임 키 ]
           </p>
           <div className="flex gap-1.5 flex-wrap justify-center">
-            {KEYS.map(key => (
+            {KEYS.map((key) => (
               <div
                 key={key}
                 className="flex items-center justify-center rounded-lg text-sm font-black"
@@ -66,9 +66,13 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
         <div className="w-full h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
 
         {/* PC 권장 안내 */}
-        <p className="text-xs text-center tracking-wide" style={{ color: 'rgba(255,255,255,0.45)' }}>
+        <p
+          className="text-xs text-center tracking-wide"
+          style={{ color: 'rgba(255,255,255,0.45)' }}
+        >
           🖥️ 키보드 조작 특성상{' '}
-          <span style={{ color: 'rgba(0,180,255,0.8)', fontWeight: 700 }}>PC 환경</span>을 권장합니다
+          <span style={{ color: 'rgba(0,180,255,0.8)', fontWeight: 700 }}>PC 환경</span>을
+          권장합니다
         </p>
 
         {/* 클릭 유도 */}
