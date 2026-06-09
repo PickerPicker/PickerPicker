@@ -102,6 +102,7 @@ export function RankingScreen({ nickname, onBack }: RankingScreenProps) {
   // 내 항목이 아직 로드 안 됐을 때 → sticky 표시 (로그인 상태)
   useEffect(() => {
     if (!nickname) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 비동기 랭킹 로드 결과(myEntry)에 따라 sticky 행 표시 여부를 동기화하는 패턴. 내 항목이 아직 안 로드됐으면 sticky를 켜야 함
     if (!myEntry) setShowSticky(true)
   }, [nickname, myEntry])
 

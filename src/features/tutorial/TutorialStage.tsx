@@ -66,6 +66,7 @@ export function TutorialStage({
     judgeIdRef.current = 0
     noteIdRef.current = 0
     stepIdRef.current = step.id
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 튜토리얼 STEP(step.id) 변경 시 노트·진행도·판정 표시를 초기 상태로 리셋하는 동기화
     setNotes([])
     setProgress(0)
     setLastJudgment(null)

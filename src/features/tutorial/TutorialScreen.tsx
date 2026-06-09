@@ -32,6 +32,7 @@ export function TutorialScreen({
 
   useEffect(() => {
     clearedRef.current = false
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- stepIdx(튜토리얼 STEP) 변경 시 클리어/진행도/게이지 상태를 리셋해야 하는 정당한 동기화 패턴. 동작 변경 금지
     setCleared(false)
     setProgress(0)
     if (stepIdx === 0) setGauge(100)
@@ -73,6 +74,7 @@ export function TutorialScreen({
   useEffect(() => {
     if (!step.isReady) return
     if (showReadyCountdown) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- READY STEP 진입 시 카운트다운 초기값을 세팅하고 1초 간격 setInterval로 감소시키는 타이밍 로직. 동기 setState가 의도된 동작이므로 변경 금지
       setCountdown(step.countdownSec ?? 3)
       let sec = step.countdownSec ?? 3
       const id = setInterval(() => {

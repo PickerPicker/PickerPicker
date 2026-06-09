@@ -22,6 +22,7 @@ export function WordListPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 필터(난이도/활성여부) 변경 시 단어 목록을 비동기 재조회 후 setState하는 정당한 데이터 패칭 패턴
     refresh()
   }, [diff, showActive])
 

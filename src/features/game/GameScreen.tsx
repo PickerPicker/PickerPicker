@@ -249,6 +249,7 @@ export function GameScreen({
 
   useEffect(() => {
     if (gameData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 스테이지 인덱스 변경 시 해당 스테이지의 키매핑을 셔플해 리셋; gameData 로드/스테이지 전환에 따른 파생 상태 동기화
       setShuffledKeyMapping(shuffleKeyMapping(gameData.stages[stageIndex].keyMapping))
       // 스테이지 시작 시점의 누적 score 기록 (스테이지별 획득 점수 계산용)
       stageStartScoreRef.current = statRef.current.score
@@ -649,6 +650,7 @@ export function GameScreen({
             <h3 className="text-sm font-bold text-white/80 uppercase tracking-widest mb-2">
               이번 판 단어
             </h3>
+            {/* eslint-disable-next-line react-hooks/refs -- 게임오버 후 고정된 스테이지 결과를 표시; 렌더 중 ref read지만 게임 종료 시점에 값이 확정되어 불변 */}
             <GameOverWordCards results={stageResultsRef.current} wordsLookup={wordsLookup} />
           </div>
 

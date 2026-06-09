@@ -42,6 +42,7 @@ export function PlayStage({
   const [pressedKey, setPressedKey] = useState<string | undefined>()
   const [perfectCombo, setPerfectCombo] = useState(0)
 
+  // eslint-disable-next-line react-hooks/purity -- 게임 시작 기준 시각; useRef 일회성 초기값이라 렌더 순수성에 영향 없음
   const startTimeRef = useRef(Date.now())
   const pendingIndexRef = useRef(0)
   const statRef = useRef(stat)
@@ -193,6 +194,7 @@ export function PlayStage({
   useLayoutEffect(() => {
     startTimeRef.current = Date.now() + NOTE_TRAVEL_BEATS * beatMs
     pendingIndexRef.current = 0
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- stageData/beatMs 변경(스테이지 전환) 시 진행 인덱스·콤보를 0으로 리셋하는 동기화; useLayoutEffect로 paint 전 1회 초기화
     setPendingIndex(0)
     setPerfectCombo(0)
     gameOverRef.current = false

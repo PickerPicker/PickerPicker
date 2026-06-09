@@ -19,6 +19,7 @@ export function AdminListPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 시 관리자 목록을 비동기 로드 후 setState하는 정당한 데이터 패칭 패턴
     refresh()
   }, [])
 
