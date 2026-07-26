@@ -2,19 +2,14 @@
 세션 토큰 Dependency. Authorization: Bearer <token> 헤더 파싱.
 """
 import logging
-from datetime import datetime, UTC
 from fastapi import Depends, Header, HTTPException
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
+from src.core.timeutil import utcnow
 from src.models.player_session import PlayerSession
 
 logger = logging.getLogger(__name__)
-
-
-def _utcnow() -> datetime:
-    """DB의 naive DateTime 컬럼과 비교하기 위한 tz-naive UTC 현재 시각."""
-    return datetime.now(UTC).replace(tzinfo=None)
 
 
 async def resolve_token(db: AsyncSession, token: str) -> str | None:
@@ -27,7 +22,7 @@ async def resolve_token(db: AsyncSession, token: str) -> str | None:
     row = result.scalar_one_or_none()
     if row is None:
         return None
-    if row.expires_at < _utcnow():
+    if row.expires_at < utcnow():
         await db.execute(delete(PlayerSession).where(PlayerSession.token == token))
         await db.commit()
         return None
@@ -41,6 +36,14 @@ def _parse_bearer(authorization: str | None) -> str | None:
     if len(parts) != 2 or parts[0].lower() != "bearer":
         return None
     return parts[1]
+
+
+async def bearer_token(authorization: str | None = Header(default=None)) -> str | None:
+    """Authorization 헤더에서 Bearer 토큰만 추출 (DB 조회 없음).
+
+    로그아웃처럼 토큰 유효성까지는 필요 없는 경우에 쓴다.
+    """
+    return _parse_bearer(authorization)
 
 
 async def require_player(

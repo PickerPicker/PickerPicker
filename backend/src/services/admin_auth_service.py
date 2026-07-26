@@ -9,6 +9,7 @@ import bcrypt
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.timeutil import utcnow
 from src.models.admin import Admin
 from src.models.admin_session import AdminSession
 
@@ -26,7 +27,7 @@ async def login(db: AsyncSession, username: str, password: str) -> tuple[str, da
         return None
 
     token = secrets.token_urlsafe(48)[:64]
-    expires_at = datetime.utcnow() + TOKEN_TTL
+    expires_at = utcnow() + TOKEN_TTL
     session = AdminSession(token=token, admin_id=admin.id, expires_at=expires_at)
     db.add(session)
     await db.commit()
@@ -45,7 +46,7 @@ async def verify_token(db: AsyncSession, token: str) -> Admin | None:
     session = await db.scalar(
         select(AdminSession).where(
             AdminSession.token == token,
-            AdminSession.expires_at > datetime.utcnow(),
+            AdminSession.expires_at > utcnow(),
         )
     )
     if session is None:

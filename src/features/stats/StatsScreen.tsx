@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useQueries } from '@tanstack/react-query'
 import { BarChart2 } from 'lucide-react'
 import { CloseButton } from '../../components/common/CloseButton'
 import { SoundButton } from '../../components/common/SoundButton'
@@ -7,8 +7,6 @@ import {
   getMyStats,
   getGlobalStats,
   getMySessions,
-  type MyStatsResponse,
-  type GlobalStatsResponse,
   type DailyEntry,
 } from '../../services/statsService'
 
@@ -17,42 +15,26 @@ interface StatsScreenProps {
   onBack: () => void
 }
 
-type Status = 'init' | 'loading' | 'ready' | 'error'
+type Status = 'loading' | 'ready' | 'error'
 
 export function StatsScreen({ nickname, onBack }: StatsScreenProps) {
-  const [status, setStatus] = useState<Status>('init')
-  const [my, setMy] = useState<MyStatsResponse | null>(null)
-  const [global, setGlobal] = useState<GlobalStatsResponse | null>(null)
-  const [daily, setDaily] = useState<DailyEntry[]>([])
+  // 세 요청을 병렬로. 전체 통계는 서버에서 5분 캐시되므로 화면 재진입 시 재요청이 낭비다.
+  const [myQuery, globalQuery, dailyQuery] = useQueries({
+    queries: [
+      { queryKey: ['myStats', nickname], queryFn: () => getMyStats(nickname) },
+      { queryKey: ['globalStats'], queryFn: getGlobalStats },
+      { queryKey: ['mySessions', nickname, 30], queryFn: () => getMySessions(nickname, 30) },
+    ],
+  })
 
-  async function loadAll() {
-    setStatus('loading')
-    try {
-      const [myRes, globalRes, dailyRes] = await Promise.all([
-        getMyStats(nickname),
-        getGlobalStats(),
-        getMySessions(nickname, 30),
-      ])
-      if (!myRes) {
-        setStatus('error')
-        return
-      }
-      setMy(myRes)
-      setGlobal(globalRes)
-      setDaily(dailyRes ?? [])
-      setStatus('ready')
-    } catch {
-      setStatus('error')
-    }
-  }
+  const my = myQuery.data ?? null
+  const global = globalQuery.data ?? null
+  const daily = dailyQuery.data ?? []
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- nickname 변경 시 통계를 비동기 재로드; loadAll 내부의 setStatus('loading')는 로딩 UI 표시용 상태 동기화
-    void loadAll()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nickname])
+  // 본인 통계는 필수, 나머지는 없어도 화면을 그린다
+  const status: Status = myQuery.isPending ? 'loading' : myQuery.isError || !my ? 'error' : 'ready'
 
-  if (status === 'loading' || status === 'init') {
+  if (status === 'loading') {
     return (
       <div className="flex items-center justify-center min-h-screen bg-base-100">
         <span className="loading loading-spinner loading-lg text-primary" />

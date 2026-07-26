@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { setStatsVisibility } from '../services/statsService'
 import { getStoredToken, logout as revokeSession } from '../services/authService'
+import { showToast } from './toastStore'
 
 /**
  * 플레이어 전역 상태 — 기존 App.tsx에 흩어져 있던 nickname/offset/isStatsPublic을 통합.
@@ -41,11 +42,9 @@ interface PlayerState {
   setOffset: (offset: number) => void
   /** 서버값으로 통계 공개 여부를 동기화(낙관적 토글과 구분). */
   setStatsPublic: (isPublic: boolean) => void
-  /** 통계 공개 토글 — 낙관적 업데이트, 서버 실패 시 롤백. */
-  toggleStatsPublic: () => void
 }
 
-export const usePlayerStore = create<PlayerState>((set, get) => ({
+export const usePlayerStore = create<PlayerState>((set) => ({
   nickname: readInitialNickname(),
   offset: readInitialOffset(),
   isStatsPublic: true,
@@ -69,14 +68,24 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   setStatsPublic: (isPublic) => set({ isStatsPublic: isPublic }),
-
-  toggleStatsPublic: () => {
-    const { nickname, isStatsPublic } = get()
-    if (!nickname) return
-    const next = !isStatsPublic
-    set({ isStatsPublic: next })
-    setStatsVisibility(nickname, next).then((ok) => {
-      if (!ok) set({ isStatsPublic: !next }) // 실패 시 롤백
-    })
-  },
 }))
+
+/**
+ * 통계 공개 토글 — 낙관적 업데이트 후 서버 반영, 실패 시 롤백.
+ *
+ * 스토어 액션이 아니라 별도 함수인 이유: 스토어는 상태만 관리하고 통신은 하지 않는다.
+ * (스토어가 네트워크까지 겸하면 테스트·재사용이 어려워진다)
+ */
+export async function toggleStatsPublic(): Promise<boolean> {
+  const { nickname, isStatsPublic, setStatsPublic } = usePlayerStore.getState()
+  if (!nickname) return false
+
+  const next = !isStatsPublic
+  setStatsPublic(next) // 낙관적 반영
+  const ok = await setStatsVisibility(nickname, next)
+  if (!ok) {
+    setStatsPublic(!next) // 롤백
+    showToast('설정을 저장하지 못했습니다', 'warning')
+  }
+  return ok
+}

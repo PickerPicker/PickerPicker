@@ -6,9 +6,10 @@
 """
 import logging
 import time
-from datetime import datetime, date, timedelta, UTC
+from datetime import date, timedelta
 from sqlalchemy import select, func, and_, cast, Float, text
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.core.timeutil import utcnow
 from src.models.player import Player
 from src.models.game_session import GameSession
 from src.models.player_stats_daily import PlayerStatsDaily
@@ -23,11 +24,6 @@ GLOBAL_TTL_SEC = 300
 
 # 최근 활동 집계 기준 기간. habit·stage_best·session_gap 모두 이 창을 쓴다.
 RECENT_DAYS = 30
-
-
-def _utcnow() -> datetime:
-    """DB의 naive DateTime 컬럼과 비교하기 위한 tz-naive UTC 현재 시각."""
-    return datetime.now(UTC).replace(tzinfo=None)
 
 
 def _empty_stats(nickname: str) -> dict:
@@ -90,7 +86,7 @@ async def _score_averages(db: AsyncSession, nickname: str, avg_score: float) -> 
         ).where(
             and_(
                 GameSession.nickname == nickname,
-                GameSession.played_at >= _utcnow() - timedelta(days=RECENT_DAYS),
+                GameSession.played_at >= utcnow() - timedelta(days=RECENT_DAYS),
             )
         )
     )
@@ -145,7 +141,7 @@ async def _stage_best(db: AsyncSession, nickname: str) -> list[dict]:
             GROUP BY (kv.key)::int
             ORDER BY (kv.key)::int
         """),
-        {"nickname": nickname, "since": _utcnow() - timedelta(days=RECENT_DAYS)},
+        {"nickname": nickname, "since": utcnow() - timedelta(days=RECENT_DAYS)},
     )
     return [
         {"stage": int(stage), "best_score": int(best), "reach_count": int(cnt)}
@@ -155,7 +151,7 @@ async def _stage_best(db: AsyncSession, nickname: str) -> list[dict]:
 
 async def _habit(db: AsyncSession, nickname: str) -> dict:
     """시간대별 플레이 분포 + 세션 간격. 민감 정보라 본인에게만 노출한다."""
-    since = _utcnow() - timedelta(days=RECENT_DAYS)
+    since = utcnow() - timedelta(days=RECENT_DAYS)
 
     hour_res = await db.execute(
         select(

@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Lock } from 'lucide-react'
 import { SoundButton } from '../../components/common/SoundButton'
-import {
-  getPublicStats,
-  type PublicStatsResponse,
-  type WordSummary,
-} from '../../services/statsService'
+import { getPublicStats, type WordSummary } from '../../services/statsService'
 
 interface PublicStatsModalProps {
   nickname: string
@@ -17,28 +14,23 @@ interface PublicStatsModalProps {
 type Status = 'loading' | 'public' | 'private' | 'error'
 
 export function PublicStatsModal({ nickname, myNickname, onClose }: PublicStatsModalProps) {
-  const [status, setStatus] = useState<Status>('loading')
-  const [data, setData] = useState<PublicStatsResponse | null>(null)
-
   const isMe = !!myNickname && myNickname === nickname
 
-  useEffect(() => {
-    let alive = true
-    getPublicStats(nickname).then((res) => {
-      if (!alive) return
-      if (!res) {
-        setStatus('error')
-        return
-      }
-      setData(res)
-      // 본인이면 비공개여도 요약 표시. 단 public-stats는 비공개 시 요약을 안 주므로
-      // 본인 비공개일 때는 'public' 레이아웃에 안내 문구만 덧붙인다.
-      setStatus(res.is_public || isMe ? 'public' : 'private')
-    })
-    return () => {
-      alive = false
-    }
-  }, [nickname, isMe])
+  // 랭킹에서 여러 명을 연달아 열어보는 화면이라 캐시 효과가 크다.
+  const { data, isPending, isError } = useQuery({
+    queryKey: ['publicStats', nickname],
+    queryFn: () => getPublicStats(nickname),
+  })
+
+  // 본인이면 비공개여도 요약 표시. 단 public-stats는 비공개 시 요약을 안 주므로
+  // 본인 비공개일 때는 'public' 레이아웃에 안내 문구만 덧붙인다.
+  const status: Status = isPending
+    ? 'loading'
+    : isError || !data
+      ? 'error'
+      : data.is_public || isMe
+        ? 'public'
+        : 'private'
 
   return (
     <div

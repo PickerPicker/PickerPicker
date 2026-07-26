@@ -3,9 +3,10 @@ PIN 검증 후 세션 토큰 발급/회수.
 """
 import logging
 import secrets
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.core.timeutil import utcnow
 from src.models.player_session import PlayerSession
 from src.services import player_service
 from src.core.exceptions import NotFoundError
@@ -17,11 +18,6 @@ logger = logging.getLogger(__name__)
 TOKEN_TTL = timedelta(days=30)
 
 
-def _utcnow() -> datetime:
-    """DB의 naive DateTime 컬럼과 비교하기 위한 tz-naive UTC 현재 시각."""
-    return datetime.now(UTC).replace(tzinfo=None)
-
-
 async def login(db: AsyncSession, nickname: str, pin: str) -> tuple[str, datetime] | None:
     """PIN 검증 후 토큰 발급. 성공 시 (token, expires_at), 실패 시 None."""
     try:
@@ -31,7 +27,7 @@ async def login(db: AsyncSession, nickname: str, pin: str) -> tuple[str, datetim
     if not ok:
         return None
     token = secrets.token_urlsafe(48)[:64]
-    expires_at = _utcnow() + TOKEN_TTL
+    expires_at = utcnow() + TOKEN_TTL
     session = PlayerSession(token=token, nickname=nickname, expires_at=expires_at)
     db.add(session)
     await db.commit()
@@ -50,7 +46,7 @@ async def verify_token(db: AsyncSession, token: str) -> str | None:
     result = await db.execute(
         select(PlayerSession).where(
             PlayerSession.token == token,
-            PlayerSession.expires_at > _utcnow(),
+            PlayerSession.expires_at > utcnow(),
         )
     )
     session = result.scalar_one_or_none()

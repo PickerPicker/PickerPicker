@@ -193,11 +193,11 @@ async def save_result(
                 continue
             validated_stage_scores[str(stage_num)] = v
 
-    player = await player_service.save_game_result(
+    outcome = await player_service.save_game_result(
         db, body.nickname, body.score, body.stage, body.combo, validated_stage_scores,
         stage_results=body.stage_results,
     )
-    is_new_champion = getattr(player, "_is_new_champion", False)
+    player = outcome.player
     return SaveResultResponse(
         nickname=player.nickname,
         best_score=player.best_score,
@@ -205,5 +205,5 @@ async def save_result(
         best_combo=player.best_combo,
         play_count=player.play_count,
         tutorial_seen=player.tutorial_seen,
-        is_new_champion=is_new_champion,
+        is_new_champion=outcome.is_new_champion,
     )

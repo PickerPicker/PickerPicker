@@ -2,10 +2,11 @@
 세션 토큰 발급/회수 API.
 """
 from datetime import datetime
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
+from src.core.security import bearer_token
 from src.core.rate_limit import (
     enforce_pin_rate_limit,
     record_pin_failure,
@@ -43,12 +44,10 @@ async def login(body: LoginRequest, request: Request, db: AsyncSession = Depends
 
 @router.post("/logout", status_code=204)
 async def logout(
-    authorization: str | None = Header(default=None),
+    token: str | None = Depends(bearer_token),
     db: AsyncSession = Depends(get_db),
 ):
-    """토큰 폐기. 토큰 없어도 204."""
-    if authorization:
-        parts = authorization.split()
-        if len(parts) == 2 and parts[0].lower() == "bearer":
-            await auth_service.logout(db, parts[1])
+    """토큰 폐기. 토큰 없어도 204 (멱등)."""
+    if token:
+        await auth_service.logout(db, token)
     return None

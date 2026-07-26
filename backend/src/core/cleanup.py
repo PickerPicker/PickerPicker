@@ -3,7 +3,8 @@
 """
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
+from src.core.timeutil import utcnow
 from sqlalchemy import delete
 from src.core.database import AsyncSessionLocal
 from src.models.game_session import GameSession
@@ -16,8 +17,8 @@ CLEANUP_INTERVAL_SEC = 60 * 60  # 1시간마다
 
 
 async def _run_once() -> None:
-    cutoff_sessions = datetime.utcnow() - timedelta(days=SESSION_RETENTION_DAYS)
-    now = datetime.utcnow()
+    cutoff_sessions = utcnow() - timedelta(days=SESSION_RETENTION_DAYS)
+    now = utcnow()
     async with AsyncSessionLocal() as db:
         try:
             res1 = await db.execute(

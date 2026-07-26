@@ -2,11 +2,13 @@
 플레이어 비즈니스 로직
 """
 import logging
-from datetime import datetime, date
+from dataclasses import dataclass
+from datetime import date
 
 from sqlalchemy import select, func
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.core.timeutil import utcnow
 from src.core.pin import (
     hash_pin,
     is_legacy_sha256,
@@ -21,6 +23,17 @@ from src.core.exceptions import NotFoundError, ConflictError
 from src.services.word_stats_service import record_stage_result
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class SaveResultOutcome:
+    """결과 저장 반환값.
+
+    과거에는 ORM 인스턴스에 `_is_new_champion` 임시 속성을 붙여 라우터로 넘겼는데,
+    타입 체커가 잡아주지 못하고 어디서 붙는지도 드러나지 않았다.
+    """
+    player: Player
+    is_new_champion: bool
 
 
 async def check_nickname(db: AsyncSession, nickname: str) -> bool:
@@ -99,7 +112,7 @@ async def save_game_result(
     combo: int,
     stage_scores: dict | None = None,
     stage_results: list | None = None,
-) -> Player:
+) -> SaveResultOutcome:
     """게임 결과 저장. 단일 트랜잭션:
     1) Player upsert (없으면 생성, 최고값/play_count 갱신)
     2) hall_of_fame 갱신 (챔피언 교체 시)
@@ -108,7 +121,7 @@ async def save_game_result(
     5) word_stats UPSERT × N (stage_results 있을 때)
     6) player_stats_daily UPSERT (일별 집계)
     """
-    now = datetime.utcnow()
+    now = utcnow()
     today: date = now.date()
     stage_scores = stage_scores or {}
 
@@ -201,9 +214,7 @@ async def save_game_result(
 
     await db.commit()
     await db.refresh(player)
-    # 라우터에서 is_new_champion 응답 필드로 전달 (ORM 인스턴스에 임시 속성 부착)
-    player._is_new_champion = is_new_champion  # type: ignore[attr-defined]
-    return player
+    return SaveResultOutcome(player=player, is_new_champion=is_new_champion)
 
 
 async def get_hall_of_fame(db: AsyncSession) -> list[HallOfFame]:

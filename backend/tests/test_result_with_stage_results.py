@@ -72,7 +72,7 @@ async def test_save_result_persists_stage_results(db_session):
         _StageResult(w3.id, 3, 5, 3, 2, 100),
     ]
 
-    player = await save_game_result(
+    outcome = await save_game_result(
         db_session,
         nickname="tester",
         score=300,
@@ -81,7 +81,9 @@ async def test_save_result_persists_stage_results(db_session):
         stage_scores={"1": 100, "2": 100, "3": 100},
         stage_results=stage_results,
     )
+    player = outcome.player
     assert player.nickname == "tester"
+    assert outcome.is_new_champion is True, "첫 기록이므로 챔피언 등극"
 
     swrs = (await db_session.execute(select(SessionWordResult))).scalars().all()
     assert len(swrs) == 3
@@ -96,7 +98,7 @@ async def test_save_result_persists_stage_results(db_session):
 async def test_save_result_without_stage_results_still_works(db_session):
     """기존 호출(stage_results 누락) 호환성 확인."""
     await _register(db_session, "tester2")
-    player = await save_game_result(
+    outcome = await save_game_result(
         db_session,
         nickname="tester2",
         score=100,
@@ -105,7 +107,7 @@ async def test_save_result_without_stage_results_still_works(db_session):
         stage_scores={"1": 100},
         # stage_results 인자 누락
     )
-    assert player.nickname == "tester2"
+    assert outcome.player.nickname == "tester2"
 
     swrs = (await db_session.execute(select(SessionWordResult))).scalars().all()
     assert len(swrs) == 0

@@ -7,7 +7,7 @@ import { useAudioContext } from '../contexts/AudioContext'
 import { MobileWarningModal } from '../components/common/MobileWarningModal'
 import { WelcomeModal } from '../components/common/WelcomeModal'
 import { getPlayer, markTutorialSeen } from '../services/playerService'
-import { usePlayerStore } from '../store/playerStore'
+import { usePlayerStore, toggleStatsPublic } from '../store/playerStore'
 
 /**
  * 홈 페이지 (`/`).
@@ -23,8 +23,15 @@ import { usePlayerStore } from '../store/playerStore'
 type HomeScreen = 'start' | 'tutorial' | 'game'
 
 const SS_MOBILE_WARNED_KEY = 'pickerpicker_mobile_warned'
+const SS_WELCOME_KEY = 'pickerpicker_welcome_seen'
 const LS_BEST_KEY = 'pickerpicker_best'
 const LS_TUTORIAL_KEY = 'pickerpicker_tutorial_seen'
+
+/** 모바일 뷰포트 판정 (Tailwind md 브레이크포인트 기준).
+ *  최초 1회 판정용 — 두 모달 모두 세션당 한 번만 뜨므로 리사이즈 추적은 불필요하다. */
+function isMobileViewport(): boolean {
+  return typeof window !== 'undefined' && window.innerWidth < 768
+}
 
 export function HomePage() {
   const navigate = useNavigate()
@@ -37,7 +44,6 @@ export function HomePage() {
   const logout = usePlayerStore((s) => s.logout)
   const setOffset = usePlayerStore((s) => s.setOffset)
   const setStatsPublic = usePlayerStore((s) => s.setStatsPublic)
-  const toggleStatsPublic = usePlayerStore((s) => s.toggleStatsPublic)
 
   const [currentScreen, setCurrentScreen] = useState<HomeScreen>('start')
   const [afterTutorial, setAfterTutorial] = useState<HomeScreen>('start')
@@ -58,7 +64,7 @@ export function HomePage() {
   // 모바일 감지 — 세션당 1회만 표시
   const [showMobileWarning, setShowMobileWarning] = useState<boolean>(() => {
     if (sessionStorage.getItem(SS_MOBILE_WARNED_KEY)) return false
-    return window.innerWidth < 768
+    return isMobileViewport()
   })
 
   // 본 게임 1회 이상 플레이 여부 — 연습모드 노출 조건
@@ -66,10 +72,8 @@ export function HomePage() {
     typeof window !== 'undefined' && localStorage.getItem(LS_BEST_KEY) !== null
 
   // Welcome 모달 — PC 전용, sessionStorage 기반 세션당 1회
-  const SS_WELCOME_KEY = 'pickerpicker_welcome_seen'
-  const isMobile = window.innerWidth < 768
   const [showWelcome, setShowWelcome] = useState<boolean>(
-    () => !isMobile && !sessionStorage.getItem(SS_WELCOME_KEY),
+    () => !isMobileViewport() && !sessionStorage.getItem(SS_WELCOME_KEY),
   )
 
   const handleWelcomeClose = () => {
