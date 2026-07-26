@@ -3,3 +3,24 @@ node_modules
 public
 *.md
 package-lock.json
+
+# 아래는 CI에 format:check를 추가하면서 범위를 좁힌 항목 (#158)
+
+# bun으로 로컬 설치할 때 생기는 락파일
+bun.lock
+bun.lockb
+
+# GitHub Actions · 저장소 설정
+# 템플릿 레포(SUH-DEVOPS-TEMPLATE)에서 동기화되는 파일이라
+# 여기서 포맷을 바꾸면 다음 동기화 때 불필요한 diff가 생긴다.
+.github/
+.coderabbit.yaml
+version.yml
+docker-compose.yml
+
+# 자동 생성 · 데이터 파일
+CHANGELOG.json
+docs/
+
+# 백엔드 (Python — prettier 대상 아님)
+backend/

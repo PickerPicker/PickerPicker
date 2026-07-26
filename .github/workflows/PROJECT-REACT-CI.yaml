@@ -6,7 +6,8 @@
 #
 # 주요 특징:
 # - npm ci로 의존성 설치
-# - npm run build로 빌드 검증
+# - prettier 포맷 검사 + ESLint 린트 검사
+# - npm run build로 빌드 검증 (tsc 타입체크 포함)
 # - node_modules 및 빌드 캐싱 지원
 #
 # ===================================================================
@@ -93,18 +94,20 @@ jobs:
           npm ci
           echo "✅ 의존성 설치 완료"
 
-      # 7. Next.js 빌드 캐싱 (Next.js 프로젝트인 경우)
-      # .next/cache 폴더를 캐싱하여 증분 빌드 속도 향상
-      - name: Next.js 빌드 캐싱
-        uses: actions/cache@v4
-        with:
-          path: .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-            ${{ runner.os }}-nextjs-
+      # 7. 코드 포맷 검사 (prettier)
+      # 빌드보다 먼저 실행해 빠르게 실패시킨다
+      - name: 코드 포맷 검사
+        run: |
+          echo "🎨 prettier 포맷 검사..."
+          npm run format:check
 
-      # 8. 프로젝트 빌드
+      # 8. 린트 검사 (ESLint)
+      - name: 린트 검사
+        run: |
+          echo "🔍 ESLint 검사..."
+          npm run lint
+
+      # 9. 프로젝트 빌드
       # 빌드 실패 시에도 워크플로우를 중단하지 않고 에러 로그 수집
       - name: 프로젝트 빌드
         id: build
@@ -128,7 +131,7 @@ jobs:
           echo "status=success" >> $GITHUB_OUTPUT
           echo "✅ 빌드 완료"
 
-      # 9. 빌드 실패 시 에러 로그 출력
+      # 10. 빌드 실패 시 에러 로그 출력
       # 빌드가 실패한 경우에만 실행
       - name: 빌드 에러 로그 출력
         if: steps.build.outputs.build_failed == 'true'
@@ -151,7 +154,7 @@ jobs:
           # 빌드 실패로 워크플로우 종료
           exit 1
 
-      # 10. 빌드 로그 아티팩트 업로드
+      # 11. 빌드 로그 아티팩트 업로드
       # 빌드 성공/실패 여부와 관계없이 로그 저장
       - name: 빌드 로그 업로드
         if: always()
@@ -161,7 +164,7 @@ jobs:
           path: build_log.txt
           retention-days: 7  # 7일간 보관
 
-      # 11. 빌드 결과 요약
+      # 12. 빌드 결과 요약
       # 워크플로우 실행 결과를 보기 쉽게 요약
       - name: 빌드 결과 요약
         if: always()

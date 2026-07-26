@@ -11,6 +11,7 @@ from sqlalchemy import select
 from src.services.player_service import save_game_result
 from src.services.word_service import create_word
 from src.schemas.word import WordCreateRequest
+from src.core.exceptions import NotFoundError
 from src.models.player import Player
 from src.models.word_stats import WordStats
 from src.models.session_word_result import SessionWordResult
@@ -49,8 +50,18 @@ class _StageResult:
         self.stage_score = stage_score
 
 
+async def _register(db_session, nickname: str) -> Player:
+    """결과 저장은 등록된 플레이어만 가능하므로 미리 생성해둔다."""
+    player = Player(nickname=nickname)
+    db_session.add(player)
+    await db_session.commit()
+    await db_session.refresh(player)
+    return player
+
+
 @pytest.mark.asyncio
 async def test_save_result_persists_stage_results(db_session):
+    await _register(db_session, "tester")
     w1 = await create_word(db_session, _word_payload(word="단어A"))
     w2 = await create_word(db_session, _word_payload(word="단어B"))
     w3 = await create_word(db_session, _word_payload(word="단어C"))
@@ -84,6 +95,7 @@ async def test_save_result_persists_stage_results(db_session):
 @pytest.mark.asyncio
 async def test_save_result_without_stage_results_still_works(db_session):
     """기존 호출(stage_results 누락) 호환성 확인."""
+    await _register(db_session, "tester2")
     player = await save_game_result(
         db_session,
         nickname="tester2",
@@ -97,3 +109,23 @@ async def test_save_result_without_stage_results_still_works(db_session):
 
     swrs = (await db_session.execute(select(SessionWordResult))).scalars().all()
     assert len(swrs) == 0
+
+
+@pytest.mark.asyncio
+async def test_save_result_rejects_unregistered_nickname(db_session):
+    """미등록 닉네임으로는 결과를 저장할 수 없다.
+
+    과거에는 여기서 PIN 없는 계정이 자동 생성됐고, 그 계정을 아무나 선점할 수 있었다.
+    (#155 유령 계정 차단 / #156 PIN 선점 차단)
+    """
+    with pytest.raises(NotFoundError):
+        await save_game_result(
+            db_session,
+            nickname="존재하지않는유저",
+            score=100,
+            stage=1,
+            combo=5,
+        )
+
+    players = (await db_session.execute(select(Player))).scalars().all()
+    assert len(players) == 0, "실패한 저장이 계정을 만들면 안 된다"
