@@ -39,21 +39,35 @@ API_KEY=
 
 ## 백엔드 API
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET | `/players/check/{nickname}` | 닉네임 존재 여부 (기존/신규 구분) |
-| POST | `/players` | 신규 플레이어 등록 |
-| POST | `/players/verify-pin` | PIN 검증 |
-| GET | `/players/{nickname}` | 플레이어 역대 최고 기록 조회 |
-| POST | `/players/result` | 게임 결과 저장 (세션 INSERT + 최고값/일별 집계 UPSERT) |
-| GET | `/players/{nickname}/stats` | 본인 종합 통계 (Bearer 토큰 필수) |
-| GET | `/players/{nickname}/sessions?days=30` | 본인 일별 시계열 (Bearer 토큰 필수) |
-| POST | `/auth/login` | PIN 검증 후 세션 토큰 발급 (24h TTL) |
-| POST | `/auth/logout` | 세션 토큰 폐기 |
-| GET | `/ranking` | best_score 기준 상위 랭킹 |
-| GET | `/stats/global` | 전체 통계 (5분 캐시, 공개) |
-| GET | `/health` | 헬스체크 |
-| GET | `/docs` | Swagger UI |
+**인증** 열의 의미:
+- `HMAC` — HMAC 서명만 필요 (누구나 호출 가능)
+- `Bearer` — HMAC + 세션 토큰 필수. 경로/본문의 닉네임이 토큰 소유자와 다르면 403
+- `Admin` — HMAC + 어드민 토큰 필수
+- `없음` — 서명 검증 제외(`_PUBLIC_PATHS`)
+
+| 메서드 | 경로 | 인증 | 설명 |
+|--------|------|------|------|
+| GET | `/players/check/{nickname}` | HMAC | 닉네임 존재 여부 (기존/신규 구분) |
+| POST | `/players` | HMAC | 신규 플레이어 등록 |
+| POST | `/players/verify-pin` | HMAC | PIN 검증 (토큰 미발급 — 로그인은 `/auth/login` 사용) |
+| GET | `/players/{nickname}` | HMAC | 플레이어 역대 최고 기록 조회 |
+| POST | `/players/result` | **Bearer** | 게임 결과 저장 (세션 INSERT + 최고값/일별 집계 UPSERT) |
+| PATCH | `/players/{nickname}/stats-visibility` | **Bearer** | 통계 공개/비공개 전환 |
+| PATCH | `/players/{nickname}/tutorial-seen` | **Bearer** | 튜토리얼 시청 완료 표시 |
+| GET | `/players/{nickname}/stats` | **Bearer** | 본인 종합 통계 (habit·약점단어 포함) |
+| GET | `/players/{nickname}/sessions?days=30` | **Bearer** | 본인 일별 시계열 |
+| GET | `/players/{nickname}/public-stats` | HMAC | 공개 요약 통계 (비공개 설정 시 `is_public:false`) |
+| POST | `/auth/login` | HMAC | PIN 검증 후 세션 토큰 발급 (30일 TTL) |
+| POST | `/auth/logout` | HMAC | 세션 토큰 폐기 |
+| GET | `/ranking` | HMAC | best_score 기준 상위 랭킹 |
+| GET | `/hall-of-fame` | HMAC | 명예의 전당 목록 |
+| PATCH | `/hall-of-fame/motto` | **Bearer** | 한마디 수정 (1위 경험자만, 아니면 403) |
+| POST | `/games/start` | HMAC | 본게임 단어 15개 추첨 |
+| POST | `/practice/start` | HMAC | 연습모드 단어 3개 추첨 |
+| GET | `/stats/global` | HMAC | 전체 통계 (5분 캐시) |
+| POST | `/admin/login` 외 `/admin/*` | Admin | 어드민 콘솔 (단어 CRUD·통계) |
+| GET | `/health` | 없음 | 헬스체크 |
+| GET | `/docs` | 없음 | Swagger UI |
 
 ## 배포 URL
 
@@ -79,10 +93,25 @@ API_KEY=
 
 모든 작업은 아래 순서대로 진행한다. 각 단계는 건너뛰지 않는다.
 
+### 사용 스킬 고정 (필수)
+
+이 레포의 이슈·커밋·배포는 **아래 스킬로만** 수행한다. `gh` CLI나 수동 조작으로 대체하지 않는다.
+
+| 작업 | 스킬 | 비고 |
+|------|------|------|
+| 이슈 생성·조회·수정·댓글·라벨, PR 생성/머지, Actions Secret | `/pro-github` | PAT 기반이라 gh 로그인 불필요 |
+| 커밋 | `/pro-commit` | 브랜치명에서 이슈 번호 자동 추출 |
+| 배포 | `/pro-changelog-deploy` | deploy PR → 릴리스 노트 → automerge |
+| 구현 보고서 | `/pro-report` | 이슈 댓글 등록 |
+| QA 테스트케이스 | `/pro-testcase` | 이슈 댓글 등록 |
+
+**모든 변경사항은 반드시 이슈를 먼저 등록한 뒤 착수한다.** 검수·리팩터링처럼 여러 영역에
+걸치는 작업은 영역별로 이슈를 분할해 등록하고, 각 이슈 단위로 커밋한다.
+
 ### 1) 이슈 확인 / 생성
 
 - 기존 이슈가 있으면 번호 확인 (예: `#40`)
-- 없으면 `/issue` 로 생성
+- 없으면 `/pro-github` 로 생성
 - 이슈에는 SUH-LAB 가이드 댓글이 자동 작성되어 **브랜치명**과 **커밋 메시지 템플릿** 제공됨
 
 ### 2) 원인 분석 (코드 수정 전 필수)
@@ -111,7 +140,7 @@ API_KEY=
 
 ### 5) 커밋
 
-`/commit` 사용 또는 수동.
+`/pro-commit` 사용.
 
 **커밋 메시지 형식**:
 ```
@@ -136,7 +165,7 @@ git push origin main
 
 ### 7) 배포
 
-`/changelog-deploy` 실행.
+`/pro-changelog-deploy` 실행.
 
 흐름:
 ```
@@ -149,18 +178,18 @@ main → deploy PR 생성 (예: #60)
   → PROJECT-PYTHON-SYNOLOGY-CICD (백엔드 배포, 포트 8001)
 ```
 
-automerge 실패 시: `/changelog-deploy` fix 모드로 재실행 (기존 PR 닫고 새 PR 생성).
+automerge 실패 시: `/pro-changelog-deploy` fix 모드로 재실행 (기존 PR 닫고 새 PR 생성).
 
 ### 8) 이슈 마무리
 
 **작업 완료 후 반드시 다음 세 가지 수행:**
 
-1. **`/report` 스킬로 구현 보고서 작성 → 이슈 댓글 등록**
+1. **`/pro-report` 스킬로 구현 보고서 작성 → 이슈 댓글 등록**
    - Git diff + 이슈 분석 기반 자동 생성
    - `Closes #{이슈번호}` 명시
-2. **`/testcase` 스킬로 QA 테스트케이스 작성 → 이슈 댓글 등록**
+2. **`/pro-testcase` 스킬로 QA 테스트케이스 작성 → 이슈 댓글 등록**
    - 이슈 분석 기반 테스트 체크리스트 생성
-3. **이슈 라벨 변경**: `작업중` → `작업완료`
+3. **이슈 라벨 변경**: `작업중` → `작업완료` (`/pro-github`)
    - 기존 라벨 (예: `긴급`) 은 유지
 
 ### 라벨 체계
@@ -225,10 +254,27 @@ _PUBLIC_PATHS = {"/health", "/docs", "/redoc", "/openapi.json"}
 
 **게임 기능 엔드포인트는 모두 HMAC 대상** — `/ranking`, `/hall-of-fame`, `/players/*`, `/auth/*`, `/stats/*` 등 전부 포함.
 
+### 서명 대상 (FE/BE 반드시 일치)
+
+```
+message = timestamp \n METHOD \n path \n query \n sha256(body)
+X-Signature = HMAC-SHA256(SECRET_KEY, message)
+```
+
+- `path` — 퍼센트 **디코딩된** 경로 (백엔드 ASGI `scope["path"]` 기준). FE는 `decodeURIComponent(pathname)`
+- `query` — `?` 제외한 쿼리스트링. 없으면 빈 문자열
+- `body` — 요청 본문 문자열. 없으면 빈 문자열의 SHA-256
+
+조립 위치: BE `backend/src/main.py` `build_signature_message()` / FE `src/services/authService.ts` `buildSignatureMessage()`.
+**한쪽만 고치면 전 API가 401이 된다.** 반드시 같이 수정한다.
+
+> timestamp만 서명하던 이전 방식은 서명 1개로 5분간 모든 경로·본문을 호출할 수 있었다.
+
 ### FE 호출 방식
 
 `src/services/authService.ts`의 `apiFetch()` 사용 필수. 직접 `fetch()`/`axios` 금지.  
-`apiFetch`가 `X-Signature` + `X-Timestamp` 헤더를 자동 부착.
+`apiFetch`가 `X-Signature` + `X-Timestamp` + `Authorization` 헤더를 자동 부착.  
+어드민은 `src/services/adminApi.ts`의 `adminFetch()` 사용 (서명은 `signatureHeaders()`로 공유, 토큰만 별도).
 
 ### BE 로컬 테스트 시
 

@@ -1,35 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import type { Word } from '../../types/admin'
 import { listWords, deleteWord } from '../../services/adminApi'
 import { WordFormPage } from './WordFormPage'
 
 export function WordListPage() {
-  const [words, setWords] = useState<Word[]>([])
   const [diff, setDiff] = useState<number | undefined>()
   const [showActive, setShowActive] = useState<boolean | undefined>(true)
   const [editing, setEditing] = useState<Word | null>(null)
   const [creating, setCreating] = useState(false)
-  const [error, setError] = useState('')
 
-  const refresh = async () => {
-    setError('')
-    try {
-      const data = await listWords({ difficulty: diff, is_active: showActive })
-      setWords(data)
-    } catch (e) {
-      setError(String(e))
-    }
+  // useQuery가 필터 변경 시 재조회까지 처리한다.
+  // (직접 effect로 페칭하면 로딩/에러 상태를 setState로 관리하게 되어
+  //  react-hooks/set-state-in-effect 규칙에 걸린다)
+  const {
+    data: words = [],
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['adminWords', diff, showActive],
+    queryFn: () => listWords({ difficulty: diff, is_active: showActive }),
+  })
+
+  const refresh = () => {
+    void refetch()
   }
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- 필터(난이도/활성여부) 변경 시 단어 목록을 비동기 재조회 후 setState하는 정당한 데이터 패칭 패턴
-    refresh()
-  }, [diff, showActive])
 
   const handleDelete = async (w: Word) => {
     if (!confirm(`"${w.word}" 비활성화? (소프트 삭제)`)) return
     await deleteWord(w.id)
-    await refresh()
+    refresh()
   }
 
   if (creating) {
@@ -87,7 +87,7 @@ export function WordListPage() {
           + 신규 등록
         </button>
       </div>
-      {error && <div className="alert alert-error">{error}</div>}
+      {error && <div className="alert alert-error">{error.message}</div>}
       <table className="table table-zebra w-full">
         <thead>
           <tr>

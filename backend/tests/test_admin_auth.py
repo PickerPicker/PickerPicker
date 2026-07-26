@@ -1,7 +1,9 @@
 """Admin 인증 단위 테스트."""
 import pytest
 import bcrypt
-from datetime import datetime, timedelta
+from datetime import timedelta
+
+from src.core.timeutil import utcnow
 from src.services import admin_auth_service
 from src.models.admin import Admin
 from src.models.admin_session import AdminSession
@@ -17,7 +19,7 @@ async def test_login_success(db_session):
     assert result is not None
     token, expires_at = result
     assert len(token) <= 64
-    assert expires_at > datetime.utcnow()
+    assert expires_at > utcnow()
 
 
 @pytest.mark.asyncio
@@ -41,7 +43,7 @@ async def test_verify_token_valid(db_session):
     db_session.add(AdminSession(
         token="testtoken",
         admin_id=admin.id,
-        expires_at=datetime.utcnow() + timedelta(hours=1)
+        expires_at=utcnow() + timedelta(hours=1)
     ))
     await db_session.commit()
 
@@ -61,7 +63,7 @@ async def test_verify_token_expired(db_session):
     db_session.add(AdminSession(
         token="expired",
         admin_id=admin.id,
-        expires_at=datetime.utcnow() - timedelta(seconds=1)
+        expires_at=utcnow() - timedelta(seconds=1)
     ))
     await db_session.commit()
 
@@ -80,7 +82,7 @@ async def test_logout_removes_token(db_session):
     db_session.add(AdminSession(
         token="t1",
         admin_id=admin.id,
-        expires_at=datetime.utcnow() + timedelta(hours=1)
+        expires_at=utcnow() + timedelta(hours=1)
     ))
     await db_session.commit()
 

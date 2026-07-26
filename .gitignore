@@ -7,6 +7,9 @@
 
 # Dependencies
 node_modules/
+# 이 프로젝트는 npm(package-lock.json)을 쓴다. bun으로 로컬 설치 시 생기는 락파일은 커밋하지 않는다.
+bun.lock
+bun.lockb
 
 # Build output
 dist/

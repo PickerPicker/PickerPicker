@@ -3,12 +3,12 @@ word_stats UPSERT + session_word_results raw INSERT.
 단일 트랜잭션 — 호출자가 commit/rollback 관리. 본 함수는 db.add/db.execute만.
 """
 import logging
-from datetime import datetime
 
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.timeutil import utcnow
 from src.models.word_stats import WordStats
 from src.models.session_word_result import SessionWordResult
 
@@ -43,7 +43,7 @@ async def record_stage_result(
     db.add(raw)
 
     # 2. word_stats UPSERT (PG ON CONFLICT)
-    now = datetime.utcnow()
+    now = utcnow()
     stmt = pg_insert(WordStats).values(
         player_id=player_id,
         word_id=word_id,

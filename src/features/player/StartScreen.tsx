@@ -1,6 +1,17 @@
 import { useState } from 'react'
 import { SoundButton } from '../../components/common/SoundButton'
-import { checkNickname, createPlayer, verifyPin, getPlayer } from '../../services/playerService'
+import { checkNickname, createPlayer, getPlayer } from '../../services/playerService'
+import { login, type LoginOutcome } from '../../services/authService'
+
+/** 로그인 실패 사유별 안내 문구 — 시도 과다를 'PIN 틀림'으로 오인시키지 않는다. */
+function loginErrorMessage(outcome: Extract<LoginOutcome, { ok: false }>): string {
+  if (outcome.reason === 'rate_limited') {
+    const min = outcome.retryAfterSec ? Math.ceil(outcome.retryAfterSec / 60) : 5
+    return `PIN 입력 시도가 너무 많습니다. ${min}분 후 다시 시도해주세요`
+  }
+  if (outcome.reason === 'network') return '서버에 연결할 수 없습니다'
+  return 'PIN이 틀렸습니다'
+}
 
 type Screen =
   | 'home'
@@ -483,9 +494,11 @@ export function StartScreen({
 
   const handlePinConfirm = async (pin: string) => {
     if (screen === 'pin-login') {
-      const ok = await verifyPin(loginNickname, pin)
-      if (!ok) {
-        setPinError('PIN이 틀렸습니다')
+      // PIN 검증만 하고 끝내면 세션 토큰이 발급되지 않아 본인 전용 API(통계·결과 저장)가
+      // 전부 401이 된다. 로그인 엔드포인트로 토큰까지 받아온다.
+      const outcome = await login(loginNickname, pin)
+      if (!outcome.ok) {
+        setPinError(loginErrorMessage(outcome))
         return
       }
       // 기존 플레이어 — 서버에서 tutorial_seen 조회 (실패 시 false로 fallback)
@@ -507,7 +520,23 @@ export function StartScreen({
       }
       // 신규 플레이어 — createPlayer 응답에 tutorial_seen 포함 (항상 false)
       const player = await createPlayer(loginNickname, pin)
-      const tutorialSeen = player?.tutorial_seen ?? false
+      if (!player) {
+        setPinError('가입에 실패했습니다. 잠시 후 다시 시도해주세요')
+        setPendingPin('')
+        setScreen('pin-create')
+        return
+      }
+      // 가입 직후에도 세션 토큰이 필요하다 (결과 저장·통계가 인증을 요구함)
+      const outcome = await login(loginNickname, pin)
+      if (!outcome.ok) {
+        // 계정은 이미 생성됐으므로 pin-create로 되돌리면 닉네임 중복 오류에 갇힌다.
+        // 로그인 화면으로 보내 방금 정한 PIN으로 다시 들어오게 한다.
+        setPinError('가입은 완료됐습니다. 방금 설정한 PIN으로 로그인해주세요')
+        setPendingPin('')
+        setScreen('pin-login')
+        return
+      }
+      const tutorialSeen = player.tutorial_seen ?? false
       resetLogin()
       setScreen('home')
       onLoginComplete(loginNickname, tutorialSeen)

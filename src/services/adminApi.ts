@@ -1,26 +1,11 @@
 import type { Word, AdminUser, WordGlobalStat, AdminOverview } from '../types/admin'
+import { signatureHeaders } from './authService'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-const SECRET_KEY = import.meta.env.VITE_SECRET_KEY || ''
 
 const SS_ADMIN_TOKEN_KEY = 'pickerpicker_admin_token'
 const SS_ADMIN_TOKEN_USER_KEY = 'pickerpicker_admin_username'
 const SS_ADMIN_TOKEN_EXP_KEY = 'pickerpicker_admin_token_expires_at'
-
-async function hmacSignature(timestamp: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(SECRET_KEY),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign'],
-  )
-  const sig = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(timestamp))
-  return Array.from(new Uint8Array(sig))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-}
 
 function getAdminToken(): string | null {
   const tok = sessionStorage.getItem(SS_ADMIN_TOKEN_KEY)
@@ -40,20 +25,23 @@ export function getAdminUsername(): string | null {
   return sessionStorage.getItem(SS_ADMIN_TOKEN_USER_KEY)
 }
 
-async function adminHeaders(): Promise<Record<string, string>> {
-  const timestamp = String(Date.now())
-  const signature = await hmacSignature(timestamp)
+async function adminHeaders(
+  method: string,
+  url: string,
+  body: string,
+): Promise<Record<string, string>> {
   const token = getAdminToken()
   return {
     'Content-Type': 'application/json',
-    'X-Timestamp': timestamp,
-    'X-Signature': signature,
+    ...(await signatureHeaders(method, url, body)),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 }
 
 export async function adminFetch(url: string, init: RequestInit = {}): Promise<Response> {
-  const headers = await adminHeaders()
+  const method = (init.method ?? 'GET').toUpperCase()
+  const body = typeof init.body === 'string' ? init.body : ''
+  const headers = await adminHeaders(method, url, body)
   return fetch(url, {
     ...init,
     headers: { ...headers, ...((init.headers as Record<string, string> | undefined) ?? {}) },

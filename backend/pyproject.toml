@@ -18,3 +18,10 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=8.0", "pytest-asyncio>=0.24"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# backend/ 를 import 경로에 추가 — 테스트가 `from src.core...` 형태로 import한다.
+# (setuptools의 src-layout 자동 탐색을 쓰면 `src.` 접두사가 깨지므로 설치 대신 경로로 해결)
+pythonpath = ["."]
+asyncio_mode = "strict"

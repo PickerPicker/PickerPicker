@@ -1,10 +1,16 @@
 """src.apis.player_router
 플레이어 REST API
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
+from src.core.rate_limit import (
+    enforce_pin_rate_limit,
+    record_pin_failure,
+    reset_pin_attempts,
+)
+from src.core.security import require_player, assert_self
 from src.services import player_service
 
 router = APIRouter(prefix="/players", tags=["players"])
@@ -108,9 +114,21 @@ async def create_player(body: CreatePlayerRequest, db: AsyncSession = Depends(ge
 
 
 @router.post("/verify-pin", response_model=VerifyPinResponse)
-async def verify_pin(body: VerifyPinRequest, db: AsyncSession = Depends(get_db)):
-    """PIN 검증 — 기존 플레이어 로그인"""
+async def verify_pin(
+    body: VerifyPinRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """PIN 검증만 수행 (토큰 미발급). 시도 과다 시 429.
+
+    로그인은 토큰까지 발급하는 `/auth/login`을 쓴다. 이 엔드포인트는 하위호환용이다.
+    """
+    enforce_pin_rate_limit(request, body.nickname)
     success = await player_service.verify_pin(db, body.nickname, body.pin)
+    if success:
+        reset_pin_attempts(request, body.nickname)
+    else:
+        record_pin_failure(request, body.nickname)
     return VerifyPinResponse(success=success)
 
 
@@ -125,27 +143,42 @@ async def get_player(nickname: str, db: AsyncSession = Depends(get_db)):
 async def set_stats_visibility(
     nickname: str,
     body: StatsVisibilityRequest,
+    me: str = Depends(require_player),
     db: AsyncSession = Depends(get_db),
 ):
-    """통계 공개/비공개 전환 — 닉네임 기준 (HMAC 서명으로 보호).
+    """통계 공개/비공개 전환 — 본인만 가능.
 
-    이 앱은 세션 토큰을 발급하지 않고 닉네임을 신원으로 쓴다 (tutorial-seen과 동일 패턴).
-    통계 공개 여부는 민감 정보가 아니므로 HMAC만으로 충분하다.
+    프라이버시 설정이므로 제3자가 남의 통계를 공개로 되돌릴 수 없어야 한다.
     """
+    assert_self(nickname, me)
     player = await player_service.set_stats_visibility(db, nickname, body.is_public)
     return PlayerResponse.model_validate(player)
 
 
 @router.patch("/{nickname}/tutorial-seen", response_model=PlayerResponse)
-async def mark_tutorial_seen(nickname: str, db: AsyncSession = Depends(get_db)):
-    """튜토리얼 시청 완료 표시 — 사용자 기준으로 tutorial_seen 관리"""
+async def mark_tutorial_seen(
+    nickname: str,
+    me: str = Depends(require_player),
+    db: AsyncSession = Depends(get_db),
+):
+    """튜토리얼 시청 완료 표시 — 본인만 가능"""
+    assert_self(nickname, me)
     player = await player_service.mark_tutorial_seen(db, nickname)
     return PlayerResponse.model_validate(player)
 
 
 @router.post("/result", response_model=SaveResultResponse)
-async def save_result(body: SaveResultRequest, db: AsyncSession = Depends(get_db)):
-    """게임 결과 저장 — 최고 기록 갱신 + 세션 스냅샷 + 일별 집계 UPSERT + 챔피언 교체"""
+async def save_result(
+    body: SaveResultRequest,
+    me: str = Depends(require_player),
+    db: AsyncSession = Depends(get_db),
+):
+    """게임 결과 저장 — 최고 기록 갱신 + 세션 스냅샷 + 일별 집계 UPSERT + 챔피언 교체.
+
+    인증 필수 — 남의 명의로 점수를 저장해 랭킹을 조작할 수 없어야 한다.
+    """
+    assert_self(body.nickname, me)
+
     # stage_scores 검증: 키는 "1"~str(MAX_STAGE), 값은 0~MAX_SCORE
     validated_stage_scores: dict[str, int] = {}
     if body.stage_scores:
@@ -160,11 +193,11 @@ async def save_result(body: SaveResultRequest, db: AsyncSession = Depends(get_db
                 continue
             validated_stage_scores[str(stage_num)] = v
 
-    player = await player_service.save_game_result(
+    outcome = await player_service.save_game_result(
         db, body.nickname, body.score, body.stage, body.combo, validated_stage_scores,
         stage_results=body.stage_results,
     )
-    is_new_champion = getattr(player, "_is_new_champion", False)
+    player = outcome.player
     return SaveResultResponse(
         nickname=player.nickname,
         best_score=player.best_score,
@@ -172,5 +205,5 @@ async def save_result(body: SaveResultRequest, db: AsyncSession = Depends(get_db
         best_combo=player.best_combo,
         play_count=player.play_count,
         tutorial_seen=player.tutorial_seen,
-        is_new_champion=is_new_champion,
+        is_new_champion=outcome.is_new_champion,
     )

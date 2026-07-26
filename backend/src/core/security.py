@@ -2,11 +2,11 @@
 세션 토큰 Dependency. Authorization: Bearer <token> 헤더 파싱.
 """
 import logging
-from datetime import datetime
 from fastapi import Depends, Header, HTTPException
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
+from src.core.timeutil import utcnow
 from src.models.player_session import PlayerSession
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ async def resolve_token(db: AsyncSession, token: str) -> str | None:
     row = result.scalar_one_or_none()
     if row is None:
         return None
-    if row.expires_at < datetime.utcnow():
+    if row.expires_at < utcnow():
         await db.execute(delete(PlayerSession).where(PlayerSession.token == token))
         await db.commit()
         return None
@@ -36,6 +36,14 @@ def _parse_bearer(authorization: str | None) -> str | None:
     if len(parts) != 2 or parts[0].lower() != "bearer":
         return None
     return parts[1]
+
+
+async def bearer_token(authorization: str | None = Header(default=None)) -> str | None:
+    """Authorization 헤더에서 Bearer 토큰만 추출 (DB 조회 없음).
+
+    로그아웃처럼 토큰 유효성까지는 필요 없는 경우에 쓴다.
+    """
+    return _parse_bearer(authorization)
 
 
 async def require_player(
@@ -61,3 +69,13 @@ async def optional_player(
     if not token:
         return None
     return await resolve_token(db, token)
+
+
+def assert_self(path_nickname: str, token_nickname: str) -> None:
+    """경로의 닉네임이 토큰 소유자와 같은지 확인. 다르면 403.
+
+    본인 전용 리소스(민감 통계·설정 변경)에서 남의 닉네임을 넣어 접근하는 것을 막는다.
+    """
+    if path_nickname != token_nickname:
+        logger.warning(f"타인 리소스 접근 시도: token={token_nickname} path={path_nickname}")
+        raise HTTPException(status_code=403, detail="본인의 데이터만 접근할 수 있습니다")

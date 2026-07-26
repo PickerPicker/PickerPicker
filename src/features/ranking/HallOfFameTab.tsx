@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import { getHallOfFame, updateMotto, type HallOfFameEntry } from '../../services/playerService'
+import { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getHallOfFame, updateMotto } from '../../services/playerService'
 import { getStoredToken, getStoredTokenNickname } from '../../services/authService'
 import { SoundButton } from '../../components/common/SoundButton'
 
@@ -8,18 +9,15 @@ interface HallOfFameTabProps {
 }
 
 export function HallOfFameTab({ nickname }: HallOfFameTabProps) {
-  const [entries, setEntries] = useState<HallOfFameEntry[]>([])
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [mottoInput, setMottoInput] = useState('')
   const [editingMotto, setEditingMotto] = useState(false)
   const [mottoMsg, setMottoMsg] = useState('')
 
-  useEffect(() => {
-    getHallOfFame().then((data) => {
-      setEntries(data)
-      setLoading(false)
-    })
-  }, [])
+  const { data: entries = [], isPending: loading } = useQuery({
+    queryKey: ['hallOfFame'],
+    queryFn: getHallOfFame,
+  })
 
   const champion = entries.find((e) => e.ended_at === null) ?? null
   const history = entries.filter((e) => e.ended_at !== null)
@@ -35,8 +33,8 @@ export function HallOfFameTab({ nickname }: HallOfFameTabProps) {
     if (ok) {
       setMottoMsg('한마디가 등록되었습니다!')
       setEditingMotto(false)
-      const fresh = await getHallOfFame()
-      setEntries(fresh)
+      // 수정 반영 — 캐시를 무효화해 최신 목록을 다시 받아온다
+      await queryClient.invalidateQueries({ queryKey: ['hallOfFame'] })
     } else {
       setMottoMsg('등록 실패. 1위 경험자만 한마디를 남길 수 있습니다.')
     }
