@@ -102,13 +102,13 @@ async def save_game_result(
     top_result = await db.execute(select(func.max(Player.best_score)))
     current_top_score: int = top_result.scalar() or 0
 
-    # 1) Player
+    # 1) Player — 등록된 플레이어만 저장 가능.
+    # 과거에는 미등록 닉네임이면 여기서 계정을 새로 만들었는데, PIN 없는 유령 계정이
+    # 양산되고 그 계정을 아무나 선점할 수 있어 제거했다.
     result = await db.execute(select(Player).where(Player.nickname == nickname))
     player = result.scalar_one_or_none()
     if not player:
-        player = Player(nickname=nickname)
-        db.add(player)
-        await db.flush()  # player.id 발급 (신규 생성 시)
+        raise NotFoundError(f"'{nickname}' 플레이어를 찾을 수 없습니다")
 
     # 챔피언 교체 판정: 새 점수가 전체 최고점 초과 + 본인 기존 최고점 초과
     is_new_champion = score > current_top_score and score > player.best_score

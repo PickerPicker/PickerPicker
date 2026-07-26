@@ -1,4 +1,5 @@
 import { apiFetch } from './authService'
+import { showToast } from '../store/toastStore'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
@@ -102,20 +103,30 @@ export async function saveGameResult(params: {
       method: 'POST',
       body: JSON.stringify(params),
     })
-    if (!res.ok) throw new Error('결과 저장 실패')
-    return res.json()
+    if (res.ok) return res.json()
+    // 서버 저장 실패는 반드시 알린다 — 로컬 fallback으로 조용히 넘어가면
+    // 플레이어는 기록이 랭킹에 반영된 줄 안다.
+    showToast(
+      res.status === 401
+        ? '로그인이 만료되어 기록이 저장되지 않았습니다. 다시 로그인해주세요'
+        : '기록을 서버에 저장하지 못했습니다',
+      'warning',
+    )
   } catch {
-    const raw = localStorage.getItem('pickerpicker_best')
-    const local = raw ? JSON.parse(raw) : { bestScore: 0, bestStage: 0, bestCombo: 0 }
-    return {
-      nickname: params.nickname,
-      best_score: Math.max(local.bestScore ?? 0, params.score),
-      best_stage: Math.max(local.bestStage ?? 0, params.stage),
-      best_combo: Math.max(local.bestCombo ?? 0, params.combo),
-      play_count: 0,
-      tutorial_seen: true,
-      is_new_champion: false,
-    }
+    showToast('오프라인 상태여서 기록이 서버에 저장되지 않았습니다', 'warning')
+  }
+
+  // 저장 실패 시에도 결과 화면은 로컬 최고 기록으로 그린다
+  const raw = localStorage.getItem('pickerpicker_best')
+  const local = raw ? JSON.parse(raw) : { bestScore: 0, bestStage: 0, bestCombo: 0 }
+  return {
+    nickname: params.nickname,
+    best_score: Math.max(local.bestScore ?? 0, params.score),
+    best_stage: Math.max(local.bestStage ?? 0, params.stage),
+    best_combo: Math.max(local.bestCombo ?? 0, params.combo),
+    play_count: 0,
+    tutorial_seen: true,
+    is_new_champion: false,
   }
 }
 

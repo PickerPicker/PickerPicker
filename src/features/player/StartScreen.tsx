@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { SoundButton } from '../../components/common/SoundButton'
-import { checkNickname, createPlayer, verifyPin, getPlayer } from '../../services/playerService'
+import { checkNickname, createPlayer, getPlayer } from '../../services/playerService'
+import { login } from '../../services/authService'
 
 type Screen =
   | 'home'
@@ -483,8 +484,10 @@ export function StartScreen({
 
   const handlePinConfirm = async (pin: string) => {
     if (screen === 'pin-login') {
-      const ok = await verifyPin(loginNickname, pin)
-      if (!ok) {
+      // PIN 검증만 하고 끝내면 세션 토큰이 발급되지 않아 본인 전용 API(통계·결과 저장)가
+      // 전부 401이 된다. 로그인 엔드포인트로 토큰까지 받아온다.
+      const session = await login(loginNickname, pin)
+      if (!session) {
         setPinError('PIN이 틀렸습니다')
         return
       }
@@ -507,7 +510,15 @@ export function StartScreen({
       }
       // 신규 플레이어 — createPlayer 응답에 tutorial_seen 포함 (항상 false)
       const player = await createPlayer(loginNickname, pin)
-      const tutorialSeen = player?.tutorial_seen ?? false
+      if (!player) {
+        setPinError('가입에 실패했습니다. 잠시 후 다시 시도해주세요')
+        setPendingPin('')
+        setScreen('pin-create')
+        return
+      }
+      // 가입 직후에도 세션 토큰이 필요하다 (결과 저장·통계가 인증을 요구함)
+      await login(loginNickname, pin)
+      const tutorialSeen = player.tutorial_seen ?? false
       resetLogin()
       setScreen('home')
       onLoginComplete(loginNickname, tutorialSeen)

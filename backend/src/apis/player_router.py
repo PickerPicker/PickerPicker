@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
+from src.core.security import require_player, assert_self
 from src.services import player_service
 
 router = APIRouter(prefix="/players", tags=["players"])
@@ -125,27 +126,42 @@ async def get_player(nickname: str, db: AsyncSession = Depends(get_db)):
 async def set_stats_visibility(
     nickname: str,
     body: StatsVisibilityRequest,
+    me: str = Depends(require_player),
     db: AsyncSession = Depends(get_db),
 ):
-    """통계 공개/비공개 전환 — 닉네임 기준 (HMAC 서명으로 보호).
+    """통계 공개/비공개 전환 — 본인만 가능.
 
-    이 앱은 세션 토큰을 발급하지 않고 닉네임을 신원으로 쓴다 (tutorial-seen과 동일 패턴).
-    통계 공개 여부는 민감 정보가 아니므로 HMAC만으로 충분하다.
+    프라이버시 설정이므로 제3자가 남의 통계를 공개로 되돌릴 수 없어야 한다.
     """
+    assert_self(nickname, me)
     player = await player_service.set_stats_visibility(db, nickname, body.is_public)
     return PlayerResponse.model_validate(player)
 
 
 @router.patch("/{nickname}/tutorial-seen", response_model=PlayerResponse)
-async def mark_tutorial_seen(nickname: str, db: AsyncSession = Depends(get_db)):
-    """튜토리얼 시청 완료 표시 — 사용자 기준으로 tutorial_seen 관리"""
+async def mark_tutorial_seen(
+    nickname: str,
+    me: str = Depends(require_player),
+    db: AsyncSession = Depends(get_db),
+):
+    """튜토리얼 시청 완료 표시 — 본인만 가능"""
+    assert_self(nickname, me)
     player = await player_service.mark_tutorial_seen(db, nickname)
     return PlayerResponse.model_validate(player)
 
 
 @router.post("/result", response_model=SaveResultResponse)
-async def save_result(body: SaveResultRequest, db: AsyncSession = Depends(get_db)):
-    """게임 결과 저장 — 최고 기록 갱신 + 세션 스냅샷 + 일별 집계 UPSERT + 챔피언 교체"""
+async def save_result(
+    body: SaveResultRequest,
+    me: str = Depends(require_player),
+    db: AsyncSession = Depends(get_db),
+):
+    """게임 결과 저장 — 최고 기록 갱신 + 세션 스냅샷 + 일별 집계 UPSERT + 챔피언 교체.
+
+    인증 필수 — 남의 명의로 점수를 저장해 랭킹을 조작할 수 없어야 한다.
+    """
+    assert_self(body.nickname, me)
+
     # stage_scores 검증: 키는 "1"~str(MAX_STAGE), 값은 0~MAX_SCORE
     validated_stage_scores: dict[str, int] = {}
     if body.stage_scores:
