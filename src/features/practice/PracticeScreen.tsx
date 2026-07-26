@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { GameData, GamePhase, GameStat, KeyMapping, StageData } from '../../types'
 import { apiFetch } from '../../services/authService'
 import { PreviewStage } from '../game/PreviewStage'
@@ -192,19 +192,21 @@ export function PracticeScreen({
     }
   }
 
-  const backToMenu = () => {
+  // ESC 핸들러 의존성으로 쓰이므로 useCallback으로 안정화한다
+  // (매 렌더 새 함수가 되면 keydown 리스너가 불필요하게 재등록된다)
+  const backToMenu = useCallback(() => {
     onStopBgm()
     setSelectedLevel(null)
     setLocalStageIdx(0)
     statRef.current = INITIAL_STAT
     setStat(INITIAL_STAT)
     setPPhase('menu')
-  }
+  }, [onStopBgm])
 
-  const exitToHome = () => {
+  const exitToHome = useCallback(() => {
     onStopBgm()
     onHome()
-  }
+  }, [onStopBgm, onHome])
 
   // ESC: 메뉴면 홈으로, 플레이/완료면 메뉴로
   useEffect(() => {
@@ -216,7 +218,7 @@ export function PracticeScreen({
     }
     window.addEventListener('keydown', h)
     return () => window.removeEventListener('keydown', h)
-  }, [pPhase])
+  }, [pPhase, exitToHome, backToMenu])
 
   if (loading) {
     return (

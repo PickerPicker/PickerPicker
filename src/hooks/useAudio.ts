@@ -191,6 +191,17 @@ export function useAudio() {
     }
   }, [])
 
+  // GameScreen의 스테이지 전환 effect 의존성으로 쓰이므로 참조를 안정화한다.
+  // 매 렌더 새 함수가 되면 그 effect가 매 렌더 재실행되어
+  // 키매핑이 재셔플되고 BGM이 재시작된다 (게임 진행이 깨짐).
+  const playGameBgm = useCallback(
+    (stageIndex: number): Promise<number> => {
+      const level = getDifficultyLevel(stageIndex)
+      return playBgm(STAGE_BGM[level] ?? STAGE_BGM[5])
+    },
+    [playBgm],
+  )
+
   return {
     bgmVolume,
     sfxOn,
@@ -199,10 +210,7 @@ export function useAudio() {
     ensureAudioCtx,
     playStartBgm: () => playBgm('/audio/bgm_start.mp3'),
     playRankingBgm: () => playBgm('/audio/랭킹.mp3'),
-    playGameBgm: (stageIndex: number): Promise<number> => {
-      const level = getDifficultyLevel(stageIndex)
-      return playBgm(STAGE_BGM[level] ?? STAGE_BGM[5])
-    },
+    playGameBgm,
     playClearSfx: () => {
       stopBgm()
       playSfx('/audio/sfx_clear.mp3')
