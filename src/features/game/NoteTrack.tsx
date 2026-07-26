@@ -58,13 +58,17 @@ export function NoteTrack({
   const totalDuration = Math.round((travelDuration * totalDistance) / startToJudgment)
 
   const [activeJudgment, setActiveJudgment] = useState<JudgmentType | null>(null)
+  // id/type만 의존성으로 삼는다 — lastJudgment 객체는 매 판정마다 새로 만들어진다.
+  const judgmentId = lastJudgment?.id
+  const judgmentType = lastJudgment?.type
+
   useEffect(() => {
-    if (!lastJudgment) return
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- 새 판정(lastJudgment.id 변경) 발생 시 판정선 글로우를 즉시 켜고 GLOW_DURATION 후 끄는 애니메이션 타이밍 로직. 동기 setState가 의도된 동작이므로 변경 금지
-    setActiveJudgment(lastJudgment.type)
+    if (judgmentId === undefined || !judgmentType) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 새 판정 발생 시 판정선 글로우를 즉시 켜고 GLOW_DURATION 후 끄는 애니메이션 타이밍 로직. 동기 setState가 의도된 동작이므로 변경 금지
+    setActiveJudgment(judgmentType)
     const t = setTimeout(() => setActiveJudgment(null), GLOW_DURATION)
     return () => clearTimeout(t)
-  }, [lastJudgment?.id])
+  }, [judgmentId, judgmentType])
 
   return (
     <div ref={containerRef} className="relative flex-1 overflow-hidden">

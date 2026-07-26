@@ -208,7 +208,17 @@ export function PracticePlayStage({
 
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [stageData, keyMapping, inputSyllables, beatMs, applyJudgment, applyEarlyMiss, offset])
+    // validSyllables는 stageData에서 구조분해한 값이라 stageData가 그대로면 참조도 동일하다.
+  }, [
+    stageData,
+    keyMapping,
+    inputSyllables,
+    validSyllables,
+    beatMs,
+    applyJudgment,
+    applyEarlyMiss,
+    offset,
+  ])
 
   return (
     <div className="flex flex-col flex-1 min-h-0">

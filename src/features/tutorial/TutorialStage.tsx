@@ -114,16 +114,8 @@ export function TutorialStage({
         onGaugeChange(next)
       }
     },
-    [
-      gauge,
-      onGaugeChange,
-      onHitSfx,
-      onMissSfx,
-      step.gaugeLoss,
-      step.missMode,
-      step.target,
-      markCleared,
-    ],
+    // step.missMode는 이 콜백 본문에서 쓰지 않으므로 제외 (불필요한 재생성 방지)
+    [gauge, onGaugeChange, onHitSfx, onMissSfx, step.gaugeLoss, step.target, markCleared],
   )
 
   // 노트 spawn 루프 — step 진입 700ms 후 시작 (메시지 페이드인 + 사용자 준비 시간), cleared 되면 즉시 정지
@@ -234,7 +226,9 @@ export function TutorialStage({
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [step.keyMapping, step.missMode, step.target, applyJudgment, markCleared])
+    // gaugeLoss는 STEP 4의 invalid 노트 패널티 판정에 쓰인다.
+    // 같은 step 안에서는 값이 변하지 않으므로 재등록 횟수는 늘지 않는다.
+  }, [step.keyMapping, step.missMode, step.target, step.gaugeLoss, applyJudgment, markCleared])
 
   // hint 키 색상 tone: invalid 키면 빨강(이건 틀린 키), valid 키면 파랑(눌러라)
   const hintIsInvalid = step.hintKeys.some((k) => {
