@@ -16,9 +16,11 @@ from src.models.admin import Admin
 
 logger = logging.getLogger(__name__)
 
-# backend/src/core/seed.py → backend/src/core → backend/src → backend → project root
-# parents[0]=core, parents[1]=src, parents[2]=backend, parents[3]=PickerPicker
-DATASET_PATH = Path(__file__).resolve().parents[3] / "docs" / "rhythm_stages_001_015.json"
+# 데이터셋은 backend 패키지 안에 둔다.
+# 과거에는 프로젝트 루트의 docs/를 참조했는데, 백엔드 Docker 이미지는 backend/ 하위만
+# 복사하므로(COPY src/) 컨테이너에서 경로가 /docs/... 가 되어 시드가 항상 실패했다.
+# parents[0]=core, parents[1]=src → src/data/
+DATASET_PATH = Path(__file__).resolve().parents[1] / "data" / "rhythm_stages_001_015.json"
 
 
 async def seed_words(db: AsyncSession) -> None:
@@ -29,7 +31,13 @@ async def seed_words(db: AsyncSession) -> None:
         return
 
     if not DATASET_PATH.exists():
-        logger.warning(f"시드 데이터셋 없음: {DATASET_PATH}")
+        # words가 비면 /games/start가 422를 반환해 게임 자체를 시작할 수 없다.
+        # 조용한 warning으로 두면 신규 환경에서 원인 추적이 어려워 error로 올린다.
+        logger.error(
+            f"시드 데이터셋을 찾을 수 없습니다: {DATASET_PATH} — "
+            "단어 풀이 비어 게임을 시작할 수 없습니다. "
+            "이미지에 backend/src/data/ 가 포함됐는지 확인하세요."
+        )
         return
 
     with DATASET_PATH.open("r", encoding="utf-8") as f:

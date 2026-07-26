@@ -227,7 +227,8 @@ docker-compose up
 - `docs/design/04_판정_게이지_점수_시스템.md` — PERFECT/GOOD/MISS 판정
 - `docs/design/05_스테이지_데이터_구조.md` — 스테이지 JSON 스키마
 - `docs/design/06_스테이지_데이터셋.md` — 1~15 스테이지 데이터
-- `docs/rhythm_stages_001_015.json` — 완성된 스테이지 데이터셋
+- `backend/src/data/rhythm_stages_001_015.json` — 완성된 스테이지 데이터셋 (자동 시드 소스)
+  > backend 패키지 안에 둔다. Docker 이미지가 `backend/` 하위만 복사하므로 밖에 있으면 시드가 실패한다.
 
 ## 주의사항
 
