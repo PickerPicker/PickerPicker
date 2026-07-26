@@ -42,6 +42,16 @@ async def lifespan(app: FastAPI):
     """
     logger.info("=== PickerPicker 백엔드 시작 ===")
 
+    # prod에서 SECRET_KEY가 비면 HMAC 검증이 통째로 꺼진 채(fail-open) 뜬다.
+    # 로그 한 줄 없이 전 API가 무방비가 되므로 아예 기동을 막는다.
+    if settings.ENVIRONMENT == "prod" and not settings.SECRET_KEY:
+        raise RuntimeError(
+            "prod 환경에서 SECRET_KEY가 비어 있습니다. "
+            "HMAC 서명 검증이 비활성화되므로 기동을 중단합니다."
+        )
+    if not settings.SECRET_KEY:
+        logger.warning("SECRET_KEY 미설정 — HMAC 서명 검증이 비활성화됩니다 (개발 환경 전용)")
+
     cleanup_task: asyncio.Task | None = None
     try:
         async with engine.begin() as conn:

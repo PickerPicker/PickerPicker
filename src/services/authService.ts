@@ -78,21 +78,34 @@ export interface LoginResult {
   expires_at: string
 }
 
-/** PIN 검증 후 세션 토큰 발급. 실패 시 null */
-export async function login(nickname: string, pin: string): Promise<LoginResult | null> {
+/** 로그인 실패 사유 — 429(시도 과다)를 'PIN 틀림'으로 잘못 안내하지 않기 위해 구분한다. */
+export type LoginOutcome =
+  | { ok: true; result: LoginResult }
+  | { ok: false; reason: 'invalid' | 'rate_limited' | 'network'; retryAfterSec?: number }
+
+/** PIN 검증 후 세션 토큰 발급. */
+export async function login(nickname: string, pin: string): Promise<LoginOutcome> {
   try {
     const res = await apiFetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
       body: JSON.stringify({ nickname, pin }),
     })
-    if (!res.ok) return null
+    if (res.status === 429) {
+      const retryAfter = Number(res.headers.get('Retry-After') ?? '')
+      return {
+        ok: false,
+        reason: 'rate_limited',
+        retryAfterSec: Number.isFinite(retryAfter) ? retryAfter : undefined,
+      }
+    }
+    if (!res.ok) return { ok: false, reason: 'invalid' }
     const data: LoginResult = await res.json()
     localStorage.setItem(LS_TOKEN_KEY, data.token)
     localStorage.setItem(LS_TOKEN_NICK_KEY, nickname)
     localStorage.setItem(LS_TOKEN_EXP_KEY, data.expires_at)
-    return data
+    return { ok: true, result: data }
   } catch {
-    return null
+    return { ok: false, reason: 'network' }
   }
 }
 

@@ -1,10 +1,15 @@
 """src.apis.player_router
 플레이어 REST API
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
+from src.core.rate_limit import (
+    enforce_pin_rate_limit,
+    record_pin_failure,
+    reset_pin_attempts,
+)
 from src.core.security import require_player, assert_self
 from src.services import player_service
 
@@ -109,9 +114,21 @@ async def create_player(body: CreatePlayerRequest, db: AsyncSession = Depends(ge
 
 
 @router.post("/verify-pin", response_model=VerifyPinResponse)
-async def verify_pin(body: VerifyPinRequest, db: AsyncSession = Depends(get_db)):
-    """PIN 검증 — 기존 플레이어 로그인"""
+async def verify_pin(
+    body: VerifyPinRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """PIN 검증만 수행 (토큰 미발급). 시도 과다 시 429.
+
+    로그인은 토큰까지 발급하는 `/auth/login`을 쓴다. 이 엔드포인트는 하위호환용이다.
+    """
+    enforce_pin_rate_limit(request, body.nickname)
     success = await player_service.verify_pin(db, body.nickname, body.pin)
+    if success:
+        reset_pin_attempts(request, body.nickname)
+    else:
+        record_pin_failure(request, body.nickname)
     return VerifyPinResponse(success=success)
 
 

@@ -1,12 +1,18 @@
 """src.services.player_service
 플레이어 비즈니스 로직
 """
-import hashlib
 import logging
 from datetime import datetime, date
+
 from sqlalchemy import select, func
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.core.pin import (
+    hash_pin,
+    is_legacy_sha256,
+    verify_legacy_sha256,
+    verify_pin as check_pin,
+)
 from src.models.player import Player
 from src.models.game_session import GameSession
 from src.models.player_stats_daily import PlayerStatsDaily
@@ -23,16 +29,11 @@ async def check_nickname(db: AsyncSession, nickname: str) -> bool:
     return result.scalar_one_or_none() is not None
 
 
-def _hash_pin(pin: str) -> str:
-    """4자리 PIN을 SHA-256 해시로 변환"""
-    return hashlib.sha256(pin.encode()).hexdigest()
-
-
 async def create_player(db: AsyncSession, nickname: str, pin: str) -> Player:
     """신규 플레이어 생성 (PIN 포함). 중복이면 ConflictError"""
     if await check_nickname(db, nickname):
         raise ConflictError(f"'{nickname}'은 이미 존재하는 닉네임입니다")
-    player = Player(nickname=nickname, pin_hash=_hash_pin(pin))
+    player = Player(nickname=nickname, pin_hash=hash_pin(pin))
     db.add(player)
     await db.commit()
     await db.refresh(player)
@@ -41,14 +42,27 @@ async def create_player(db: AsyncSession, nickname: str, pin: str) -> Player:
 
 
 async def verify_pin(db: AsyncSession, nickname: str, pin: str) -> bool:
-    """PIN 검증. 닉네임 없으면 NotFoundError. PIN 불일치 시 False"""
+    """PIN 검증. 닉네임 없으면 NotFoundError. PIN 불일치 시 False.
+
+    레거시 SHA-256 해시는 검증에 성공한 시점에 bcrypt로 재해싱한다 (점진적 마이그레이션).
+    원문 PIN을 모르므로 일괄 마이그레이션은 불가능하다.
+    """
     player = await get_player(db, nickname)
     if player.pin_hash is None:
-        # 레거시 플레이어 — PIN 미설정 상태, 입력한 PIN으로 자동 설정
-        player.pin_hash = _hash_pin(pin)
+        # 과거에는 여기서 입력한 PIN을 그대로 설정하고 로그인시켰다.
+        # PIN 없는 계정을 아무나 선점할 수 있어 인증 실패로 바꿨다.
+        logger.warning(f"PIN 미설정 계정 로그인 시도: {nickname}")
+        return False
+
+    if is_legacy_sha256(player.pin_hash):
+        if not verify_legacy_sha256(pin, player.pin_hash):
+            return False
+        player.pin_hash = hash_pin(pin)
         await db.commit()
+        logger.info(f"PIN 해시 bcrypt 마이그레이션: {nickname}")
         return True
-    return player.pin_hash == _hash_pin(pin)
+
+    return check_pin(pin, player.pin_hash)
 
 
 async def get_player(db: AsyncSession, nickname: str) -> Player:
