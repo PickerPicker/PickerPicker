@@ -2,7 +2,7 @@
 플레이어 ORM 모델 — 결과 화면에 필요한 최고 기록 저장
 """
 from datetime import datetime
-from sqlalchemy import String, Integer, BigInteger, Boolean, DateTime, func
+from sqlalchemy import String, Integer, BigInteger, Boolean, DateTime, Index, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 from src.core.database import Base
 
@@ -32,4 +32,9 @@ class Player(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), onupdate=func.now()
+    )
+
+    __table_args__ = (
+        # 랭킹 정렬·백분위 계산이 full scan + sort를 타지 않도록
+        Index("ix_players_best_score_desc", text("best_score DESC")),
     )

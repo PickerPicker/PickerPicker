@@ -44,29 +44,12 @@ async def public_stats(
     if not visible:
         return {"nickname": nickname, "is_public": False}
 
-    full = await stats_service.get_player_stats(db, nickname)
-    player = await player_service.get_player(db, nickname)
+    # 공개 전용 집계 — habit·약점단어는 계산조차 하지 않는다
+    stats = await stats_service.get_public_stats(db, nickname)
+    if stats is None:
+        return {"nickname": nickname, "is_public": False}
 
-    # words에서 약점(hardest)만 제거하고 강점/취향은 공개
-    words = full.get("words") or {}
-    public_words = {
-        "played": words.get("played", 0),
-        "most_played": words.get("most_played", []),
-        "easiest": words.get("easiest", []),
-    }
-
-    return {
-        "is_public": True,
-        "nickname": full["nickname"],
-        "motto": player.motto,
-        "totals": full["totals"],
-        # 평균/추세/백분위는 실력 지표라 전체 공개. habit만 의도적으로 제외.
-        "averages": full.get("averages") or {},
-        "trend": full.get("trend") or {},
-        "percentile": full.get("percentile") or {},
-        "stage_best": full.get("stage_best") or [],
-        "words": public_words,
-    }
+    return {"is_public": True, **stats}
 
 
 @router.get("/players/{nickname}/sessions")
