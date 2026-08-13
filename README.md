@@ -121,22 +121,5 @@ main push
 
 ---
 
-## 👥 팀 소개
-
-> **2026 INTERCON** 출품작
-
-<div align="center">
-
-| <img src="https://github.com/user-attachments/assets/4b9d30dc-5c04-4fb0-abd5-9ae814ec4af7" width="120" height="120" style="border-radius:50%;object-fit:cover"/> | <img src="https://github.com/user-attachments/assets/3d8ec1ab-295d-49e0-8b72-5140e5796fc1" width="120" height="120" style="border-radius:50%;object-fit:cover"/> | <img src="https://github.com/user-attachments/assets/8e3b116b-84ad-4f9a-a0a5-7049c5b1dbdc" width="120" height="120" style="border-radius:50%;object-fit:cover"/> | <img src="https://github.com/user-attachments/assets/c12043a5-c906-4533-a535-85e860094465" width="120" height="120" style="border-radius:50%;object-fit:cover"/> | <img src="https://github.com/user-attachments/assets/569023bc-3e0c-4782-8f2d-44da14525aea" width="120" height="120" style="border-radius:50%;object-fit:cover"/> |
-|:---:|:---:|:---:|:---:|:---:|
-| **이하경** | **배나현** | **이건희** | **황시선** | **서새찬** |
-| PM | DESIGN | FRONTEND | BACKEND | LEAD |
-
-
-
-</div>
-
----
-
 <!-- AUTO-VERSION-SECTION: DO NOT EDIT MANUALLY -->
 ## 최신 버전 : v0.0.138 (2026-07-31)
