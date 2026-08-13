@@ -15,7 +15,7 @@ export function PrivacyPage() {
         </button>
 
         <h1 className="mb-2 text-3xl font-bold text-primary">개인정보처리방침</h1>
-        <p className="mb-8 text-sm opacity-60">최종 수정일: 2026년 6월 9일</p>
+        <p className="mb-8 text-sm opacity-60">최종 수정일: 2026년 8월 1일</p>
 
         <div className="prose prose-sm max-w-none space-y-6 leading-relaxed">
           <section>
