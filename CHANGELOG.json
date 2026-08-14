@@ -1,11 +1,27 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-14T00:16:46Z",
-    "currentVersion": "0.0.140",
+    "lastUpdated": "2026-08-14T00:29:44Z",
+    "currentVersion": "0.0.141",
     "projectType": "react",
-    "totalReleases": 93
+    "totalReleases": 94
   },
   "releases": [
+    {
+      "version": "0.0.141",
+      "project_type": "react",
+      "date": "2026-08-14",
+      "pr_number": 169,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **문서**\n  * 내부 작업 문서를 정리했습니다",
+      "parsed_changes": {
+        "문서": {
+          "title": "문서",
+          "items": [
+            "내부 작업 문서를 정리했습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "0.0.140",
       "project_type": "react",
