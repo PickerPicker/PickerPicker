@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { SoundButton } from '../../components/common/SoundButton'
 import { checkNickname, createPlayer, getPlayer } from '../../services/playerService'
 import { login, type LoginOutcome } from '../../services/authService'
-import { CreditsView } from './CreditsView'
 import { NicknameView } from './NicknameView'
 import { PinView } from './PinView'
 import { SettingsView } from './SettingsView'
@@ -17,15 +16,9 @@ function loginErrorMessage(outcome: Extract<LoginOutcome, { ok: false }>): strin
   return 'PIN이 틀렸습니다'
 }
 
+// 크레딧 화면은 출품용 빌드에서 진입 경로를 뺐다 (#166). CreditsView.tsx 는 원복용으로 남겨둔다.
 type Screen =
-  | 'home'
-  | 'settings'
-  | 'credits'
-  | 'nickname'
-  | 'pin-login'
-  | 'pin-create'
-  | 'pin-confirm'
-  | 'offline'
+  'home' | 'settings' | 'nickname' | 'pin-login' | 'pin-create' | 'pin-confirm' | 'offline'
 
 interface StartScreenProps {
   onRanking: () => void
@@ -176,10 +169,8 @@ export function StartScreen({
               >
                 PickerPicker
               </h1>
+              {/* 대회명 부제목은 출품용 빌드에서 제거 (#166) — 버전만 남긴다 */}
               <div className="flex items-center gap-2">
-                <p className="text-xs tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                  2026 InCerthon
-                </p>
                 <span
                   className="text-xs tracking-widest"
                   style={{ color: 'rgba(255,255,255,0.4)' }}
@@ -263,17 +254,6 @@ export function StartScreen({
               >
                 설정
               </SoundButton>
-              <SoundButton
-                className="btn btn-lg w-full text-lg"
-                style={{
-                  background: 'rgba(60,80,120,0.45)',
-                  color: '#fff',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                }}
-                onClick={() => setScreen('credits')}
-              >
-                크레딧
-              </SoundButton>
               {/* 로그인 상태일 때만 로그아웃 버튼 표시 */}
               {nickname && (
                 <SoundButton
@@ -355,8 +335,6 @@ export function StartScreen({
             }
           />
         )}
-
-        {screen === 'credits' && <CreditsView onBack={() => setScreen('home')} />}
       </div>
     </div>
   )
