@@ -16,7 +16,7 @@ function loginErrorMessage(outcome: Extract<LoginOutcome, { ok: false }>): strin
   return 'PIN이 틀렸습니다'
 }
 
-// 크레딧 화면은 출품용 빌드에서 진입 경로를 뺐다 (#166). CreditsView.tsx 는 원복용으로 남겨둔다.
+// 크레딧 화면은 현재 진입 경로를 닫아둔 상태. CreditsView.tsx 는 복구용으로 남겨둔다.
 type Screen =
   'home' | 'settings' | 'nickname' | 'pin-login' | 'pin-create' | 'pin-confirm' | 'offline'
 
@@ -169,7 +169,7 @@ export function StartScreen({
               >
                 PickerPicker
               </h1>
-              {/* 대회명 부제목은 출품용 빌드에서 제거 (#166) — 버전만 남긴다 */}
+              {/* 타이틀 부제목은 비활성화 — 버전만 표시한다 */}
               <div className="flex items-center gap-2">
                 <span
                   className="text-xs tracking-widest"
