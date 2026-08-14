@@ -122,4 +122,4 @@ main push
 ---
 
 <!-- AUTO-VERSION-SECTION: DO NOT EDIT MANUALLY -->
-## 최신 버전 : v0.0.140 (2026-08-14)
+## 최신 버전 : v0.0.141 (2026-08-14)
