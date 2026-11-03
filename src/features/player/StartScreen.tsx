@@ -18,7 +18,13 @@ function loginErrorMessage(outcome: Extract<LoginOutcome, { ok: false }>): strin
 
 // 크레딧 화면은 현재 진입 경로를 닫아둔 상태. CreditsView.tsx 는 복구용으로 남겨둔다.
 type Screen =
-  'home' | 'settings' | 'nickname' | 'pin-login' | 'pin-create' | 'pin-confirm' | 'offline'
+  | 'home'
+  | 'settings'
+  | 'nickname'
+  | 'pin-login'
+  | 'pin-create'
+  | 'pin-confirm'
+  | 'offline'
 
 interface StartScreenProps {
   onRanking: () => void
