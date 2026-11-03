@@ -206,9 +206,11 @@ jobs:
             # ============================================================
             echo "🚀 새로운 컨테이너 $CONTAINER_NAME 실행 중..."
 
+            # 재시작 정책 unless-stopped: 비정상 종료·NAS 재부팅 시 자동 복구 (#171)
             echo $PW | sudo -S docker run -d \
               -p ${PORT}:80 \
               --name $CONTAINER_NAME \
+              --restart unless-stopped \
               -e TZ=Asia/Seoul \
               -v /etc/localtime:/etc/localtime:ro \
               ${{ secrets.DOCKERHUB_USERNAME }}/${PROJECT_NAME}-${{ env.DOCKER_IMAGE_PREFIX }}:${BRANCH}
